@@ -1,0 +1,19 @@
+AC_INIT(combinesimple,1.0)
+AC_CONFIG_SRCDIR(configure.in)
+
+AC_PROG_CXX(CC g++)
+AC_ENABLE_STATIC(no)
+AC_PROG_LIBTOOL
+
+PACKAGE_INCLUDE_DIR=AC_PACKAGE_NAME
+AC_SUBST(PACKAGE_INCLUDE_DIR)
+
+AM_INIT_AUTOMAKE
+
+dnl   no point in suppressing warnings people should 
+dnl   at least see them, so here we go for gcc: -Wall
+if test $ac_cv_prog_gxx = yes; then
+  CXXFLAGS="$CXXFLAGS -Wall -Werror -pthread"
+fi
+
+AC_OUTPUT(Makefile)
