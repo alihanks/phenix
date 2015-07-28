@@ -1,0 +1,276 @@
+//-----------------------------------------------------------------------------
+//
+//  Book ROOT objects declared in DeclareROOTObjects
+//
+//-----------------------------------------------------------------------------
+
+#include <fstream>
+#include <stdlib.h>
+#include <math.h>
+#include <string>
+
+#include <TROOT.h>
+#include <TFile.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TProfile.h>
+#include <TNtuple.h>
+
+#define  INCLUDEFLAG extern
+#include "DeclareROOTObjects.h"
+
+void BookROOTObjects()
+{
+  primaries = new TNtuple("primaries","primary-particle ntuple",
+			   "mass:weight:p:th:ph:pid");
+  pairs = new TNtuple("pairs","electron-pair ntuple",
+		       "minv:opangle:weight:sece:pe:the:phe:secp:pp:thp:php:p:th:ph:pid");
+  singles = new TNtuple("singles","single-electron ntuple",
+		       "weight:charge:sece:pe:the:phe:pide:p:th:ph:pid");
+
+  hpairinvm = new TH1D("hpairinvm","Mass",150,0.0,1.5);
+
+  pte           = new TH1D("pte","pte",60,0.,6.);
+  pteC          = new TH1D("pteC","pteC",60,0.,6.);
+  ptePion       = new TH1D("ptePion","ptePion",60,0.,6.);
+  pteEta        = new TH1D("pteEta","pteEta",60,0.,6.);
+  pteEtaprime   = new TH1D("pteEtaprime","pteEtaprime",60,0.,6.);
+  pteRho        = new TH1D("pteRho","pteRho",60,0.,6.);
+  pteOmega      = new TH1D("pteOmega","pteOmega",60,0.,6.);
+  ptePhi        = new TH1D("ptePhi","ptePhi",60,0.,6.);
+  pteCPion      = new TH1D("pteCPion","pteCPion",60,0.,6.);
+  pteCEta       = new TH1D("pteCEta","pteCEta",60,0.,6.);
+  pteCEtaprime  = new TH1D("pteCEtaprime","pteCEtaprime",60,0.,6.);
+  pteCOmega     = new TH1D("pteCOmega","pteCOmega",60,0.,6.);
+  pteGamma      = new TH1D("pteGamma","pteGamma",60,0.,6.);
+  pteCGamma     = new TH1D("pteCGamma","pteCGamma",60,0.,6.);
+  pteKe3        = new TH1D("pteKe3","pteKe3",60,0.,6.);
+  pte2          = new TH1D("pte2","pte2",60,0.,6.);
+  pte2C         = new TH1D("pte2C","pte2C",60,0.,6.);
+  pte2Pion      = new TH1D("pte2Pion","pte2Pion",60,0.,6.);
+  pte2Eta       = new TH1D("pte2Eta","pte2Eta",60,0.,6.);
+  pte2Etaprime  = new TH1D("pte2Etaprime","pte2Etaprime",60,0.,6.);
+  pte2Rho       = new TH1D("pte2Rho","pte2Rho",60,0.,6.);
+  pte2Omega     = new TH1D("pte2Omega","pte2Omega",60,0.,6.);
+  pte2Phi       = new TH1D("pte2Phi","pte2Phi",60,0.,6.);
+  pte2CPion     = new TH1D("pte2CPion","pte2CPion",60,0.,6.);
+  pte2CEta      = new TH1D("pte2CEta","pte2CEta",60,0.,6.);
+  pte2CEtaprime = new TH1D("pte2CEtaprime","pte2CEtaprime",60,0.,6.);
+  pte2COmega    = new TH1D("pte2COmega","pte2COmega",60,0.,6.);
+  pte2Gamma     = new TH1D("pte2Gamma","pte2Gamma",60,0.,6.);
+  pte2CGamma    = new TH1D("pte2CGamma","pte2CGamma",60,0.,6.);
+  pte2Ke3       = new TH1D("pte2Ke3","pte2Ke3",60,0.,6.);
+  
+  const int nbin = 13;
+  float bin[nbin] = { 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 2.0, 
+		      2.5, 3.0, 4.0, 5.0};
+  pteR           = new TH1D("pteR","pteR",nbin-1,bin);
+  pteRC          = new TH1D("pteRC","pteRC",nbin-1,bin);
+  pteRPion       = new TH1D("pteRPion","pteRPion",nbin-1,bin);
+  pteREta        = new TH1D("pteREta","pteREta",nbin-1,bin);
+  pteREtaprime   = new TH1D("pteREtaprime","pteREtaprime",nbin-1,bin);
+  pteRRho        = new TH1D("pteRRho","pteRRho",nbin-1,bin);
+  pteROmega      = new TH1D("pteROmega","pteROmega",nbin-1,bin);
+  pteRPhi        = new TH1D("pteRPhi","pteRPhi",nbin-1,bin);
+  pteRCPion      = new TH1D("pteRCPion","pteRCPion",nbin-1,bin);
+  pteRCEta       = new TH1D("pteRCEta","pteRCEta",nbin-1,bin);
+  pteRCEtaprime  = new TH1D("pteRCEtaprime","pteRCEtaprime",nbin-1,bin);
+  pteRCOmega     = new TH1D("pteRCOmega","pteRCOmega",nbin-1,bin);
+  pteRGamma      = new TH1D("pteRGamma","pteRGamma",nbin-1,bin);
+  pteRCGamma     = new TH1D("pteRCGamma","pteRCGamma",nbin-1,bin);
+  pteRKe3        = new TH1D("pteRKe3","pteRKe3",nbin-1,bin);
+  pteR2          = new TH1D("pteR2","pteR2",nbin-1,bin);
+  pteR2C         = new TH1D("pteR2C","pteR2C",nbin-1,bin);
+  pteR2Pion      = new TH1D("pteR2Pion","pteR2Pion",nbin-1,bin);
+  pteR2Eta       = new TH1D("pteR2Eta","pteR2Eta",nbin-1,bin);
+  pteR2Etaprime  = new TH1D("pteR2Etaprime","pteR2Etaprime",nbin-1,bin);
+  pteR2Rho       = new TH1D("pteR2Rho","pteR2Rho",nbin-1,bin);
+  pteR2Omega     = new TH1D("pteR2Omega","pteR2Omega",nbin-1,bin);
+  pteR2Phi       = new TH1D("pteR2Phi","pteR2Phi",nbin-1,bin);
+  pteR2CPion     = new TH1D("pteR2CPion","pteR2CPion",nbin-1,bin);
+  pteR2CEta      = new TH1D("pteR2CEta","pteR2CEta",nbin-1,bin);
+  pteR2CEtaprime = new TH1D("pteR2CEtaprime","pteR2CEtaprime",nbin-1,bin);
+  pteR2COmega    = new TH1D("pteR2COmega","pteR2COmega",nbin-1,bin);
+  pteR2Gamma     = new TH1D("pteR2Gamma","pteR2Gamma",nbin-1,bin);
+  pteR2CGamma    = new TH1D("pteR2CGamma","pteR2CGamma",nbin-1,bin); 
+  pteR2Ke3       = new TH1D("pteR2Ke3","pteR2Ke3",nbin-1,bin);
+
+  const int nbinT = 11;
+  float binT[nbinT] = { 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 2.0, 3.0, 4.0, 5.0};
+  pteRT           = new TH1D("pteRT","pteRT",nbinT-1,binT);
+  pteRTC          = new TH1D("pteRTC","pteRTC",nbinT-1,binT);
+  pteRTPion       = new TH1D("pteRTPion","pteRTPion",nbinT-1,binT);
+  pteRTEta        = new TH1D("pteRTEta","pteRTEta",nbinT-1,binT);
+  pteRTEtaprime   = new TH1D("pteRTEtaprime","pteRTEtaprime",nbinT-1,binT);
+  pteRTRho        = new TH1D("pteRTRho","pteRTRho",nbinT-1,binT);
+  pteRTOmega      = new TH1D("pteRTOmega","pteRTOmega",nbinT-1,binT);
+  pteRTPhi        = new TH1D("pteRTPhi","pteRTPhi",nbinT-1,binT);
+  pteRTCPion      = new TH1D("pteRTCPion","pteRTCPion",nbinT-1,binT);
+  pteRTCEta       = new TH1D("pteRTCEta","pteRTCEta",nbinT-1,binT);
+  pteRTCEtaprime  = new TH1D("pteRTCEtaprime","pteRTCEtaprime",nbinT-1,binT);
+  pteRTCOmega     = new TH1D("pteRTCOmega","pteRTCOmega",nbinT-1,binT);
+  pteRTGamma      = new TH1D("pteRTGamma","pteRTGamma",nbinT-1,binT);
+  pteRTCGamma     = new TH1D("pteRTCGamma","pteRTCGamma",nbinT-1,binT);
+  pteRTKe3        = new TH1D("pteRTKe3","pteRTKe3",nbinT-1,binT);
+  pteRT2          = new TH1D("pteRT2","pteRT2",nbinT-1,binT);
+  pteRT2C         = new TH1D("pteRT2C","pteRT2C",nbinT-1,binT);
+  pteRT2Pion      = new TH1D("pteRT2Pion","pteRT2Pion",nbinT-1,binT);
+  pteRT2Eta       = new TH1D("pteRT2Eta","pteRT2Eta",nbinT-1,binT);
+  pteRT2Etaprime  = new TH1D("pteRT2Etaprime","pteRT2Etaprime",nbinT-1,binT);
+  pteRT2Rho       = new TH1D("pteRT2Rho","pteRT2Rho",nbinT-1,binT);
+  pteRT2Omega     = new TH1D("pteRT2Omega","pteRT2Omega",nbinT-1,binT);
+  pteRT2Phi       = new TH1D("pteRT2Phi","pteRT2Phi",nbinT-1,binT);
+  pteRT2CPion     = new TH1D("pteRT2CPion","pteRT2CPion",nbinT-1,binT);
+  pteRT2CEta      = new TH1D("pteRT2CEta","pteRT2CEta",nbinT-1,binT);
+  pteRT2CEtaprime = new TH1D("pteRT2CEtaprime","pteRT2CEtaprime",nbinT-1,binT);
+  pteRT2COmega    = new TH1D("pteRT2COmega","pteRT2COmega",nbinT-1,binT);
+  pteRT2Gamma     = new TH1D("pteRT2Gamma","pteRT2Gamma",nbinT-1,binT);
+  pteRT2CGamma    = new TH1D("pteRT2CGamma","pteRT2CGamma",nbinT-1,binT); 
+  pteRT2Ke3       = new TH1D("pteRT2Ke3","pteRT2Ke3",nbinT-1,binT);
+
+  ptg            = new TH1D("ptg","ptg",100,0.,10.);
+  ptgPion        = new TH1D("ptgPion","ptgPion",100,0.,10.);
+  ptgEta         = new TH1D("ptgEta","ptgEta",100,0.,10.);
+  ptgEtaprime    = new TH1D("ptgEtaprime","ptgEtaprime",100,0.,10.);
+  ptgOmega       = new TH1D("ptgOmega","ptgOmega",100,0.,10.);
+  ptgPhi         = new TH1D("ptgPhi","ptgPhi",100,0.,10.);
+  ptgGamma       = new TH1D("ptgGamma","ptgGamma",100,0.,10.);
+
+  mee            = new TH1D("mee","mee",200,0.,5.);
+  meePion        = new TH1D("meePion","meePion",200,0.,5.);
+  meeEta         = new TH1D("meeEta","meeEta",200,0.,5.);
+  meeEtaprime    = new TH1D("meeEtaprime","meeEtaprime",200,0.,5.);
+  meeRho         = new TH1D("meeRho","meeRho",200,0.,5.);
+  meeOmega       = new TH1D("meeOmega","meeOmega",200,0.,5.);
+  meePhi         = new TH1D("meePhi","meePhi",200,0.,5.);
+  meeJPsi        = new TH1D("meeJPsi","meeJPsi",200,0.,5.);
+
+  mgg            = new TH1D("mgg", "mgg",                400,0.,5.);
+  mggPion        = new TH1D("mggPion", "mggPion",        400,0.,5.);
+  mggEta         = new TH1D("mggEta", "mggEta",          400,0.,5.);
+  mggEtaprime    = new TH1D("mggEtaprime", "mggEtaprime",400,0.,5.);
+  mggRho         = new TH1D("mggRho", "mggRho",          400,0.,5.);
+  mggOmega       = new TH1D("mggOmega", "mggOmega",      400,0.,5.);
+  mggPhi         = new TH1D("mggPhi", "mggPhi",          400,0.,5.);
+  mggJPsi        = new TH1D("mggJPsi", "mggJPsi",        400,0.,5.);
+  mggEtaC        = new TH1D("mggEtaC", "mggEtaC",        400,0.,5.);
+
+  pte->Sumw2();
+  pteC->Sumw2();
+  ptePion->Sumw2();
+  pteEta->Sumw2();
+  pteEtaprime->Sumw2();
+  pteRho->Sumw2();
+  pteOmega->Sumw2();
+  ptePhi->Sumw2();
+  pteCPion->Sumw2();
+  pteCEta->Sumw2();
+  pteCEtaprime->Sumw2();
+  pteCOmega->Sumw2();
+  pteGamma->Sumw2();
+  pteCGamma->Sumw2();
+  pteKe3->Sumw2();
+  pte2->Sumw2();
+  pte2C->Sumw2();
+  pte2Pion->Sumw2();
+  pte2Eta->Sumw2();
+  pte2Etaprime->Sumw2();
+  pte2Rho->Sumw2();
+  pte2Omega->Sumw2();
+  pte2Phi->Sumw2();
+  pte2CPion->Sumw2();
+  pte2CEta->Sumw2();
+  pte2CEtaprime->Sumw2();
+  pte2COmega->Sumw2();
+  pte2Gamma->Sumw2();
+  pte2CGamma->Sumw2();
+  pte2Ke3->Sumw2();
+  pteR->Sumw2();
+  pteRC->Sumw2();
+  pteRPion->Sumw2();
+  pteREta->Sumw2();
+  pteREtaprime->Sumw2();
+  pteRRho->Sumw2();
+  pteROmega->Sumw2();
+  pteRPhi->Sumw2();
+  pteRCPion->Sumw2();
+  pteRCEta->Sumw2();
+  pteRCEtaprime->Sumw2();
+  pteRCOmega->Sumw2();
+  pteRGamma->Sumw2();
+  pteRCGamma->Sumw2();
+  pteRKe3->Sumw2();
+  pteR2->Sumw2();
+  pteR2C->Sumw2();
+  pteR2Pion->Sumw2();
+  pteR2Eta->Sumw2();
+  pteR2Etaprime->Sumw2();
+  pteR2Rho->Sumw2();
+  pteR2Omega->Sumw2();
+  pteR2Phi->Sumw2();
+  pteR2CPion->Sumw2();
+  pteR2CEta->Sumw2();
+  pteR2CEtaprime->Sumw2();
+  pteR2COmega->Sumw2();
+  pteR2Gamma->Sumw2();
+  pteR2CGamma->Sumw2();
+  pteR2Ke3->Sumw2();
+  pteRT->Sumw2();
+  pteRTC->Sumw2();
+  pteRTPion->Sumw2();
+  pteRTEta->Sumw2();
+  pteRTEtaprime->Sumw2();
+  pteRTRho->Sumw2();
+  pteRTOmega->Sumw2();
+  pteRTPhi->Sumw2();
+  pteRTCPion->Sumw2();
+  pteRTCEta->Sumw2();
+  pteRTCEtaprime->Sumw2();
+  pteRTCOmega->Sumw2();
+  pteRTGamma->Sumw2();
+  pteRTCGamma->Sumw2();
+  pteRTKe3->Sumw2();
+  pteRT2->Sumw2();
+  pteRT2C->Sumw2();
+  pteRT2Pion->Sumw2();
+  pteRT2Eta->Sumw2();
+  pteRT2Etaprime->Sumw2();
+  pteRT2Rho->Sumw2();
+  pteRT2Omega->Sumw2();
+  pteRT2Phi->Sumw2();
+  pteRT2CPion->Sumw2();
+  pteRT2CEta->Sumw2();
+  pteRT2CEtaprime->Sumw2();
+  pteRT2COmega->Sumw2();
+  pteRT2Gamma->Sumw2();
+  pteRT2CGamma->Sumw2();
+  pteRT2Ke3->Sumw2();
+  ptg->Sumw2();
+  ptgPion->Sumw2();
+  ptgEta->Sumw2();
+  ptgEtaprime->Sumw2();
+  ptgOmega->Sumw2();
+  ptgPhi->Sumw2();
+  ptgGamma->Sumw2();
+  mee->Sumw2();
+  meePion->Sumw2();
+  meeEta->Sumw2();
+  meeEtaprime->Sumw2();
+  meeRho->Sumw2();
+  meeOmega->Sumw2();
+  meePhi->Sumw2();
+  meeJPsi->Sumw2();
+  mgg->Sumw2();
+  mggPion->Sumw2();
+  mggEta->Sumw2();
+  mggEtaprime->Sumw2();
+  mggRho->Sumw2();
+  mggOmega->Sumw2();
+  mggPhi->Sumw2();
+  mggJPsi->Sumw2();
+  mggEtaC->Sumw2();
+
+  return;
+}
+
+

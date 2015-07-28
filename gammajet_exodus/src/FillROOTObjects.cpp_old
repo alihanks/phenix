@@ -1,0 +1,189 @@
+//-----------------------------------------------------------------------------
+//
+//  Generate ROOT output file
+//
+//-----------------------------------------------------------------------------
+
+#include <fstream>
+#include <stdlib.h>
+#include <math.h>
+#include <string>
+
+#include <TROOT.h>
+#include <TFile.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TProfile.h>
+#include <TNtuple.h>
+
+#include "Momentum.h"
+#include "Particle.h"
+#include "ParticleList.h"
+#include "ParticlePropertyList.h"
+
+#define PI  3.141592653589793238
+
+#define  INCLUDEFLAG extern
+#include "DeclareROOTObjects.h"
+
+bool   ParticleIsLepton(Particle*);
+double thetaof(Mom3);
+double phiof(Mom3);
+Mom4   ApplyResolution(int, Mom4);
+Mom4   ApplyEnergyResolution(Mom4);
+int    PHENIXFilter(Particle*, ParticlePropertyList*);
+bool   PHENIXPhotonFilter(Particle*);
+bool   PairInAcceptance(int, Mom4, Mom4);
+
+void FillROOTObjects(int setup, double dNdy_pi0, double N_coll,
+		     char *output_file, 
+		     ParticleList *PList, 
+		     ParticlePropertyList *PPList)
+{
+  double weight, fillweight;
+  double n_pi0_generated;
+  double sigma_inelastic, abs_norm;
+  Mom4   pold, mom, mom1, mom2;
+  Mom4   p_mom1, p_mom2;
+  bool   accept1, accept2;
+  double E, px, py, pz, pt, y;
+  double minv, pxe, pye, pze, pxp, pyp, pzp;
+  double pe, pp;
+  int 	 pid = 0;
+
+  n_pi0_generated = 7.0e+5;
+  sigma_inelastic = 42.2;
+  abs_norm        = dNdy_pi0; // for AuAu: multiplicity
+  // abs_norm        = dNdy_pi0 * sigma_inelastic; // for pp: cross section
+
+  PLNode   * CurrentNode     = PList->GetHeadNode();
+  PLNode   * NextNode        = 0;
+  Particle * CurrentParticle = 0;
+  Particle * NextParticle    = 0;
+  Particle * CurrentPrimary  = 0;
+
+  // here we start with the diphoton analysis
+
+  for ( int ipart=1; ipart<=PList->GetLength(); ipart++) 
+  {
+    CurrentNode = CurrentNode->GetNextNode();
+    CurrentParticle = CurrentNode->Get(0);
+    if ( CurrentParticle->GetGeneration()==1 )
+    {
+      CurrentPrimary = CurrentParticle;
+      pid            = CurrentParticle->GetID();
+      // cout << "found a primary: " << pid << endl;
+    }
+    if ( CurrentParticle->GetID()==22 )
+    {
+      // cout << "found a photon" << endl;
+      // correct weighting for pairs (if decay chains are full implemented!)
+      weight     = CurrentParticle->GetWeight();
+      fillweight = abs_norm*weight/(0.5*n_pi0_generated);
+      fillweight = fillweight/0.025;
+      // photon 4-vector
+      mom1 = CurrentParticle->Get4mom();
+      // resolution
+      mom1 = ApplyEnergyResolution(mom1);
+      // acceptance filter
+      //accept1 = true;
+      accept1 = PHENIXPhotonFilter(CurrentParticle);
+      NextNode = CurrentNode;
+      bool do_pairs = true;
+      do
+      {
+	NextNode     = NextNode->GetNextNode();
+	NextParticle = NextNode->Get(0);
+	if ( NextParticle->GetID()==22 )
+	{
+	  // cout << "pair analysis" << endl;
+	  // photon 4-vector
+	  mom2 = NextParticle->Get4mom();
+	  // resolution
+	  mom2 = ApplyEnergyResolution(mom2);
+	  // acceptance filter
+	  // accept2 = true;
+	  accept2 = PHENIXPhotonFilter(NextParticle);
+	  // single kinematics
+	  pe  = sqrt(mom1.GetE()*mom1.GetE()-mom1*mom1);
+	  pxe = mom1.Getp().Getpx();
+	  pye = mom1.Getp().Getpy();
+	  pze = mom1.Getp().Getpz();
+	  pp  = sqrt(mom2.GetE()*mom2.GetE()-mom2*mom2);
+	  pxp = mom2.Getp().Getpx();
+	  pyp = mom2.Getp().Getpy();
+	  pzp = mom2.Getp().Getpz();
+	  // pair kinematics
+	  E    = mom1.GetE() + mom2.GetE();
+	  px   = pxe + pxp;
+	  py   = pye + pyp;
+	  pz   = pze + pzp;
+	  pt   = sqrt(px*px+py*py);
+	  y    = log((E+pz)/(E-pz))/2.0;	  
+	  minv = sqrt((mom1+mom2)*(mom1+mom2));
+	  float Easym = ( fabs( mom1.GetE() - mom2.GetE() )/( mom1.GetE() + mom2.GetE() ) );
+	  int arm1 =1;
+	  int arm2 =1;
+// 	  if (180*phiof(mom1.Getp())/PI -90 > -34 || 180*phiof(mom1.Getp())/PI -90 < 11) arm1=0;
+// 	  else if (180*phiof(mom1.Getp())/PI -90 > 124 || 180*phiof(mom1.Getp())/PI -90 < 214) arm1=1;
+// 	  if (180*phiof(mom2.Getp())/PI -90 > -34 || 180*phiof(mom2.Getp())/PI -90 < 11) arm2=0;
+// 	  else if (180*phiof(mom2.Getp())/PI -90 > 124 || 180*phiof(mom2.Getp())/PI -90 < 214) arm2=1;
+	  if ( accept1 && accept2 && fabs(y)<=0.5 && (pt>1.5 || pt<3.0) && Easym <0.3)
+	  //	  if ( accept1 && accept2 && fabs(y)<=0.5 && (pt>1.5 || pt<3.0) && arm1==arm2)
+	  //	  if ( accept1 && accept2 && fabs(y)<=0.5 && (pt>1.5 || pt<3.0))
+	  //	  if ( accept1 && accept2 && fabs(y)<=0.5 && (pt>0.0 || pt<1.5))
+	  //	  if ( accept1 && accept2 && fabs(y)<=0.5 && pt>3.0)
+	  //	  if ( accept1 && accept2 && fabs(y)<=0.5 && (pt<1.5) && (Easym > 0.7))
+	  {
+	    // fill histograms
+	    if ( pid==111 )
+	    {
+	      mgg->Fill(minv,fillweight);
+	      mggPion->Fill(minv,fillweight);
+	    }
+	    if ( pid==221 )
+	    {
+	      mgg->Fill(minv,fillweight);
+	      mggEta->Fill(minv,fillweight);
+	    }
+	    if ( pid==331 )
+	    {
+	      mgg->Fill(minv,fillweight);
+	      mggEtaprime->Fill(minv,fillweight);
+	    }
+	    if ( pid==113 )
+	    {
+	      mgg->Fill(minv,fillweight);
+	      mggRho->Fill(minv,fillweight);
+	    }
+	    if ( pid==223 )
+	    {
+	      mgg->Fill(minv,fillweight);
+	      mggOmega->Fill(minv,fillweight);
+	    }
+	    if ( pid==333 )
+	    {
+	      mgg->Fill(minv,fillweight);
+	      mggPhi->Fill(minv,fillweight);
+	    }
+	    if ( pid==443 )
+	    {
+	      mgg->Fill(minv,fillweight);
+	      mggJPsi->Fill(minv,fillweight);
+	    }
+	    if ( pid==433 )
+	    {
+	      mgg->Fill(minv,fillweight);
+	      mggEtaC->Fill(minv,fillweight);
+	    }
+	  }
+	}
+	if ( NextParticle->GetGeneration()==1 ) do_pairs = false;
+      } while ( do_pairs );
+    }
+  }
+
+  return;
+
+}
+

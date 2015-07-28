@@ -1,0 +1,333 @@
+//-----------------------------------------------------------------------------
+//
+//  Generate ROOT output file
+//
+//-----------------------------------------------------------------------------
+
+#include <fstream>
+#include <stdlib.h>
+#include <math.h>
+#include <string>
+
+#include <TROOT.h>
+#include <TFile.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TProfile.h>
+#include <TNtuple.h>
+
+#include "Momentum.h"
+#include "Particle.h"
+#include "ParticleList.h"
+#include "ParticlePropertyList.h"
+#include "THmulf.h"
+
+#define PI  3.141592653589793238
+
+#define  INCLUDEFLAG extern
+#include "DeclareROOTObjects.h"
+
+bool   ParticleIsLepton(Particle*);
+double thetaof(Mom3);
+double phiof(Mom3);
+Mom4   ApplyResolution(int, Mom4);
+Mom4   ApplyEnergyResolution(Mom4);
+int    PHENIXFilter(Particle*, ParticlePropertyList*);
+bool   PHENIXPhotonFilter(Particle* kp, int fid = 0);
+bool   PairInAcceptance(int, Mom4, Mom4);
+
+void FillROOTObjects(int setup, double dNdy_pi0, double N_coll,
+		     char *output_file, 
+		     ParticleList *PList, 
+		     ParticlePropertyList *PPList)
+{
+  double weight, fillweight;
+  double n_pi0_generated;
+  double sigma_inelastic, abs_norm;
+  Mom4   pold, mom, mom1, mom2;
+  Mom4   p_mom1, p_mom2;
+  bool   accept1, accept2;
+  double E, px, py, pz, pt, y;
+  double minv, pxe, pye, pze, pxp, pyp, pzp;
+  double pe, pp;
+  int 	 pid = 0;
+
+  Mom4 primmom1;
+  double primweight, primfillweight, primpt;
+
+  n_pi0_generated = 1.0e+5;
+  sigma_inelastic = 42.2;
+  abs_norm        = dNdy_pi0; // for AuAu: multiplicity
+  // abs_norm        = dNdy_pi0 * sigma_inelastic; // for pp: cross section
+
+  PLNode   * CurrentNode     = PList->GetHeadNode();
+  PLNode   * NextNode        = 0;
+  Particle * CurrentParticle = 0;
+  Particle * NextParticle    = 0;
+  Particle * CurrentPrimary  = 0;
+  
+  // here we start with the diphoton analysis
+  static THmulf * gghasym = 0;
+  static TH1F * gammapt, * wdirgampt, *realpi0pt, *recpi0pt;
+  static TH1F * srcH[6];
+  static TH1F * countH = 0;
+  if (gghasym  == 0)
+    {
+      mgg->GetDirectory()->cd();
+      gghasym = new THmulf("gghasym","Pair asymmetry");
+      //gghasym->AddAxis("mix","Real or mixed",2,-0.5,1.5); 
+      gghasym->AddAxis("part","0, pi, 1 eta, 2 etaPrime, 3 rho, 4 omega, 5 direct photon",6,-0.5,5.5);
+      gghasym->AddAxis("ptass","pt assoc",200,0.,5.0);
+      gghasym->AddAxis("tag","tag",2,-0.5,1.5);
+      gghasym->AddAxis("pttrig","pt trig",5,5.0,10.0);
+      //      gghasym->AddAxis("asym","Energy Asymmetry Bin",10,0.0,1.0);
+      //      se->registerHisto(gghasym->GetName(), gghasym);
+      gghasym->Sumw2();
+      countH = new TH1F("countH", "", 200, 0.0, 5.0);
+      
+      gammapt = new TH1F("gammapt","",100,0,10.0);
+      wdirgampt = new TH1F("wdirgampt","",100,0,10.0);
+      realpi0pt = new TH1F("realpi0pt","",100,0,10.0);
+      recpi0pt = new TH1F("recpi0pt","",40,0,10.0);
+      
+      srcH[0] =new TH1F("pi0pt","",40,0,10.0);
+      srcH[1] =new TH1F("etapt","",40,0,10.0);
+      srcH[2] =new TH1F("primept","",40,0,10.0);
+      srcH[3] =new TH1F("rhopt","",40,0,10.0);
+      srcH[4] =new TH1F("omegapt","",40,0,10.0);
+      srcH[5] =new TH1F("dgpt","",40,0,10.0);
+      
+    }
+  
+  static int  neventK = 0;
+
+  for ( int ipart=1; ipart<=PList->GetLength(); ipart++) 
+  {
+    CurrentNode = CurrentNode->GetNextNode();
+    CurrentParticle = CurrentNode->Get(0);
+
+    if ( CurrentParticle->GetGeneration()==1 )
+      {
+      CurrentPrimary = CurrentParticle;
+      pid            = CurrentParticle->GetID();
+      primweight     = CurrentParticle->GetWeight();
+      primfillweight = abs_norm*primweight/(0.5*n_pi0_generated);
+      primfillweight = primfillweight/0.025;
+
+      // pi0 4-vector
+      primmom1 = CurrentParticle->Get4mom();
+      primpt = sqrt(primmom1.Getp().Getpx() *
+ 		    primmom1.Getp().Getpx() +
+ 		    primmom1.Getp().Getpy() *
+ 		    primmom1.Getp().Getpy() );
+      
+      if (pid == 111)
+	realpi0pt->Fill(primpt, primfillweight);
+// 	gghasym->Fill(primfillweight,0.98, primpt, 8. ,0.98);
+//       if (pid == 221)
+// 	gghasym->Fill(primfillweight,0.98, primpt, 9. ,0.98);  
+      
+
+      //      cout << "found a primary: " << pid << " wt " << endl;
+      }
+    if ( CurrentParticle->GetID()==22    || 
+	 CurrentParticle->GetID()== -111  )
+      {
+	// cout << "found a photon" << endl;
+      // correct weighting for pairs (if decay chains are full implemented!) 
+      weight   = CurrentParticle->GetWeight();
+      fillweight = abs_norm*weight/(0.5*n_pi0_generated);
+      fillweight = fillweight/0.025;
+      // photon 4-vector
+      mom1 = CurrentParticle->Get4mom();
+      // resolution
+      mom1 = ApplyEnergyResolution(mom1);
+      // acceptance filter
+      //accept1 = true;
+      accept1 = PHENIXPhotonFilter(CurrentParticle);
+      bool accept1_fid = PHENIXPhotonFilter(CurrentParticle, 1);
+      
+      int hInd = -1;
+      
+      if ( pid==111 ) hInd = 0;
+      if ( pid==221 ) hInd = 1;
+      if ( pid==331 ) hInd = 2;
+      if ( pid==113 ) hInd = 3;
+      if ( pid==223 ) hInd = 4;
+      if ( pid==-111 && CurrentParticle->GetGeneration() == 1) 
+	hInd = 5;    
+      
+      if (accept1)
+	{
+	  
+	  pe  = sqrt(mom1.GetE()*mom1.GetE()-mom1*mom1);
+	  pxe = mom1.Getp().Getpx();
+	  pye = mom1.Getp().Getpy();
+	  pze = mom1.Getp().Getpz();
+	  double pte = sqrt(pxe*pxe+pye*pye);
+	  
+	  
+	  wdirgampt->Fill(pte,fillweight);
+	  if (hInd !=  5) gammapt->Fill(pte, fillweight);
+	  srcH[hInd]->Fill(pte, fillweight);
+	  
+	  if (pte >= 5.0 && accept1_fid)
+	    {
+	      
+	      for (int jbins = 200; jbins >= 0; jbins--)
+		{
+		  //cout << "\tfilling " << jbins << " " << countH->GetBinCenter(jbins) << endl;
+		  gghasym->Fill(fillweight,hInd,countH->GetBinCenter(jbins),0.,pte);
+ 		}
+	    }
+	  
+	}
+      
+      
+      NextNode = CurrentNode;
+      bool do_pairs = true;
+
+      if (pid != -111) 
+	do	
+	{
+
+	NextNode     = NextNode->GetNextNode();
+	NextParticle = NextNode->Get(0);
+	if ( NextParticle->GetID()== 22 )
+	{
+	  // cout << "pair analysis" << endl;
+	  // photon 4-vector
+	  mom2 = NextParticle->Get4mom();
+	  // resolution
+	  mom2 = ApplyEnergyResolution(mom2);
+	  // acceptance filter
+	  // accept2 = true;
+	  accept2 = PHENIXPhotonFilter(NextParticle);
+	  bool accept2_fid = PHENIXPhotonFilter(NextParticle, 1);
+	  // single kinematics
+	  
+	  pe  = sqrt(mom1.GetE()*mom1.GetE()-mom1*mom1);
+	  pxe = mom1.Getp().Getpx();
+	  pye = mom1.Getp().Getpy();
+	  pze = mom1.Getp().Getpz();
+	  double pte = sqrt(pxe*pxe+pye*pye);
+	  
+	  pp  = sqrt(mom2.GetE()*mom2.GetE()-mom2*mom2);
+	  pxp = mom2.Getp().Getpx();
+	  pyp = mom2.Getp().Getpy();
+	  pzp = mom2.Getp().Getpz();
+	  double ptp = sqrt(pxp*pxp+pyp*pyp);	 
+ 	  
+	  
+	  // pair kinematics
+	  E    = mom1.GetE() + mom2.GetE();
+	  px   = pxe + pxp;
+	  py   = pye + pyp;
+	  pz   = pze + pzp;
+	  pt   = sqrt(px*px+py*py);
+	  y    = log((E+pz)/(E-pz))/2.0;	  
+	  minv = sqrt((mom1+mom2)*(mom1+mom2));
+	  
+	  float Easym = ( fabs( mom1.GetE() - mom2.GetE() )/( mom1.GetE() + mom2.GetE() ) );  
+	  
+	  //	  if ((accept1 || accept2) && fabs(y)<=0.5 && (ptp >= 5.0  || pte >= 5.0))
+	  //	    {
+	  
+	  if (pid == 111) { 
+          // 	    cout << "acc1 " << accept1  << " " << accept1_fid << " acc2 " << accept2 
+// 		 << " " << accept2_fid << " minv " << minv <<   " pte " << pte << " ptp " 
+// 		 << ptp <<  " fillweight " << fillweight << endl;
+
+	    // fill histograms
+	    
+ 	    if ( fabs(minv - 0.140) < 45 && accept1 && accept2 && fabs(y) <= 0.5)  
+ 	      recpi0pt->Fill(pt, fillweight);
+
+	    if (pte >= 5.0 && accept1_fid)
+	      {
+		int maxbin = 0;
+		if (accept2 && fabs(minv - 0.140) < 0.20 && mom2.GetE() > 0)
+		  {
+		    if (ptp < 5.0) maxbin = countH->FindBin(ptp);
+		    else maxbin = 200;
+		  }
+		
+		for (int jbins = 200; jbins >= 0; jbins--)
+		{
+		  //cout << "\tfilling " << jbins << " " << countH->GetBinCenter(jbins) << endl;
+		  // gghasym->Fill(fillweight,0.,countH->GetBinCenter(jbins),0.,pte);
+		  // already done above
+		  if (jbins <= maxbin) gghasym->Fill(fillweight,0.,countH->GetBinCenter(jbins),1.,pte); 
+ 		}
+	      }
+	    if (ptp >= 5.0 && accept2_fid)
+	      {
+		int maxbin = 0;
+		if (accept1 && fabs(minv - 0.140) < 0.20 && mom2.GetE() > 0)
+		  {
+		    if (pte < 5.0) maxbin = countH->FindBin(pte);
+		    else maxbin = 200;
+		  }
+		
+		for (int jbins = 200; jbins >= 0; jbins--)
+		  {
+		    //gghasym->Fill(fillweight,0,countH->GetBinCenter(jbins),0,ptp);
+		    if (jbins <= maxbin) gghasym->Fill(fillweight,0,countH->GetBinCenter(jbins),1,ptp);
+		  }
+	      }
+	    
+	    
+	  } // if pid == 111
+// 	      else 
+// 	      {
+// 		if ( )
+		
+  
+// 	      }
+	      
+
+
+//	}
+	  
+
+// 	    if ( pid==221 )
+// 	    {
+// 	      mgg->Fill(minv,fillweight);
+// 	      mggEta->Fill(minv,fillweight);
+// 	      gghasym->Fill(fillweight,minv, pt, 1, Easym);
+// 	    }
+// 	    if ( pid==331 )
+// 	    {
+// 	      mgg->Fill(minv,fillweight);
+// 	      mggEtaprime->Fill(minv,fillweight);
+// 	      gghasym->Fill(fillweight,minv, pt, 2, Easym);
+// 	    }
+// 	    if ( pid==113 )
+// 	    {
+// 	      mgg->Fill(minv,fillweight);
+// 	      mggRho->Fill(minv,fillweight);
+// 	      gghasym->Fill(fillweight,minv, pt, 3, Easym);
+// 	    }
+// 	    if ( pid==223 )
+// 	    {
+// 	      mgg->Fill(minv,fillweight);
+// 	      mggOmega->Fill(minv,fillweight);
+// 	      gghasym->Fill(fillweight,minv, pt, 4, Easym);
+// 	    }
+// 	    if ( pid==333 )
+// 	    {
+// 	      mgg->Fill(minv,fillweight);
+// 	      mggPhi->Fill(minv,fillweight);
+// 	      gghasym->Fill(fillweight,minv, pt, 5, Easym);
+// 	    }
+	}
+	
+	if ( NextParticle->GetGeneration()==1 ) do_pairs = false;
+      } while ( do_pairs );
+    }
+  }
+
+  return;
+
+}
+

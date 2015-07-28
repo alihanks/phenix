@@ -1,0 +1,664 @@
+/* Standard includes */
+#include <stdio.h>
+#include <math.h>
+#include <istream.h>
+#include <fstream.h>
+
+#include <TH2.h>
+
+#define  INCLUDEFLAG extern
+#include "DeclareROOTObjects.h"
+#include <TH1.h>
+#include <TRandom.h>
+#include "Momentum.h"
+
+using namespace std;
+
+#define PI  3.141592653589793238
+
+double thetaof(Mom3);
+double phiof(Mom3);
+
+int output_num[16];
+//int evaluate_max(int,float,float,float);
+int Calculate_cross_point(float,float,float,int,float*,float*,float*);
+int convert_to_local_and_check(float,float,float,int);
+void Construct_EMCal(char);
+int check_bad_tile(int,int,int);
+
+static int checkhit_Sc[6][72][36];
+static int checkhit_Gl[2][96][48];
+//new for live tower weighting
+static int checkhit_Sc_weight[6][72][36];
+static int checkhit_Gl_weight[2][96][48];
+float deg = M_PI/180.;
+/* Sector dimensions */
+int NxSc = 72;
+int NySc = 36;
+int NxGl = 96;
+int NyGl = 48;
+/* Zero tower position in sector frame defined by geodesists (cm) */
+float ZeroTowerSc[3]={2.859, 2.859, -48.};
+float ZeroTowerGl[3]={0., 0.,   0.};
+/* Tower Size (cm) */
+float TowerSizeSc = 5.562;
+float TowerSizeGl = 4.068;
+/* Gaps between sectors (cm) */
+float GapXSc = 0.256;
+float GapYSc = 0.156;
+float GapXGl = 0.150;
+float GapYGl = 0.163;
+static int first_flag=1;
+
+/* Rotation angles (deg) */
+float emcRA[8] =
+{
+     22.47,                   /*  W0 */
+     -2.3e-3,                 /*  W1 */
+     -22.486,                 /*  W2 */
+     -45.010,                 /*  W3 */
+
+     -45.016,                 /*  E3 */
+     -22.502,                 /*  E2 */
+     0.189,                   /*  E1 */
+     22.5                     /*  E0 */
+};
+/* Translation vector */
+float emcTR1[8][3] =
+{
+    {4.745e+2, -3.053e+2, 2.012e+2},         /*  W0 */
+    {5.552e+2, -1.005e+2, 2.010e+2},         /*  W1 */
+    {5.513e+2,  1.196e+2, 2.011e+2},         /*  W2 */
+    {4.636e+2,  3.215e+2, 2.011e+2},         /*  W3 */
+
+    {-4.640e+2,  3.215e+2, -2.009e+2},       /*  E3 */
+    {-5.516e+2,  1.198e+2, -2.012e+2},       /*  E2 */
+    {-5.398e+2, -0.978e+2, -1.938e+2},       /*  E1 */
+    {-4.606e+2, -2.965e+2, -1.934e+2}        /*  E0 */
+};
+float emcTR2[8][3];
+float emcTR3[8][3];
+float emcTR4[8][3];
+float emcTR5[8][3];
+
+float sxSc,sySc,sxGl,syGl;
+float posx,posy,posz;
+static float eta_max[3]={-5.0,-5.0,-5.0};
+static float eta_min[3]={5.0,5.0,5.0};
+static float phi_max[3]={-100.0,-100.0,-100.0};
+static float phi_min[3]={450.0,450.0,450.0};
+static float x_max[3]={-10000.0,-10000.0,-10000.0};
+static float y_max[3]={-10000.0,-10000.0,-10000.0};
+static float z_max[3]={-10000.0,-10000.0,-10000.0};
+static float x_min[3]={10000.0,10000.0,10000.0};
+static float y_min[3]={10000.0,10000.0,10000.0};
+static float z_min[3]={10000.0,10000.0,10000.0};
+float theta,eta,phi;
+float A[8],B[8],C[8];
+
+int i,flag;
+
+void Construct_EMCal(char *deadfile)
+{
+  int iS,j,k;
+  float Edge_end_x,Edge_end_y,Edge_end_z;
+  float Total_Sc_z,Total_Sc_y,Total_Gl_z,Total_Gl_y;
+  float Offset_Sc_y,Offset_Sc_z,Offset_Gl_y,Offset_Gl_z;
+  float X1,X2,Y1,Y2,Z1,Z2;
+  int   Xpos,Ypos,sector,arm,keycent,iz,iy;
+
+  // Calculate Towersize with implmentation of small gaps between modules
+  sxSc = ( (NxSc-1)*TowerSizeSc + 5*GapXSc ) / (NxSc-1);
+  sySc = ( (NySc-1)*TowerSizeSc + 2*GapYSc ) / (NySc-1);
+  sxGl = ( (NxGl-1)*TowerSizeGl + 5*GapXGl ) / (NxGl-1);
+  syGl = ( (NyGl-1)*TowerSizeGl + 2*GapYGl ) / (NyGl-1);
+
+  cout << "sxSc= " << sxSc << endl;
+  cout << "sySc= " << sySc << endl;
+
+  // They are the total size of Sector
+  Total_Sc_z=sxSc*72.0;
+  Total_Sc_y=sySc*36.0;
+  Total_Gl_z=sxGl*96.0;
+  Total_Gl_y=syGl*48.0;
+
+  Offset_Sc_y= Total_Sc_y;
+  Offset_Sc_z= Total_Sc_z;
+
+  Offset_Gl_y= Total_Gl_y;
+  Offset_Gl_z= Total_Gl_z;
+
+  ifstream fin(deadfile);
+  if(!fin){cout << "No deadmap file of" << deadfile << endl; exit(100);}
+
+  // At first there should not be any dead channels in it
+  //j: iz in emcClusterContainer, k: iy in emcClusterContainer
+  //  for(iS=0;iS<6;iS++)for(j=0;j<72;j++)for(k=0;k<36;k++)checkhit_Sc[iS][j][k]=1;
+  //  for(iS=0;iS<2;iS++)for(j=0;j<96;j++)for(k=0;k<48;k++)checkhit_Gl[iS][j][k]=1;
+
+  //switched to live towers -- default is 0 instead
+    for(iS=0;iS<6;iS++)for(j=0;j<72;j++)for(k=0;k<36;k++)checkhit_Sc[iS][j][k]=0;
+    for(iS=0;iS<2;iS++)for(j=0;j<96;j++)for(k=0;k<48;k++)checkhit_Gl[iS][j][k]=0;
+    for(iS=0;iS<6;iS++)for(j=0;j<72;j++)for(k=0;k<36;k++)checkhit_Sc_weight[iS][j][k]=0;
+    for(iS=0;iS<2;iS++)for(j=0;j<96;j++)for(k=0;k<48;k++)checkhit_Gl_weight[iS][j][k]=0;
+
+
+
+  /* for Takao's Run2 definition
+  while(fin >> keycent)
+    {
+      arm = keycent/100000;
+      sector = (keycent%100000)/10000;
+      if (arm==1) sector = 7 - sector;
+      Ypos = ((keycent % 100000) % 10000) / 100;
+      Xpos = ((keycent % 100000) % 10000) % 100;
+      checkhit_Sc[sector][Xpos][Ypos]=0;
+    }
+   */
+
+  /* for Run4 Fast Track
+  while (fin >> sector >> iz >> iy)
+    {
+      if(sector<6){
+	checkhit_Sc[sector][iz][iy] = 0;
+      }
+      else{
+	checkhit_Gl[sector-6][iz][iy] = 0;
+      }
+    }
+  */
+
+  /* for Run4   */
+  /*
+  int ishotdead, twrid;
+    cout<<" loading dead map "<<endl;
+  while(fin>>twrid>>ishotdead){
+    // cout<<" twrid "<<twrid<<" ishotdead "<<ishotdead<<endl;
+    if(ishotdead!=1){
+      if (twrid<15552){
+	//  First 15552 towers are PbSc in section 0,1,2,3,6,7
+	sector=(int)twrid/2592;  // get sector
+	if (sector > 3) {sector = sector+2;}  // correct for sector shift 
+	iy=(int)(twrid%2592)/72;  //get iy
+	iz=(int)(twrid%2592)%72;  //get iz
+	checkhit_Sc[sector][iz][iy] = 0;
+      }else{
+	//  Rest are from PbGl sectors 4,5
+	sector=(int)((twrid-15552)/4608) + 4;  // get sector (+4 to get PbGl)
+	iy=(int)((twrid-15552)%4608)/96;  // get iy
+	iz=(int)((twrid-15552)%4608)%96;  // get iz
+	checkhit_Gl[sector-6][iz][iy] = 0;
+      }
+    }
+  }
+
+  cout<<" loaded dead map "<<endl;
+  */
+
+  //beware, for matt's tower number convention
+
+  int ishotdead, twrid, effweight;
+    cout<<" loading dead map "<<endl;
+    while(fin>>twrid>>effweight){
+
+    if (twrid<15552){
+      //  First 15552 towers are PbSc in section 0,1,2,3,6,7
+      sector=(int)twrid/2592;  // get sector
+
+      //if (sector > 3) {sector = sector+2;}  // correct for sector shift 
+
+      //need sector swap here
+      if(sector==4) sector=-1;
+      if(sector==5) sector=4;
+      if(sector==-1) sector=5;
+
+      iy=(int)(twrid%2592)/72;  //get iy
+      iz=(int)(twrid%2592)%72;  //get iz
+      //checkhit_Sc[sector][iz][iy] = 0;
+      //switch to live towers
+      checkhit_Sc[sector][iz][iy] = 1;
+      checkhit_Sc_weight[sector][iz][iy] = effweight;
+    }else{
+      //  Rest are from PbGl sectors 4,5
+      sector=(int)((twrid-15552)/4608);  // get sector (+4 to get PbGl)
+
+      //need sector swap here
+      if(sector==1) sector=-1;
+      if(sector==0) sector=1;
+      if(sector==-1) sector=0;
+      
+      iy=(int)((twrid-15552)%4608)/96;  // get iy
+      iz=(int)((twrid-15552)%4608)%96;  // get iz
+      //checkhit_Gl[sector][iz][iy] = 0;
+      //switch to live towers
+      checkhit_Gl[sector][iz][iy] = 1;
+      checkhit_Gl_weight[sector][iz][iy] = effweight;
+    }
+  }
+
+
+  cout<<" loaded dead map "<<endl;
+
+  /*  
+  while (fin >> arm >> sector >> iz >> iy)
+    {
+      sector = arm == 0 ? sector : 7-sector;
+      if(sector<6){
+	checkhit_Sc[sector][iz][iy] = 0;
+      }
+      else{
+	checkhit_Gl[sector-6][iz][iy] = 0;
+      }
+    }
+  */    
+  // For Lead Scintillator (West) Geometry
+  for(iS=0;iS<4;iS++){
+        /* This is the very point of the sector edge after rotation */
+        emcTR5[iS][0]=emcTR1[iS][0]+cos(emcRA[iS]*deg)*ZeroTowerSc[2]-sin(emcRA[iS]*deg)*ZeroTowerSc[1];
+        emcTR5[iS][1]=emcTR1[iS][1]-sin(emcRA[iS]*deg)*ZeroTowerSc[2]-cos(emcRA[iS]*deg)*ZeroTowerSc[1];
+        emcTR5[iS][2]=emcTR1[iS][2]+ZeroTowerSc[0];
+
+        Edge_end_x=emcTR5[iS][0]+sin(emcRA[iS]*deg)*Offset_Sc_y;
+        Edge_end_y=emcTR5[iS][1]+cos(emcRA[iS]*deg)*Offset_Sc_y;
+        Edge_end_z=emcTR5[iS][2]-Offset_Sc_z;
+
+        emcTR2[iS][0]=emcTR5[iS][0];
+        emcTR2[iS][1]=emcTR5[iS][1];
+        emcTR2[iS][2]=Edge_end_z;
+
+        emcTR3[iS][0]=Edge_end_x;
+        emcTR3[iS][1]=Edge_end_y;
+        emcTR3[iS][2]=emcTR5[iS][2];
+
+        emcTR4[iS][0]=Edge_end_x;
+        emcTR4[iS][1]=Edge_end_y;
+        emcTR4[iS][2]=Edge_end_z;
+
+        // Calculate the equation of plane in 3D space 
+	X1=emcTR2[iS][0]-emcTR5[iS][0];
+	X2=emcTR3[iS][0]-emcTR5[iS][0];
+
+	Y1=emcTR2[iS][1]-emcTR5[iS][1];
+	Y2=emcTR3[iS][1]-emcTR5[iS][1];
+
+	Z1=emcTR2[iS][2]-emcTR5[iS][2];
+	Z2=emcTR3[iS][2]-emcTR5[iS][2];
+
+	B[iS]=1; C[iS]=0.0;
+	A[iS]=-1*(B[iS]*Y2+C[iS]*Z2)/X2;
+
+/*	printf("X1=%f,X2=%f,Y1=%f,Y2=%f,Z1=%f,Z2=%f\n",X1,X2,Y1,Y2,Z1,Z2); */
+
+/*        printf("A=%f,B=%f,C=%f\n",A,B,C);
+	printf("TR1=%f,TR2=%f,TR3=%f\n",emcTR1[iS][0],emcTR1[iS][1],emcTR1[iS][2]); */
+
+//        for(j=0;j<1;j++) for(k=0;k<36;k++) checkhit_Sc[iS][j][k]=1;
+//        for(j=71;j<72;j++) for(k=0;k<36;k++) checkhit_Sc[iS][j][k]=1;
+//        for(j=35;j<40;j++) for(k=20;k<30;k++) checkhit_Sc[iS][j][k]=0;
+  }
+
+  // For Lead Scintillator (East) Geometry
+  for(iS=4;iS<6;iS++){
+        /* This is the very point of the sector edge after rotation */
+        emcTR5[iS][0]=emcTR1[iS][0]-cos(emcRA[iS]*deg)*ZeroTowerSc[2]-sin(emcRA[iS]*deg)*ZeroTowerSc[1];
+        emcTR5[iS][1]=emcTR1[iS][1]-sin(emcRA[iS]*deg)*ZeroTowerSc[2]+cos(emcRA[iS]*deg)*ZeroTowerSc[1];
+        emcTR5[iS][2]=emcTR1[iS][2]-ZeroTowerSc[0];
+
+        Edge_end_x=emcTR5[iS][0]-sin(emcRA[iS]*deg)*Offset_Sc_y;
+        Edge_end_y=emcTR5[iS][1]+cos(emcRA[iS]*deg)*Offset_Sc_y;
+        Edge_end_z=emcTR5[iS][2]+Offset_Sc_z;
+
+        emcTR2[iS][0]=emcTR5[iS][0];
+        emcTR2[iS][1]=emcTR5[iS][1];
+        emcTR2[iS][2]=Edge_end_z;
+
+        emcTR3[iS][0]=Edge_end_x;
+        emcTR3[iS][1]=Edge_end_y;
+        emcTR3[iS][2]=emcTR5[iS][2];
+
+        emcTR4[iS][0]=Edge_end_x;
+        emcTR4[iS][1]=Edge_end_y;
+        emcTR4[iS][2]=Edge_end_z;
+
+        // Calculate the equation of plane in 3D space 
+	X1=emcTR2[iS][0]-emcTR5[iS][0];
+	X2=emcTR3[iS][0]-emcTR5[iS][0];
+
+	Y1=emcTR2[iS][1]-emcTR5[iS][1];
+	Y2=emcTR3[iS][1]-emcTR5[iS][1];
+
+	Z1=emcTR2[iS][2]-emcTR5[iS][2];
+	Z2=emcTR3[iS][2]-emcTR5[iS][2];
+
+	B[iS]=1; C[iS]=0.0;
+	A[iS]=-1*(B[iS]*Y2+C[iS]*Z2)/X2;
+
+/*	printf("X1=%f,X2=%f,Y1=%f,Y2=%f,Z1=%f,Z2=%f\n",X1,X2,Y1,Y2,Z1,Z2); */
+
+/*        printf("A=%f,B=%f,C=%f\n",A,B,C);
+	printf("TR1=%f,TR2=%f,TR3=%f\n",emcTR1[iS][0],emcTR1[iS][1],emcTR1[iS][2]); */
+
+//        for(j=0;j<1;j++) for(k=0;k<36;k++) checkhit_Sc[iS][j][k]=1;
+//        for(j=71;j<72;j++) for(k=0;k<36;k++) checkhit_Sc[iS][j][k]=1;
+//        for(j=35;j<40;j++) for(k=20;k<30;k++) checkhit_Sc[iS][j][k]=0;
+  }
+
+  // For Lead Glass (East) Geometry
+  for(iS=6;iS<8;iS++){
+        /* This is the very point of the sector edge after rotation */
+        emcTR5[iS][0]=emcTR1[iS][0]-cos(emcRA[iS]*deg)*ZeroTowerGl[2]-sin(emcRA[iS]*deg)*ZeroTowerGl[1];
+        emcTR5[iS][1]=emcTR1[iS][1]-sin(emcRA[iS]*deg)*ZeroTowerGl[2]+cos(emcRA[iS]*deg)*ZeroTowerGl[1];
+        emcTR5[iS][2]=emcTR1[iS][2]-ZeroTowerGl[0];
+
+        Edge_end_x=emcTR5[iS][0]-sin(emcRA[iS]*deg)*Offset_Gl_y;
+        Edge_end_y=emcTR5[iS][1]+cos(emcRA[iS]*deg)*Offset_Gl_y;
+        Edge_end_z=emcTR5[iS][2]+Offset_Gl_z;
+
+        emcTR2[iS][0]=emcTR5[iS][0];
+        emcTR2[iS][1]=emcTR5[iS][1];
+        emcTR2[iS][2]=Edge_end_z;
+
+        emcTR3[iS][0]=Edge_end_x;
+        emcTR3[iS][1]=Edge_end_y;
+        emcTR3[iS][2]=emcTR5[iS][2];
+
+        emcTR4[iS][0]=Edge_end_x;
+        emcTR4[iS][1]=Edge_end_y;
+        emcTR4[iS][2]=Edge_end_z;
+
+        // Calculate the equation of plane in 3D space 
+	X1=emcTR2[iS][0]-emcTR5[iS][0];
+	X2=emcTR3[iS][0]-emcTR5[iS][0];
+
+	Y1=emcTR2[iS][1]-emcTR5[iS][1];
+	Y2=emcTR3[iS][1]-emcTR5[iS][1];
+
+	Z1=emcTR2[iS][2]-emcTR5[iS][2];
+	Z2=emcTR3[iS][2]-emcTR5[iS][2];
+
+	B[iS]=1; C[iS]=0.0;
+	A[iS]=-1*(B[iS]*Y2+C[iS]*Z2)/X2;
+  }
+ 
+}
+
+
+int convert_to_local_and_checkhit(float cross_x,float cross_y,float cross_z,int iS)
+{
+
+   float local_x,local_y,local_z;
+   int num_ptr_x,num_ptr_y;
+   if(iS<4){
+       if(cross_x<=0) return(0);
+       local_x= cross_x-emcTR1[iS][0]-cos(emcRA[iS]*deg)*ZeroTowerSc[2]+sin(emcRA[iS]*deg)*ZeroTowerSc[1];
+       local_y= cross_y-emcTR1[iS][1]+sin(emcRA[iS]*deg)*ZeroTowerSc[2]+cos(emcRA[iS]*deg)*ZeroTowerSc[1];
+       local_z= cross_z-emcTR1[iS][2]-ZeroTowerSc[0];
+       local_x/= sin(emcRA[iS]*deg);
+       local_y/= cos(emcRA[iS]*deg);
+       local_z/= -1;
+
+       //
+       // Here comes Fiducial Area Cuts(old version)
+       //
+       //if(local_z<8 || local_z>389 || local_y<2 || local_y>191) return(0);
+
+       //
+       // Get Pointer to the position of calorimeter. Also check if the
+       //  pointer points within fiducial area
+       //
+
+       if(local_z<0) return(0);
+       if(local_y<0) return(0);
+
+       num_ptr_x=(int)(local_z/sxSc); num_ptr_y=(int)(local_y/sySc);
+       //if(num_ptr_x>=72||num_ptr_y>=36||num_ptr_x<0||num_ptr_y<0) return(0);
+
+       //use edge cut:
+       if(num_ptr_x>=70||num_ptr_y>=34||num_ptr_x<2||num_ptr_y<2) return(0);//2004.10.01
+
+       //cout <<local_z << endl;
+
+       //
+       // Check the dead channel map.
+       //   "checkhit_Sc[][][]==1" means that it is live channel.
+       //
+
+	 /*
+       if(checkhit_Sc[iS][num_ptr_x+0][num_ptr_y+0]==1 &&
+	  checkhit_Sc[iS][num_ptr_x+0][num_ptr_y+1]==1 &&
+	  checkhit_Sc[iS][num_ptr_x+0][num_ptr_y-1]==1 &&
+	  checkhit_Sc[iS][num_ptr_x+1][num_ptr_y+0]==1 &&
+	  checkhit_Sc[iS][num_ptr_x+1][num_ptr_y+1]==1 &&
+	  checkhit_Sc[iS][num_ptr_x+1][num_ptr_y-1]==1 &&
+	  checkhit_Sc[iS][num_ptr_x-1][num_ptr_y+0]==1 &&
+	  checkhit_Sc[iS][num_ptr_x-1][num_ptr_y+1]==1 &&
+	  checkhit_Sc[iS][num_ptr_x-1][num_ptr_y-1]==1 ) 
+	 */
+       if(checkhit_Sc[iS][num_ptr_x][num_ptr_y]==1) 
+	 {
+	   //hitdiag[iS]->Fill(local_z/sxSc,local_y/sySc);
+	   int effweight = checkhit_Sc_weight[iS][num_ptr_x][num_ptr_y];
+
+	   //MAKE HIT MAP WITHOUT ERT WEIGHT
+	   //hitdiag[iS]->Fill(num_ptr_x,num_ptr_y,(float)effweight);
+	   hitdiag[iS]->Fill(num_ptr_x,num_ptr_y);
+
+
+	   /*  -- p+p stuff
+	   int ertbad = check_bad_tile(iS,num_ptr_y,num_ptr_x);
+	   if(ertbad==1)hitdiag[iS]->Fill(num_ptr_x,num_ptr_y);
+	   return(ertbad);
+	   */
+	   //right return code?
+	   //return(1);
+	   return(effweight);
+	 }
+       else return(0);
+   }
+   else if(iS<6){
+       if(cross_x>0) return(0);
+       local_x= cross_x-emcTR1[iS][0]+cos(emcRA[iS]*deg)*ZeroTowerSc[2]+sin(emcRA[iS]*deg)*ZeroTowerSc[1];
+       local_y= cross_y-emcTR1[iS][1]+sin(emcRA[iS]*deg)*ZeroTowerSc[2]-cos(emcRA[iS]*deg)*ZeroTowerSc[1];
+       local_z= cross_z-emcTR1[iS][2]+ZeroTowerSc[0];
+       local_x/= -sin(emcRA[iS]*deg);
+       local_y/= cos(emcRA[iS]*deg);
+       local_z/= 1;
+
+       //
+       // Here comes Fiducial Area Cuts(old version)
+       //
+       //if(local_z<8 || local_z>389 || local_y<2 || local_y>191) return(0);
+
+       //
+       // Get Pointer to the position of calorimeter. Also check if the
+       //  pointer points within fiducial area
+       //
+       if(local_z<0) return(0);
+       if(local_y<0) return(0);
+       num_ptr_x=(int)(local_z/sxSc); num_ptr_y=(int)(local_y/sySc);
+       //if(num_ptr_x>=72||num_ptr_y>=36||num_ptr_x<0||num_ptr_y<0) return(0);
+       //use edge cut
+       if(num_ptr_x>=70||num_ptr_y>=34||num_ptr_x<2||num_ptr_y<2) return(0);//2004.10.01
+       //
+       // Check the dead channel map.
+       //   "checkhit_Sc[][][]==1" means that it is live channel.
+       //
+
+	 /*
+       if(checkhit_Sc[iS][num_ptr_x+0][num_ptr_y+0]==1 &&
+	  checkhit_Sc[iS][num_ptr_x+0][num_ptr_y+1]==1 &&
+	  checkhit_Sc[iS][num_ptr_x+0][num_ptr_y-1]==1 &&
+	  checkhit_Sc[iS][num_ptr_x+1][num_ptr_y+0]==1 &&
+	  checkhit_Sc[iS][num_ptr_x+1][num_ptr_y+1]==1 &&
+	  checkhit_Sc[iS][num_ptr_x+1][num_ptr_y-1]==1 &&
+	  checkhit_Sc[iS][num_ptr_x-1][num_ptr_y+0]==1 &&
+	  checkhit_Sc[iS][num_ptr_x-1][num_ptr_y+1]==1 &&
+	  checkhit_Sc[iS][num_ptr_x-1][num_ptr_y-1]==1 ) 
+	 */
+       if(checkhit_Sc[iS][num_ptr_x][num_ptr_y]==1) 
+	 {
+	   //hitdiag[iS]->Fill(local_z/sxSc,local_y/sySc);
+	   int effweight=checkhit_Sc_weight[iS][num_ptr_x][num_ptr_y];
+	   hitdiag[iS]->Fill(num_ptr_x,num_ptr_y,(float) effweight);
+	   /*
+	   int ertbad = check_bad_tile(iS,num_ptr_y,num_ptr_x);
+	   if(ertbad==1)hitdiag[iS]->Fill(num_ptr_x,num_ptr_y);
+	   return(ertbad);
+	   */
+	   return(effweight);
+	   //return(1);
+	 }
+       else return(0);
+   }
+   else{
+     if(cross_x>0) return(0);
+       local_x= cross_x-emcTR1[iS][0]+cos(emcRA[iS]*deg)*ZeroTowerGl[2]+sin(emcRA[iS]*deg)*ZeroTowerGl[1];
+       local_y= cross_y-emcTR1[iS][1]+sin(emcRA[iS]*deg)*ZeroTowerGl[2]-cos(emcRA[iS]*deg)*ZeroTowerGl[1];
+       local_z= cross_z-emcTR1[iS][2]+ZeroTowerGl[0];
+       local_x/= -sin(emcRA[iS]*deg);
+       local_y/= cos(emcRA[iS]*deg);
+       local_z/= 1;
+       
+       //       cout << iS << ", " << local_y << " " << local_x << endl; 
+       //
+       // Here comes Fiducial Area Cuts
+       //  Temporary not applied to PbGl.
+       //       if(local_z<20 || local_z>380 || local_y<10 || local_y>190) return(0);
+
+       //
+       // Get Pointer to the position of calorimeter. Also check if the
+       //  pointer points within fiducial area
+       //
+       if(local_z<0) return(0);
+       if(local_y<0) return(0);
+       num_ptr_x=(int)(local_z/sxGl); num_ptr_y=(int)(local_y/syGl);
+       //if(num_ptr_x>=96||num_ptr_y>=48||num_ptr_x<0||num_ptr_y<0) return(0);
+       //use edge cut:
+       if(num_ptr_x>=94||num_ptr_y>=46||num_ptr_x<2||num_ptr_y<2) return(0);
+
+       //
+       // Check the dead channel map.
+       //   "checkhit_Gl[][][]==1" means that it is live channel.
+       //
+
+	 /*
+       if(checkhit_Gl[iS-6][num_ptr_x+0][num_ptr_y+0]==1 &&
+	  checkhit_Gl[iS-6][num_ptr_x+0][num_ptr_y+1]==1 &&
+	  checkhit_Gl[iS-6][num_ptr_x+0][num_ptr_y-1]==1 &&
+	  checkhit_Gl[iS-6][num_ptr_x+1][num_ptr_y+0]==1 &&
+	  checkhit_Gl[iS-6][num_ptr_x+1][num_ptr_y+1]==1 &&
+	  checkhit_Gl[iS-6][num_ptr_x+1][num_ptr_y-1]==1 &&
+	  checkhit_Gl[iS-6][num_ptr_x-1][num_ptr_y+0]==1 &&
+	  checkhit_Gl[iS-6][num_ptr_x-1][num_ptr_y+1]==1 &&
+	  checkhit_Gl[iS-6][num_ptr_x-1][num_ptr_y-1]==1 ) 
+	 */
+       //if(checkhit_Gl[iS-6][num_ptr_x][num_ptr_y]==0)cout<<" pbgl hit ? "<<checkhit_Gl[iS-6][num_ptr_x][num_ptr_y]<<endl;
+       if(checkhit_Gl[iS-6][num_ptr_x][num_ptr_y]==1) 
+	 {	 
+	   
+	   int effweight  = checkhit_Gl_weight[iS-6][num_ptr_x][num_ptr_y];
+
+	   hitdiag[iS]->Fill(num_ptr_x,num_ptr_y,(float) effweight);
+	   /*
+	   int ertbad = check_bad_tile(iS,num_ptr_y,num_ptr_x);
+	   if(ertbad==1)hitdiag[iS]->Fill(num_ptr_x,num_ptr_y);
+	   return(ertbad);
+	   */
+	   return(effweight);
+	   //	   return(1);
+	 }
+       else return(0);
+       //else return(0);
+       
+   }
+
+//   cout << iS << ", " << local_y/local_x << endl; 
+//  cout << "Till here4 OK! iS=" << iS << "x= " << num_ptr_x << "y= " << num_ptr_y << endl;
+}
+
+
+Mom4 ApplyPositionResolution(int gnm, Mom4 mom4, float vtxz, char *deadfile)
+{
+  double p, px, py, pz, E, theta, phi;
+  double sigmax=0.0;
+  Mom4   result;
+  double P, Px, Py, Pz, E1, theta1, Phi;
+
+  Px = mom4.Getp().Getpx();
+  Py = mom4.Getp().Getpy();
+  Pz = mom4.Getp().Getpz();
+  P  = sqrt(Px*Px+Py*Py+Pz*Pz);
+  E  = mom4.GetE();
+
+  theta = thetaof(mom4.Getp());
+  Phi   = phiof(mom4.Getp());
+
+  float cross_x,cross_y,cross_z,K;
+
+  if(first_flag==1){Construct_EMCal(deadfile); first_flag=0;}
+
+  posx=Px; posy=Py; posz=Pz;
+
+  int gm,accept;
+
+  if(gnm>=0&&gnm<8){
+
+    // Geometry number 0 is entire W0 and W1
+
+    gm=gnm;
+    //
+    // Get the crossing point of detector surface plane
+    // and particle derection vector 
+    //
+    K= (A[gm]*emcTR5[gm][0]+B[gm]*emcTR5[gm][1])/(A[gm]*posx+B[gm]*posy);
+    //    if(K<0) cout << "output";
+    if(K<0) return(mom4);
+    //cross_x= K*posx; cross_y= K*posy; cross_z= K*posz+vtxz;
+
+    
+    sigmax=1.4+5.9/sqrt(E);
+ 
+    cross_x= K*posx; cross_y= K*posy; cross_z= K*posz+vtxz;
+
+
+    if (gm < 6)
+      { 
+	accept=convert_to_local_and_checkhit(cross_x,cross_y,cross_z,gm);
+      }
+    else 
+      {
+	//accept = 0;
+	accept=convert_to_local_and_checkhit(cross_x,cross_y,cross_z,gm);
+      }
+    //    if(gnm>=7&&gnm<=8&&accept)evaluate_max(gnm-7,cross_x,cross_y,cross_z);
+    //    cout << "accepts_" << gm << "= " << accept << endl;
+    //return(accept);
+  }
+
+  if(accept>0){
+    cross_x  = gRandom->Gaus(cross_x,sigmax);
+    cross_y  = gRandom->Gaus(cross_y,sigmax);
+    //cross_z  = gRandom->Gaus(cross_z,sigmax);
+
+    phi=atan2(cross_y,cross_x);
+
+    px    = E*sin(theta)*cos(phi);
+    py    = E*sin(theta)*sin(phi);
+    pz    = E*cos(theta);
+    
+    //  px    = px*E/p;;
+    //  py    = py*E/p;
+    //  pz    = pz*E/p;
+    
+    result.SetE(E);
+    result.Setp(px,py,pz);
+
+    return (result);
+  }else{
+    return(mom4);
+  }
+
+}
+
+
+
