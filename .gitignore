@@ -1,0 +1,33 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Logs and databases #
+######################
+*.log
+*.txt
+*.dat
+*.job
+
+# Figures and plots #
+#####################
+*.gif
+*.jpg
+*.png
+*.eps
+*.pdf
+*.root
+
+# Particular directories #
+##########################
+./fe_sharks/
+./obj/
+./exec/
+./sharkfins/
+./logfiles/
+
