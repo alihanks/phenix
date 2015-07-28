@@ -25,9 +25,9 @@
 
 # Particular directories #
 ##########################
-./fe_sharks/
-./obj/
-./exec/
-./sharkfins/
-./logfiles/
+gammajet_exodus/fe_sharks/
+gammajet_exodus/obj/
+gammajet_exodus/exec/
+gammajet_exodus/sharkfins/
+gammajet_exodus/logfiles/
 
