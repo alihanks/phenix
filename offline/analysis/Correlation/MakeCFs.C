@@ -426,7 +426,6 @@ MakeCFs::MakeCFs(int type, int isfold, int dofold, int isiso, int ispertrigger, 
 					bin << ic <<"_p"<<itrig<<"_h"<<ipart;
 					name = "JF_c" + bin.str();
 					//cout<<"name: "<<name.c_str()<<endl;
-					jet[ic][itrig][ipart]->SetName(name.c_str());
 					//jet[ic][itrig][ipart]->Sumw2();
 					//if(type==0) jet[ic][itrig][ipart]->GetYaxis()->SetTitle("Arb.Unit");
 					if(type==0) jet[ic][itrig][ipart]->GetYaxis()->SetTitle("Y_{inc}");
@@ -437,6 +436,7 @@ MakeCFs::MakeCFs(int type, int isfold, int dofold, int isiso, int ispertrigger, 
 					cout<<"jet func binwidth: "<<binwidth<<endl;
 					jet[ic][itrig][ipart]->Scale(1/binwidth);
 					SetHisto(jet[ic][itrig][ipart],dphi_title,1);
+					jet[ic][itrig][ipart]->SetName(name.c_str());
 					TVirtualPad* pad = can_jet[ic][itrig]->cd(ipart+1);
 					SetPad(pad);
 					jet[ic][itrig][ipart]->Draw();
