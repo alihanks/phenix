@@ -196,7 +196,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     int lbin = CFinc->FindBin(1.0);
     int hbin = CFinc->FindBin(1.5);
     norm = CFinc->Integral(lbin,hbin);
-    norm = norm/((double)(hbin-lbin));
+    norm = norm/((double)(hbin-lbin+1));
     cout << "ZYAM norm = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin << ") = " << norm << endl;
   }
 
