@@ -64,7 +64,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
       CFflowZYAM->SetBinError(ibin, 0.0); 
     }
   }
-  CFflowZYAM->Sumw2();
+  //CFflowZYAM->Sumw2();
   cout<<"about to subtract bg..."<<endl;
   if(useMSMP==0){
     cout<<"using ZYAM method.........."<<endl;
@@ -194,10 +194,11 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     fcent->Close();
   }
   else if (useMSMP==2) {
-    int lbin = CFinc->FindBin(1.1);
+    int lbin = CFinc->FindBin(1.0);
     int hbin = CFinc->FindBin(1.5);
-    norm = CFinc->Integral(lbin,hbin)/double(hbin-lbin);
-    cout << "ZYAM norm = " << norm << endl;
+    norm = CFinc->Integral(lbin,hbin);
+    norm = norm/((double)(hbin-lbin));
+    cout << "ZYAM norm = " << CFinc->Integral(lbin,hbin) << "/" << (hbin-lbin) << norm << endl;
   }
 
   CFflowZYAM->Scale(norm);
