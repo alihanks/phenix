@@ -440,6 +440,7 @@ MakeCFs::MakeCFs(int type, int isfold, int dofold, int isiso, int ispertrigger, 
 					TVirtualPad* pad = can_jet[ic][itrig]->cd(ipart+1);
 					SetPad(pad);
 					jet[ic][itrig][ipart]->Draw();
+					jet[ic][itrig][ipart]->Write();
 
 					legend_name.str("");
 					legend_name<<trig_pt[itrig]<<"-"<<trig_pt[itrig+1]<<" #times "<<part_pt[ipart]<<"-"<<part_pt[ipart+1]<<" GeV/c";
