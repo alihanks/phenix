@@ -1,21 +1,3 @@
-#include <TFile.h>
-#include <TTree.h>
-#include <TCanvas.h>
-
-#include "TGraphErrors.h"
-#include "TGraph.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TH3.h"
-#include "TF1.h"
-#include "math.h"
-#include <iostream>
-#include <fstream>
-using std::cout;
-using std::endl;
-using namespace std;
-
-
 void project_fe_sharkfins(char * filn1, char * out1){
 
 
@@ -43,35 +25,35 @@ void project_fe_sharkfins(char * filn1, char * out1){
 
   if(dounweight){
     ifstream fin ("pi0spectra.dat",ifstream::in);
-    while(fin.getline(line,500))
-      {
-	if( !(line && strlen(line)) ) continue;
-	if( strncmp( line,"//",2) == 0 ) continue;
-	if( strncmp( line, "Cent:", 5) == 0 ) {
-	  cent_index++;
-	  
-	  sscanf( line, "%s%i%i", &c, &cent_low, &cent_high);
-	  pt_index=0;
-	  cout<<"centrality bin "<<cent_index<< "  within  "<<cent_low<<" and "<<cent_high<<endl;
-	  continue;
-	}
-	cent_index=0;
-	
-	if((sscanf( line, "%f%f%f%f%f%f%f%f%f", &pt, &value, &staterr,&staterr1,&pt_uncorr_err, &err1,&syserr,&pt_corr_err,&err2) !=9)) continue;
-	
-	//cout <<"filling arrays"<< pt << value <<endl;
-	x[cent_index][pt_index] = pt;
-	A[cent_index][pt_index][0] = value; 
-	B[cent_index][pt_index]=value*pt;//*2*3.14;
-	//B[cent_index][pt_index]=value;
-	//A[cent_index][pt_index][1] = err1; //used total error
-	A[cent_index][pt_index][1] = staterr; //now using stat error only
-	Be[cent_index][pt_index]=staterr;
-	
-	//if( ispi0==0) Be[cent_index][pt_index]=err1; //total error
-	//else Be[cent_index][pt_index]=staterr;
-	pt_index++; 
+    while(fin.getline(line,500)) {
+      if( !(line && strlen(line)) ) continue;
+      if( strncmp( line,"//",2) == 0 ) continue;
+      if( strncmp( line, "Cent:", 5) == 0 ) {
+        cent_index++;
+
+        sscanf( line, "%s%i%i", &c, &cent_low, &cent_high);
+        pt_index=0;
+        cout<<"centrality bin "<<cent_index<< "  within  "<<cent_low<<" and "<<cent_high<<endl;
+        continue;
       }
+      cent_index=0;
+
+      if( ( sscanf( line, "%f%f%f%f%f%f%f%f%f", &pt, &value, &staterr, &staterr1, &pt_uncorr_err, &err1, &syserr, &pt_corr_err, &err2) != 9 ) )
+       continue;
+
+      // cout <<"filling arrays"<< pt << value <<endl;
+      x[cent_index][pt_index] = pt;
+      A[cent_index][pt_index][0] = value;
+      B[cent_index][pt_index]=value*pt;//*2*3.14;
+      // B[cent_index][pt_index]=value;
+      // A[cent_index][pt_index][1] = err1; //used total error
+      A[cent_index][pt_index][1] = staterr; //now using stat error only
+      Be[cent_index][pt_index]=staterr;
+
+      //if( ispi0==0) Be[cent_index][pt_index]=err1; //total error
+      //else Be[cent_index][pt_index]=staterr;
+      pt_index++; 
+    }
     
     int cent=0;
     
@@ -92,14 +74,12 @@ void project_fe_sharkfins(char * filn1, char * out1){
     //68.1934 8.15446 867.284 2.42962 14.2742 3.8447 28
     fa->SetParameters(68.1934,8.15446,867.284,2.42962,14.2742);
     
-      for(int ipt=60; ipt<400; ipt++){
+    for(int ipt=60; ipt<400; ipt++){
       wdndpt[ipt]=(fa->Integral(60./20.0,400.0/20.0))/(fa->Integral(ipt/20.0,(ipt+1)/20.0));
       cout << "for " << ipt/20.0 << " to " << (ipt+1)/20.0 << " 1/dndpt: " << wdndpt[ipt] <<endl;
-      }
+    }
     
     // cout << "integral of fb" << fb->Integral(4,15) <<endl;
-    
-
   }
 
   TH1D *hshark_large_sum[5];
@@ -110,8 +90,6 @@ void project_fe_sharkfins(char * filn1, char * out1){
   TH1D *hshark_alt[7][33];
   TH3F *PTpi_ZEMCpi_PTgam;
   TH2F *RECONPI_ZEMC_PT;
-
-  
 
   //  TFile *fshark_exodus=new TFile("/phenix/scratch/mjuszkie/test3K.root");
   TFile *fshark_exodus=new TFile(filn1);
@@ -128,7 +106,6 @@ void project_fe_sharkfins(char * filn1, char * out1){
   //now take 10 cm projections out to 165 cm
   cout<<" projecting sharkfins "<<endl;
   
-  //  TFile *fout=new TFile("sharkfin_projections_test3K_misspi0.root","RECREATE");
   TFile *fout=new TFile(out1,"RECREATE");
   
   /*
@@ -147,7 +124,7 @@ void project_fe_sharkfins(char * filn1, char * out1){
     for(int iptgam=0;iptgam<PTpi_PTgam->GetNbinsY();iptgam++){
       ptpi_integral+=PTpi_PTgam->GetBinContent(iptpi+1,iptgam+1);
     }
-  
+
     //ptpi_integral/=ptpi_integral_0;
     for(int iptgam=0;iptgam<PTpi_PTgam->GetNbinsY();iptgam++){
 
@@ -157,17 +134,17 @@ void project_fe_sharkfins(char * filn1, char * out1){
       //nrecon=1.0;
 
       //for(int iptgam=0;iptgam<PTpi_ZEMCpi_PTgam->GetNbinsZ();iptgam++){
-	float bc = PTpi_PTgam->GetBinContent(iptpi+1,iptgam+1);
-	if(nrecon>0)PTpi_ZEMCpi_PTgam->SetBinContent(iptpi+1,izemc+1,iptgam+1,bc/nrecon*wdndpt[iptpi]);
-	//if(nrecon>0)PTpi_PTgam->SetBinContent(iptpi+1,iptgam+1,bc/nrecon);
-	else{
-	  if(bc>0) cout<<" no reconstructed pi0s here "<<" iptpi "<<iptpi<<" iptgam "<<iptgam<<endl;
-	}
-	
-    }
-  }
+      float bc = PTpi_PTgam->GetBinContent(iptpi+1,iptgam+1);
+      if(nrecon>0)PTpi_ZEMCpi_PTgam->SetBinContent(iptpi+1,izemc+1,iptgam+1,bc/nrecon*wdndpt[iptpi]);
+    	//if(nrecon>0)PTpi_PTgam->SetBinContent(iptpi+1,iptgam+1,bc/nrecon);
+      else{
+       if(bc>0) cout<<" no reconstructed pi0s here "<<" iptpi "<<iptpi<<" iptgam "<<iptgam<<endl;
+     }
 
-  
+   }
+ }
+
+
   int izemc=0;
   for(izemc=0;izemc<33;izemc++){ //33
     cout<<" izemc "<<izemc<<endl;
@@ -187,19 +164,17 @@ void project_fe_sharkfins(char * filn1, char * out1){
     //if(shark_norm>0)PTpi_PTgam[izemc]->Scale(1/shark_norm);
     
     //now flatten shark fins in pi0 pt -- necessary?
-    /*
-    for(int iptpi=0;iptpi<PTpi_PTgam[izemc]->GetNbinsX();iptpi++){
+    for(int iptpi=0;iptpi<PTpi_PTgam[izemc]->GetNbinsX();iptpi++) {
       cout<<" iptpi "<<iptpi<<endl;
       float pi0pt_integral = 0.;
-      for(int iptgam=0;iptgam<PTpi_PTgam[izemc]->GetNbinsY();iptgam++){
-	pi0pt_integral+=PTpi_PTgam[izemc]->GetBinContent(iptpi+1,iptgam+1);
+      for(int iptgam=0;iptgam<PTpi_PTgam[izemc]->GetNbinsY();iptgam++) {
+        pi0pt_integral+=PTpi_PTgam[izemc]->GetBinContent(iptpi+1,iptgam+1);
       }
       for(int iptgam=0;iptgam<PTpi_PTgam[izemc]->GetNbinsY();iptgam++){
-	float bcorg=PTpi_PTgam[izemc]->GetBinContent(iptpi+1,iptgam+1);
-	if(pi0pt_integral>0)PTpi_PTgam[izemc]->SetBinContent(iptpi+1,iptgam+1,bcorg/pi0pt_integral);
+        float bcorg=PTpi_PTgam[izemc]->GetBinContent(iptpi+1,iptgam+1);
+        if(pi0pt_integral>0)PTpi_PTgam[izemc]->SetBinContent(iptpi+1,iptgam+1,bcorg/pi0pt_integral);
       }
     }
-    */
 
     PTpi_PTgam[izemc]->SetName(projname);
     PTpi_PTgam[izemc]->Write();
@@ -213,97 +188,91 @@ void project_fe_sharkfins(char * filn1, char * out1){
       int decbinlo=101;
       int decbinhi=140;
       if(idecl==1){
-	decbinlo=141;
-	decbinhi=180;    
-      }
-      if(idecl==2){
-	decbinlo=181;
-	decbinhi=240;    
-      }
-      /*for 5-10
+       decbinlo=141;
+       decbinhi=180;    
+     }
+     if(idecl==2){
+       decbinlo=181;
+       decbinhi=240;    
+     }
       if(idecl==3){
-	decbinlo=101;
-	decbinhi=200;    
-      } 
-      */ //Test full range
-      if(idecl==3){
-	decbinlo=1;
-	decbinhi=400;    
-      } 
+       decbinlo=1;
+       decbinhi=400;    
+     } 
 
-      if(idecl==4){
-	decbinlo=241;
-	decbinhi=300;    
-      } 
-      char sharkname[100];
-      sprintf(sharkname,"hshark_large_%d_%d",idecl,izemc);
-      hshark_large[idecl][izemc]=(TH1D*)PTpi_PTgam->ProjectionX(sharkname,decbinlo,decbinhi);
+     if(idecl==4){
+       decbinlo=241;
+       decbinhi=300;    
+     } 
+     char sharkname[100];
+     sprintf(sharkname,"hshark_large_%d_%d",idecl,izemc);
+     hshark_large[idecl][izemc]=(TH1D*)PTpi_PTgam->ProjectionX(sharkname,decbinlo,decbinhi);
 
       //if(idecl==0) hshark_large[idecl][izemc]->Draw();
 
-      
-      if(izemc==0){
-	char sumname[100];
-	sprintf(sumname,"hshark_large_sum_%d",idecl);
-	hshark_large_sum[idecl]=(TH1D*)PTpi_PTgam->ProjectionX(sumname,decbinlo,decbinhi);
-      }else{
-	hshark_large_sum[idecl]->Add(hshark_large[idecl][izemc]);
-	if(izemc==32){ 
-	  hshark_large_sum[idecl]->Write();
-	  cout << "writing sum histo " <<endl;
-	}
-      }
-      
-      hshark_large[idecl][izemc]->Write();
-      
-    }
-    
+
+     if(izemc==0){
+       char sumname[100];
+       sprintf(sumname,"hshark_large_sum_%d",idecl);
+       hshark_large_sum[idecl]=(TH1D*)PTpi_PTgam->ProjectionX(sumname,decbinlo,decbinhi);
+     }else{
+       hshark_large_sum[idecl]->Add(hshark_large[idecl][izemc]);
+       if(izemc==32){ 
+         hshark_large_sum[idecl]->Write();
+         cout << "writing sum histo " <<endl;
+       }
+     }
+
+     hshark_large[idecl][izemc]->Write();
+
+   }
+
     ///this loop is broken!  careful
-    for(int idecs=0;idecs<7;idecs++){
-      
+   for(int idecs=0;idecs<7;idecs++){
+
       // 400 bin overs 20 GeV
-      int decbinlo=101+10*idecs;
-      int decbinhi=110+10*idecs;
-      
-      char sharkname[100];
-      sprintf(sharkname,"hshark_small_%d_%d",idecs,izemc);
-      hshark_small[idecs][izemc]=(TH1D*)PTpi_PTgam->ProjectionX(sharkname,decbinlo,decbinhi);
-      hshark_small[idecs][izemc]->Write();
-    }
-    
-    
+    int decbinlo=101+10*idecs;
+    int decbinhi=110+10*idecs;
 
-
-    for(int idecs=0;idecs<7;idecs++){
-      
-      // 400 bin overs 20 GeV
-      int decbinlo=101+20*idecs;
-      int decbinhi=120+20*idecs;
-      
-      if(idecs==4){
-	decbinlo=181;
-	decbinhi=240;
-      }
-      if(idecs==5){
-	decbinlo=241;
-	decbinhi=300;
-      }
-      if(idecs==6){
-	decbinlo=301;
-	decbinhi=400;
-      }
-
-      char sharkname[100];
-      sprintf(sharkname,"hshark_alt_%d_%d",idecs,izemc);
-      hshark_alt[idecs][izemc]=(TH1D*)PTpi_PTgam->ProjectionX(sharkname,decbinlo,decbinhi);
-      hshark_alt[idecs][izemc]->Write();
-    }
-    
-    
-
-
+    char sharkname[100];
+    sprintf(sharkname,"hshark_small_%d_%d",idecs,izemc);
+    hshark_small[idecs][izemc]=(TH1D*)PTpi_PTgam->ProjectionX(sharkname,decbinlo,decbinhi);
+    hshark_small[idecs][izemc]->Write();
   }
-  
-  fout->Close();
+
+
+
+
+  for(int idecs=0;idecs<7;idecs++){
+
+      // 400 bin overs 20 GeV
+    int decbinlo=101+20*idecs;
+    int decbinhi=120+20*idecs;
+
+    if(idecs==4){
+     decbinlo=181;
+     decbinhi=240;
+   }
+   if(idecs==5){
+     decbinlo=241;
+     decbinhi=300;
+   }
+   if(idecs==6){
+     decbinlo=301;
+     decbinhi=400;
+   }
+
+   char sharkname[100];
+   sprintf(sharkname,"hshark_alt_%d_%d",idecs,izemc);
+   hshark_alt[idecs][izemc]=(TH1D*)PTpi_PTgam->ProjectionX(sharkname,decbinlo,decbinhi);
+   hshark_alt[idecs][izemc]->Write();
+ }
+
+
+
+
+}
+
+fout->Close();
 
 }

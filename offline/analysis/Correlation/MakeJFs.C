@@ -20,17 +20,24 @@
 
 using namespace std;
 
-MakeJFs::MakeJFs(int type, int centbin, int trigbin, int partbin, TH1D *CFinc, double meanpart, double ntrigbg, TFile* fin, const string v2input, int nFits, int useMSMP, TH1D*& CFflowZYAM, TH1D*& CFjetZYAM)
+MakeJFs::MakeJFs(int type, int centbin, int trigbin, 
+                 int partbin, TH1D *CFinc, 
+                 double meanpart, double ntrigbg, 
+                 TFile* fin, const string v2input, 
+                 int nFits, int useMSMP, 
+                 TH1D*& CFflowZYAM, 
+                 TH1D*& CFjetZYAM)
 {
   //type == 0: inclusive photon
   //type == 1: pi0
   //type == 2: dec
-  SetV2(v2input);
+  if(useMSMP<2)  SetV2(v2input);
   if(type==0) trigv2 = inc_v2[centbin][trigbin];
   if(type==1) trigv2 = pi0_v2[centbin][trigbin];
   if(type==2) trigv2 = dec_v2[centbin][trigbin];
   partv2 = hadron_v2[centbin][partbin];
   c2 = trigv2 * partv2;
+  cout << "set flow constant c2 = " << c2 << endl;
 
   int nbins = CFinc->GetNbinsX();
   cout<<"# of bins in CFinc: "<<nbins<<endl;
@@ -43,7 +50,6 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin, int partbin, TH1D *CFinc, d
 
   CFflowZYAM = new TH1D("CFflowZYAM","CFflowZYAM",nbins,0.0,PI);
   CFflowZYAM->Sumw2();
-  //CFflowZYAM = new TH1D("CFflowZYAM","CFflowZYAM",60,-0.5,1.5*PI);
 
   for( int ibin = 1; ibin < nbins + 1; ibin++){
     //cout<<"ibin = "<<ibin<<endl;
@@ -52,7 +58,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin, int partbin, TH1D *CFinc, d
     double x_min = CFflowZYAM->GetBinCenter(ibin)-0.5*binwidth;
     double x_max = CFflowZYAM->GetBinCenter(ibin)+0.5*binwidth;
     //cout<<"x_min = "<<x_min<<"; x_max = "<<x_max<<endl;
-     
+
     if(CFinc->GetBinContent(ibin) !=0 && CFinc->GetBinError(ibin) !=0){
       CFflowZYAM->SetBinContent(ibin,flowFunc->Integral(x_min,x_max)/binwidth);
       CFflowZYAM->SetBinError(ibin, 0.0); 
@@ -60,11 +66,11 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin, int partbin, TH1D *CFinc, d
   }
   CFflowZYAM->Sumw2();
   cout<<"about to subtract bg..."<<endl;
-  if(!useMSMP){
+  if(useMSMP==0){
     cout<<"using ZYAM method.........."<<endl;
     //********************************************
     //        Fit the CF                         *
-  //********************************************
+    //********************************************
     TF1 *cfFunc = new TF1("cfFunc","[1]*(1/([2]*sqrt(2*PI)))*exp(-pow(x,2)/(2*pow([2],2)))+[1]*(1/([2]*sqrt(2*PI)))*exp(-pow(x-2*PI,2)/(2*pow([2],2)))+[3]*(1/([5]*sqrt(2*PI)))*exp(-pow((x-PI-[4]),2)/(2*pow([5],2)))+[3]*(1/([5]*sqrt(2*PI)))*exp(-pow((x-PI+[4]),2)/(2*pow([5],2)))+[3]*(1/([5]*sqrt(2*PI)))*exp(-pow((x+PI-[4]),2)/(2*pow([5],2)))+[3]*(1/([5]*sqrt(2*PI)))*exp(-pow((x+PI+[4]),2)/(2*pow([5],2)))+[0]*(1.0+2.0*[6]*cos(2.0*x))+[7]*(1/([8]*sqrt(2*PI)))*exp(-pow(x-PI,2)/(2*pow([8],2)))+[7]*(1/([8]*sqrt(2*PI)))*exp(-pow(x+PI,2)/(2*pow([8],2)))",-0.50*PI,1.50*PI);
     
     cfFunc->SetNpx(1000);
@@ -93,21 +99,21 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin, int partbin, TH1D *CFinc, d
     iniPar8 = 1.20;
     
     if(CFinc->GetBinCenter(1) < 0.0)
-      {
-	iniPar0 = CFinc->GetBinContent(1+2*nbins/4.0);
-	iniPar1 = CFinc->GetBinContent(1+1*nbins/4.0) - CFinc->GetBinContent(1+2*nbins/4.0);
-	iniPar7 = CFinc->GetBinContent(1+3*nbins/4.0) - CFinc->GetBinContent(1+2*nbins/4.0);
-      }
+    {
+      iniPar0 = CFinc->GetBinContent(1+2*nbins/4.0);
+      iniPar1 = CFinc->GetBinContent(1+1*nbins/4.0) - CFinc->GetBinContent(1+2*nbins/4.0);
+      iniPar7 = CFinc->GetBinContent(1+3*nbins/4.0) - CFinc->GetBinContent(1+2*nbins/4.0);
+    }
     else
-      {
-	iniPar1 = CFinc->GetBinContent(1) - CFinc->GetBinContent(1+2*nbins/4.0);
-	iniPar7 = CFinc->GetBinContent(nbins) - CFinc->GetBinContent(1+2*nbins/4.0);
-	iniPar0 = CFinc->GetBinContent(1+2*nbins/4.0);
-      }
-    
+    {
+      iniPar1 = CFinc->GetBinContent(1) - CFinc->GetBinContent(1+2*nbins/4.0);
+      iniPar7 = CFinc->GetBinContent(nbins) - CFinc->GetBinContent(1+2*nbins/4.0);
+      iniPar0 = CFinc->GetBinContent(1+2*nbins/4.0);
+    }
+
     float gauss_mean =1.0;
     float gauss_sigma=0.10;
-    
+
     cfFunc->SetParameter(0, iniPar0*rand->Gaus(gauss_mean, gauss_sigma));
     cfFunc->SetParameter(1, iniPar1*rand->Gaus(gauss_mean, gauss_sigma));
     cfFunc->SetParameter(2, iniPar2*rand->Gaus(gauss_mean, gauss_sigma));
@@ -117,7 +123,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin, int partbin, TH1D *CFinc, d
     cfFunc->SetParameter(6, c2);
     cfFunc->SetParameter(7, iniPar7*rand->Gaus(gauss_mean, gauss_sigma));
     cfFunc->SetParameter(8, iniPar7*rand->Gaus(gauss_mean, gauss_sigma));
-    
+
     cfFunc->SetParLimits(0, -1.0, 10);
     cfFunc->SetParLimits(1, 1e-4, 10);
     cfFunc->SetParLimits(2, 1e-4, 2.0);
@@ -127,35 +133,34 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin, int partbin, TH1D *CFinc, d
     cfFunc->FixParameter(6, c2);
     cfFunc->SetParLimits(7, 1e-4, 10);
     cfFunc->SetParLimits(8, 1e-4, 3.0);
-    
+
     double chiSq = 9999.0;
-    
+
     double fitPar[9];
     // double errFitPar[9];
     // double fitPar_ErrV2Up[9];
     // double fitPar_ErrV2Down[9];
-    
-    for ( int ipar = 0; ipar < 9; ipar++){
+
+    for ( int ipar = 0; ipar < 9; ipar++)
       fitPar[ipar] = -9999.0;
-    }
-    
+
     for ( int ifit = 0; ifit < nFits; ifit++){
       cout << "Fit #" << ifit << " for CFinc" << endl;
-      
+
       cfFunc->SetParameter(0, iniPar0*rand->Gaus(gauss_mean, gauss_sigma));
       cfFunc->SetParameter(1, iniPar1*rand->Gaus(gauss_mean, gauss_sigma));
       cfFunc->SetParameter(2, iniPar2*rand->Gaus(gauss_mean, gauss_sigma));
       cfFunc->SetParameter(7, iniPar7*rand->Gaus(gauss_mean, gauss_sigma));
       cfFunc->SetParameter(8, iniPar8*rand->Gaus(gauss_mean, gauss_sigma));
-      
+
       CFinc->Fit(cfFunc,"I");
       if (cfFunc->GetChisquare() < chiSq){
-	chiSq = cfFunc->GetChisquare();
-	
-	for ( int ipar = 0; ipar < 9; ipar++){
-	  fitPar[ipar] = cfFunc->GetParameter(ipar);
-	  //	errFitPar[ipar] = cfFunc->GetParError(ipar);
-	}
+       chiSq = cfFunc->GetChisquare();
+
+       for ( int ipar = 0; ipar < 9; ipar++){
+         fitPar[ipar] = cfFunc->GetParameter(ipar);
+	       //errFitPar[ipar] = cfFunc->GetParError(ipar);
+       }
       }
     }
     //*****************************************************
@@ -170,31 +175,36 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin, int partbin, TH1D *CFinc, d
     cfFunc->FixParameter(6, c2);
     cfFunc->SetParameter(7, fitPar[7]);
     cfFunc->SetParameter(8, fitPar[8]);
-    
+
     //c2
     flowFunc->SetParameter(0, 1.0);
     flowFunc->SetParameter(1, c2);
-    
+
     norm = GetZYAMScale(cfFunc,flowFunc); 
   }
-  
-  else {
+  else if(useMSMP==1) {
     cout<<"using msmp normalization.........."<<endl;
     TFile* fcent = new TFile("CentDists_18bins_AN169.root");
     EvalXi(type,trigbin,partbin,fcent,fin,gXICORR,gXICORRLARGEBIN);
-   
+
     cout<<"meanpart = "<<meanpart<<"; ntrigbg = "<<ntrigbg<<endl;
     norm = meanpart/ntrigbg/PI*CFinc->GetBinWidth(1);
     norm*=xiavglarge[centbin];
     cout<<"norm = "<<norm<<endl;
     fcent->Close();
   }
-  
+  else if (useMSMP==2) {
+    int lbin = CFinc->FindBin(1.1);
+    int hbin = CFinc->FindBin(1.5);
+    norm = CFinc->Integral(lbin,hbin)/double(hbin-lbin);
+    cout << "ZYAM norm = " << norm << endl;
+  }
+
   CFflowZYAM->Scale(norm);
   CFjetZYAM = new TH1D(*(TH1D*)CFinc);
   CFjetZYAM->Sumw2();
   CFjetZYAM->Add(CFflowZYAM, -1.0);
-    
+
 }
 
 void MakeJFs::InitHistos(TH1D* CFflow, string name)
@@ -223,8 +233,8 @@ void MakeJFs::SetV2(const string v2_inputs)
     gr_inc_v2sys[i] = new TGraphErrors(*(TGraphErrors*)v2file->Get(name.str().c_str()));
     double *inc_sys = gr_inc_v2sys[i]->GetEY();
     for(int j=0; j<4; j++) inc_v2_sys[i][j] = inc_sys[j];
- 
-    name.str("");
+
+      name.str("");
     name << "gamma_dec_v2_" << i;
     gr_dec_v2[i] = new TGraphErrors(*(TGraphErrors*)v2file->Get(name.str().c_str()));
     double *dec = gr_dec_v2[i]->GetY();
@@ -240,7 +250,7 @@ void MakeJFs::SetV2(const string v2_inputs)
     double *dec_sys = gr_dec_v2sys[i]->GetEY();
     for(int j=0; j<4; j++) dec_v2_sys[i][j] = dec_sys[j];
 
-    name.str("");
+      name.str("");
     name << "pi0_v2_" << i;
     gr_pi0_v2[i] = new TGraphErrors(*(TGraphErrors*)v2file->Get(name.str().c_str()));
     double *pi0 = gr_pi0_v2[i]->GetY();
@@ -256,7 +266,7 @@ void MakeJFs::SetV2(const string v2_inputs)
     double *pi0_sys = gr_pi0_v2sys[i]->GetEY();
     for(int j=0; j<4; j++) pi0_v2_sys[i][j] = pi0_sys[j];
 
-    name.str("");
+      name.str("");
     name << "hadron_v2_" << i;
     gr_had_v2[i] = new TGraphErrors(*(TGraphErrors*)v2file->Get(name.str().c_str()));
     double *had = gr_had_v2[i]->GetY();
@@ -306,17 +316,17 @@ double MakeJFs::GetZYAMScale(TF1* topFunc, TF1* bottomFunc)
     else{
       //cout<<"i = "<<i<<", x = "<<min+ i*d<<", scale = "<<temp_scale<<endl;
       if(temp_scale < ZYAMscale){
-	ZYAMscale = temp_scale;
-	ZYAMpoint = min+i*d;
-      }
-    }
-  }
-  cout<<"ZYAMpoint = "<<ZYAMpoint<<", ZYAMscale = "<<ZYAMscale * norm<<endl;
-  norm = topFunc->Eval(ZYAMpoint)/bottomFunc->Eval(ZYAMpoint);
-  cout<<"norm = "<<norm<<", done"<<endl;
-  cout<<endl;
-  return norm;
-  
+       ZYAMscale = temp_scale;
+       ZYAMpoint = min+i*d;
+     }
+   }
+ }
+ cout<<"ZYAMpoint = "<<ZYAMpoint<<", ZYAMscale = "<<ZYAMscale * norm<<endl;
+ norm = topFunc->Eval(ZYAMpoint)/bottomFunc->Eval(ZYAMpoint);
+ cout<<"norm = "<<norm<<", done"<<endl;
+ cout<<endl;
+ return norm;
+
 }
 
 void MakeJFs::EvalXi(int type, int trigbin, int partbin, TFile *fcentdist, TFile *finput, TGraphErrors*& XICORR, TGraphErrors*& XICORRLARGEBIN)
@@ -340,10 +350,10 @@ void MakeJFs::EvalXi(int type, int trigbin, int partbin, TFile *fcentdist, TFile
     tpars[j][2] = tmp3;
     
     cout << "read " << j << " " 
-	  << tpars[j][0] << " "
-	  << tpars[j][1] << " "
-	  << tpars[j][2] << " "
-	  << endl;
+    << tpars[j][0] << " "
+    << tpars[j][1] << " "
+    << tpars[j][2] << " "
+    << endl;
     
     j++;
   }
@@ -363,10 +373,10 @@ void MakeJFs::EvalXi(int type, int trigbin, int partbin, TFile *fcentdist, TFile
     ppars[j][2] = tmp3;
     
     cout << "read " << j << " " 
-	  << ppars[j][0] << " "
-	  << ppars[j][1] << " "
-	  << ppars[j][2] << " "
-	  << endl;
+    << ppars[j][0] << " "
+    << ppars[j][1] << " "
+    << ppars[j][2] << " "
+    << endl;
     
     j++;
   }
@@ -415,86 +425,86 @@ void MakeJFs::EvalXi(int type, int trigbin, int partbin, TFile *fcentdist, TFile
 
       for(int ibin=1;ibin<=ibinmax;ibin++){
 	//double nbdw = nbdweight->GetBinContent(ibin+1);
-	double nbdw = nbdweight->GetBinContent(ibin);
-	if(nbdw<=0) continue;
-	double nseeds = 0;
-	double nparts = 0;
-	double npnc = (double)ibin;
-	
-	if(SetExpFlag == 1){
-	  if(NpartFlag == 1){
-	    nseeds = 1.0-TMath::Exp(-1.0*fabs(tpars[3][1])*TMath::Power(npnc,tpars[3][2]));
-	    nparts = 1.0-TMath::Exp(-1.0*fabs(ppars[3][1])*TMath::Power(npnc,ppars[3][2]));
-	  }	
-	  else{
-	    nseeds = 1.0-TMath::Exp(-1.0*fabs(tpars[1][1])*TMath::Power(npnc,tpars[1][2]));
-	    nparts = 1.0-TMath::Exp(-1.0*fabs(ppars[1][1])*TMath::Power(npnc,ppars[1][2]));
-	  }
-	}
-	else{
-	  if(NpartFlag == 1){
-	    nseeds = TMath::ATan(-fabs(tpars[2][1])*TMath::Power(npnc,tpars[2][2]));
-	    nparts = TMath::ATan(-fabs(ppars[2][1])*TMath::Power(npnc,ppars[2][2]));
-	  }
-	  else{
-	    nseeds = TMath::ATan(-fabs(tpars[0][1])*TMath::Power(npnc,tpars[0][2]));
-	    nparts = TMath::ATan(-fabs(ppars[0][1])*TMath::Power(npnc,ppars[0][2]));
-	  }	    
-	}
-	seedmean += nbdw * nseeds;
-	partmean += nbdw * nparts;
-	pairmean += nbdw * nseeds * nparts;
-      }
-      xi[icent][ifit] = pairmean / (seedmean * partmean);
-      //cout<<"xi["<<icent<<"]["<<ifit<<"]"<<" = "<<xi[icent][ifit]<<endl;
-      delete nbdweight;
-    }
-  }
+       double nbdw = nbdweight->GetBinContent(ibin);
+       if(nbdw<=0) continue;
+       double nseeds = 0;
+       double nparts = 0;
+       double npnc = (double)ibin;
 
-  char outfilename[100];
-  if(type == 0)  sprintf(outfilename,"xi_inc_%d_%d.root",trigbin,partbin);
-  if(type == 1)  sprintf(outfilename,"xi_pi0_%d_%d.root",trigbin,partbin);
-  if(type == 2)  sprintf(outfilename,"xi_dec_%d_%d.root",trigbin,partbin);
-  
-  double cent[18],big[18], small[18];  
-  
-  for(int ifit=0;ifit<18;ifit++){
-    cout << ifit*5 << "-" << ifit*5+5 << " ";
-    cent[ifit]=2.5+ifit*5.0;
-    xiavg[ifit] = (xi[ifit][0] + xi[ifit][1] + xi[ifit][2] +xi[ifit][3]) / 4.0;
-    
+       if(SetExpFlag == 1){
+         if(NpartFlag == 1){
+           nseeds = 1.0-TMath::Exp(-1.0*fabs(tpars[3][1])*TMath::Power(npnc,tpars[3][2]));
+           nparts = 1.0-TMath::Exp(-1.0*fabs(ppars[3][1])*TMath::Power(npnc,ppars[3][2]));
+         }	
+         else{
+           nseeds = 1.0-TMath::Exp(-1.0*fabs(tpars[1][1])*TMath::Power(npnc,tpars[1][2]));
+           nparts = 1.0-TMath::Exp(-1.0*fabs(ppars[1][1])*TMath::Power(npnc,ppars[1][2]));
+         }
+       }
+       else{
+         if(NpartFlag == 1){
+           nseeds = TMath::ATan(-fabs(tpars[2][1])*TMath::Power(npnc,tpars[2][2]));
+           nparts = TMath::ATan(-fabs(ppars[2][1])*TMath::Power(npnc,ppars[2][2]));
+         }
+         else{
+           nseeds = TMath::ATan(-fabs(tpars[0][1])*TMath::Power(npnc,tpars[0][2]));
+           nparts = TMath::ATan(-fabs(ppars[0][1])*TMath::Power(npnc,ppars[0][2]));
+         }	    
+       }
+       seedmean += nbdw * nseeds;
+       partmean += nbdw * nparts;
+       pairmean += nbdw * nseeds * nparts;
+     }
+     xi[icent][ifit] = pairmean / (seedmean * partmean);
+      //cout<<"xi["<<icent<<"]["<<ifit<<"]"<<" = "<<xi[icent][ifit]<<endl;
+     delete nbdweight;
+   }
+ }
+
+ char outfilename[100];
+ if(type == 0)  sprintf(outfilename,"xi_inc_%d_%d.root",trigbin,partbin);
+ if(type == 1)  sprintf(outfilename,"xi_pi0_%d_%d.root",trigbin,partbin);
+ if(type == 2)  sprintf(outfilename,"xi_dec_%d_%d.root",trigbin,partbin);
+
+ double cent[18],big[18], small[18];  
+
+ for(int ifit=0;ifit<18;ifit++){
+  cout << ifit*5 << "-" << ifit*5+5 << " ";
+  cent[ifit]=2.5+ifit*5.0;
+  xiavg[ifit] = (xi[ifit][0] + xi[ifit][1] + xi[ifit][2] +xi[ifit][3]) / 4.0;
+
     //cout << " val 1 " << xi[ifit][0] << " val 2 " << xi[ifit][1] << " val 3 " << xi[ifit][2] << " val 4 " << xi[ifit][3] << "\t\t avg: " << xiavg[ifit] << endl;
 
     //find error by finding max deviation between diff't fits
-    int largest=0;
-    int smallest=0;
-    
-    for(int jth=1;jth<4;jth++){    
-      if(xi[ifit][jth]>xi[ifit][largest])largest=jth;
-      if(xi[ifit][jth]<xi[ifit][smallest])smallest=jth;
-    }
-    xierr[ifit]=(xi[ifit][largest]-xi[ifit][smallest])/2.0;
-    //cout<<" largest "<<largest<<" smallest "<<smallest<<" dev "<<xierr[ifit]<<endl;
-    big[ifit]=xi[ifit][largest];
-    small[ifit]=xi[ifit][smallest];  
+  int largest=0;
+  int smallest=0;
 
-    xifileout << xiavg[ifit]<< " "<<xierr[ifit]<<"\n";  
+  for(int jth=1;jth<4;jth++){    
+    if(xi[ifit][jth]>xi[ifit][largest])largest=jth;
+    if(xi[ifit][jth]<xi[ifit][smallest])smallest=jth;
   }
+  xierr[ifit]=(xi[ifit][largest]-xi[ifit][smallest])/2.0;
+    //cout<<" largest "<<largest<<" smallest "<<smallest<<" dev "<<xierr[ifit]<<endl;
+  big[ifit]=xi[ifit][largest];
+  small[ifit]=xi[ifit][smallest];  
 
-  TH2D *ZVTXCENTTR;
-  if(type == 0) ZVTXCENTTR = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_trig_inc"));
-  else ZVTXCENTTR = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_trig_pi0"));
-  TH2D *ZVTXCENTPA = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_part"));
-  
-  TH1D *TRIGGERCENT = new TH1D(*(TH1D*) ZVTXCENTTR->ProjectionY());
-  TH1D *PARTNERCENT = new TH1D(*(TH1D*) ZVTXCENTPA->ProjectionY());
+  xifileout << xiavg[ifit]<< " "<<xierr[ifit]<<"\n";  
+}
 
-  TRIGGERCENT->Sumw2();
-  PARTNERCENT->Sumw2();
+TH2D *ZVTXCENTTR;
+if(type == 0) ZVTXCENTTR = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_trig_inc"));
+else ZVTXCENTTR = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_trig_pi0"));
+TH2D *ZVTXCENTPA = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_part"));
 
-  double centlarge[4]={0};
-  for(int i=0;i<4;i++) {xiavglarge[i] = 0.0; xierrlarge[i] = 0.0;}
- 
+TH1D *TRIGGERCENT = new TH1D(*(TH1D*) ZVTXCENTTR->ProjectionY());
+TH1D *PARTNERCENT = new TH1D(*(TH1D*) ZVTXCENTPA->ProjectionY());
+
+TRIGGERCENT->Sumw2();
+PARTNERCENT->Sumw2();
+
+double centlarge[4]={0};
+for(int i=0;i<4;i++) {xiavglarge[i] = 0.0; xierrlarge[i] = 0.0;}
+
   for(int icl=0;icl<4;icl++){
     centlarge[icl]=20*icl+10;
     double npairstot=0;

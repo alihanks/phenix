@@ -1,0 +1,14 @@
+{
+	"folders":
+	[
+		{
+			"path": "offline/AnalysisTrain"
+		},
+		{
+			"path": "offline/analysis"
+		},
+		{
+			"path": "gammajet_exodus"
+		}
+	]
+}
