@@ -40,17 +40,20 @@ template<class T> void SetIso(T* trigger,
                               TH3F* h3_iso_acc = NULL
                               )
 {
-  float pt = trigger->Pt();
+  float pt = trigger->E();
   float phi = trigger->Phi();
   float eta = trigger->Eta();
 
   float etot = 0;
   for ( unsigned int iclus = 0; iclus < all_clus_vec.size(); iclus++ )
   {
-    float pt1 = all_clus_vec[iclus]->Pt();
+    float pt1 = all_clus_vec[iclus]->E();
     if ( pt1 < 0.2 ) continue;
     float dR = all_clus_vec[iclus]->Angle(trigger->Vect());
+    float aeta = all_clus_vec[iclus]->Eta();
+    float deta = eta - aeta;
     float dphi = CalculateFoldedDphi(all_clus_vec[iclus]->Phi(), phi);
+    dR = sqrt(dphi*dphi + deta*deta);
     // if ( dR < 0.0001 ) continue;
 
     if ( dR < Rcut ) etot += pt1;
@@ -64,7 +67,10 @@ template<class T> void SetIso(T* trigger,
     float pt1 = lessqualtrk_vec[itrk]->Pt();
     if ( pt1 < 0.2 ) continue;
     float dR = lessqualtrk_vec[itrk]->Angle(trigger->Vect());
+    float aeta = lessqualtrk_vec[itrk]->Eta();
+    float deta = eta - aeta;
     float dphi = CalculateFoldedDphi(lessqualtrk_vec[itrk]->Phi(), phi);
+    dR = sqrt(dphi*dphi + deta*deta);
 
     if ( dR < Rcut ) etot += pt1;
 
