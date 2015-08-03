@@ -47,3 +47,7 @@ gammajet_exodus/logfiles/*
 
 offline/CVS/Entries.Log
 offline/analysis/CVS/
+
+*.sublime-project
+
+*.sublime-workspace
