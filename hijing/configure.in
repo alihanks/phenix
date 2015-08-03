@@ -1,0 +1,16 @@
+AC_INIT(configure.in)
+
+AM_INIT_AUTOMAKE(Analysis, 1.00)
+dnl just in case you ever run on Solaris use CC
+AC_PROG_CXX(CC g++)
+dnl build no static libraries
+AC_ENABLE_STATIC(no)
+AC_PROG_LIBTOOL
+
+dnl   no point in suppressing warnings people should 
+dnl   at least see them, so here we go for g++: -Wall
+if test $ac_cv_prog_gxx = yes; then
+   CXXFLAGS="$CXXFLAGS -Wall "
+fi
+
+AC_OUTPUT(Makefile)
