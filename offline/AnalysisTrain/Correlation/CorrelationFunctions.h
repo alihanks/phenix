@@ -63,7 +63,7 @@ template<class T> void SetIso(T* trigger,
   for ( unsigned int itrk = 0; itrk < lessqualtrk_vec.size(); itrk++ ) {
     float pt1 = lessqualtrk_vec[itrk]->Pt();
     if ( pt1 < 0.2 ) continue;
-    float dR = lessqualtrk_vec[itrk]->Delta(trigger);
+    float dR = lessqualtrk_vec[itrk]->DeltaR(trigger);
     float aeta = lessqualtrk_vec[itrk]->Eta();
     float deta = eta - aeta;
     float dphi = CalculateFoldedDphi(lessqualtrk_vec[itrk]->Phi(), phi);
