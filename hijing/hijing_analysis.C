@@ -52,49 +52,61 @@ int hijing_analysis::Init(PHCompositeNode *topNode){
   name = "h1_mass";
   Init1DHisto(h1_mass, name.c_str(),"mass [GeV/c^2]",500,0,1.0);
   
-  name = "h1_trigger_pt";
+  name = "h1_trig_pt_inc";
   Init1DHisto(h1_trigger_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trigger_pi0_pt";
+  name = "h1_trig_pt_pi0";
   Init1DHisto(h1_trigger_pi0_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trigger_dir_pt";
+  name = "h1_trig_pt_dir";
   Init1DHisto(h1_trigger_dir_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trigger_iso_pt";
+  name = "h1_trig_pt_iso";
   Init1DHisto(h1_trigger_iso_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trigger_iso_pi0_pt";
+  name = "h1_trig_pt_iso_pi0";
   Init1DHisto(h1_trigger_iso_pi0_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trigger_iso_dir_pt";
+  name = "h1_trig_pt_iso_dir";
   Init1DHisto(h1_trigger_iso_dir_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h3_dphi";
-  Init3DHisto(h3_dphi, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+  name = "h3_dphi_fold";
+  Init3DHisto(h3_dphi, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_iso";
-  Init3DHisto(h3_dphi_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+  name = "h3_dphi_iso_fold";
+  Init3DHisto(h3_dphi_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_dir";
-  Init3DHisto(h3_dphi_dir, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+  name = "h3_dphi_dir_fold";
+  Init3DHisto(h3_dphi_dir, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_pi0";
-  Init3DHisto(h3_dphi_pi0, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+  name = "h3_dphi_pi0_fold";
+  Init3DHisto(h3_dphi_pi0, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_iso_dir";
-  Init3DHisto(h3_dphi_iso_dir, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+  name = "h3_dphi_dir_iso_fold";
+  Init3DHisto(h3_dphi_dir_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_iso_pi0";
-  Init3DHisto(h3_dphi_iso_pi0, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+  name = "h3_dphi_pi0_iso_fold";
+  Init3DHisto(h3_dphi_pi0_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
+  name = "h3_dphi_mix_fold";
+  Init3DHisto(h3_dphi_mix, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
+
+  name = "h3_dphi_mix_iso_fold";
+  Init3DHisto(h3_dphi_mix_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
+
+  name = "h3_dphi_pi0_mix_fold";
+  Init3DHisto(h3_dphi_pi0_mix, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
+
+  name = "h3_dphi_pi0_mix_iso_fold";
+  Init3DHisto(h3_dphi_pi0_mix_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
+
   name = "h2_cluster_dphi_dR";
   Init2DHisto(h2_cluster_wdR, name.c_str(), "#Delta R ", 200, 0.0, 2.0, "#Delta #phi [rad]", 60, 0.0, PI);
   
   name = "h2_cluster_pi0_dphi_dR";
   Init2DHisto(h2_cluster_pi0_wdR, name.c_str(), "#Delta R ", 200, 0.0, 2.0, "#Delta #phi [rad]", 60, 0.0, PI);
   
-  name = "h2_cluster_dir_dphi_dR";
+  name = "h2_cluster_dphi_dR";
   Init2DHisto(h2_cluster_dir_wdR, name.c_str(), "#Delta R ", 200, 0.0, 2.0, "#Delta #phi [rad]", 60, 0.0, PI);
   
   name = "h3_cluster_etot_dR";
@@ -124,6 +136,10 @@ int hijing_analysis::Init(PHCompositeNode *topNode){
   name = "h2_cluster_etot_dir_dR";
   Init2DHisto(h2_cluster_dir_etot, name.c_str(), "E_{tot}/p_{T}", 60, 0.0, 5.0, "p_{T} [GeV/c]", 60, 0.0, 15.0);
   
+  atree = new AMixingTree();
+  atree->SetTriggerBranches();
+  atree->SetPartnerBranches();
+
   return 0;
 }
 
@@ -139,7 +155,6 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     cout << "Failed to find HepMC Node!" << endl;
     return -1;
   }
-  nevents++;
   
   vector<ACluster*> clusters;
   vector<ATrack*> tracks;
@@ -178,32 +193,14 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       if( (fabs(id)==211 || fabs(id)==321 || fabs(id)==2212) )
       {
         ATrack track;
-        if( MakeTrack((*p),&track) ) tracks.push_back(track.clone());
+        if( MakeTrack((*p),&track) ) {
+          tracks.push_back(track.clone());
+          atree->SetPartnerData(track.Pt(),track.Phi(),track.Eta(),atrack.E(),track.GetPemcx(),track.GetPemcy(),track.GetPemcz(),trk_vector.size()-1);
+        }
       }
     }
     iv++;
   }
-
-  //cout << "Checking particle of status " << (*p)->status() << endl;
-  
-//    int ntags = 0;
-//    if( clusters.size() > 1 ) {
-//      for( unsigned int i = 0; i < clusters.size()-1; i++ )
-//      {
-//        for( unsigned int j = i+1; j < clusters.size(); j++ )
-//        {
-//          TLorentzVector sum = *clusters[i] + *clusters[j];
-//          h1_mass->Fill(sum.M());
-//          cout << "Photons tagged as " << clusters[i]->IsTagged() << ", " << clusters[j]->IsTagged() << ": E = " << clusters[i]->E() << " + " << clusters[j]->E() << " = " << sum.E() << ", pair mass = " << sum.M() << endl;
-//          if( (sum.M() > 0.133 && sum.M() < 0.137) ) {
-//            clusters[i]->SetTag(true);
-//            clusters[j]->SetTag(true);
-//            ntags++;
-//          }
-//        }
-//      }
-//    }
-//   cout << "Tagged photons from " << ntags << " pizero candidates!" << endl;
   
   int cent_bin = GetCentrality(mult);
   if( cent_bin != Centrality && Centrality>=0 ) return 0;
@@ -233,8 +230,25 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   }
 
   if( verbosity ) cout << "Looping over " << tracks.size() << " tracks" << endl;
+  for( unsigned int i = 0; i < pizeros.size(); i++ )
+  {
+    atree->SetTriggerData(pizeros[i]->Pt(),pizeros[i]->Phi(),pizeros[i]->Eta(),pizeros[i]->E(),
+      ((ACluster*)pizeros[i]->Daughter1())->GetX(),((ACluster*)pizeros[i]->Daughter1())->GetY(),((ACluster*)pizeros[i]->Daughter1())->GetZ(),
+      pizeros[i]->IsIso(),pi0zeros.size()-1);
+    float ph_phi = PHAngle(pizeros[i]->Phi());
+    for( unsigned int j = 0; j < tracks.size(); j++ )
+    {
+      float trk_phi = PHAngle(tracks[j]->Phi());
+      float dphifold = CalculateFoldedDphi(trk_phi,ph_phi);
+
+      h3_dphi_pi0->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
+      if( pizeros[i]->IsIso() ) h3_dphi_pi0_iso->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
+    }
+  }
   for( unsigned int i = 0; i < clusters.size(); i++ )
   {
+    atree->SetTriggerData(clusters[i]->Pt(),clusters[i]->Phi(),clusters[i]->Eta(),clusters[i]->E(),
+      clusters[i]->GetX(),clusters[i]->GetY(),clusters[i]->GetZ(),clusters[i]->IsIso(),pi0zeros.size()+clusters.size()-1);
     float ph_phi = PHAngle(clusters[i]->Phi());
     for( unsigned int j = 0; j < tracks.size(); j++ )
     {
@@ -247,23 +261,178 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       if( !clusters[i]->IsTagged() && clusters[i]->IsIso() ) h3_dphi_iso_dir->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
     }
   }
-  for( unsigned int i = 0; i < pizeros.size(); i++ )
-  {
-    float ph_phi = PHAngle(pizeros[i]->Phi());
-    for( unsigned int j = 0; j < tracks.size(); j++ )
-    {
-      float trk_phi = PHAngle(tracks[j]->Phi());
-      float dphifold = CalculateFoldedDphi(trk_phi,ph_phi);
-
-      h3_dphi_pi0->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
-      if( pizeros[i]->IsIso() ) h3_dphi_iso_pi0->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
-    }
-  }
   
   ClearVector(clusters);
   ClearVector(tracks);
   ClearVector(pizeros);
+
+  if(clus_vector.size() > 0 || pi0_vector.size() > 0) atree->_ttrig->Fill();
+  atree->_tpart->Fill();
+
+  nevents++;
   return 0;
+}
+
+void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
+{
+  int pooldepth = 0;
+  int nloop = 0;
+
+  int evt_trig;
+  float cent_trig;
+  int ntrig_photons;
+  int ntrig_pi0s;
+  int ntrig = DIM;
+  float trigpt[ntrig];
+  float trigphi[ntrig];
+  float trigeta[ntrig];
+  float trige[ntrig];
+  int iso[ntrig];
+
+  int evt_part;
+  float cent_part;
+  int npart = DIM;
+  int nphotons;
+  float partpt[npart];
+  float partphi[npart];
+  float parteta[npart];
+  float parte[npart];
+
+  trig->SetBranchAddress("evt", &evt_trig);
+  trig->SetBranchAddress("cent", &cent_trig);
+  trig->SetBranchAddress("nphotons", &ntrig_photons);
+  trig->SetBranchAddress("npi0s", &ntrig_pi0s);
+  trig->SetBranchAddress("ntrig", &ntrig);
+  trig->SetBranchAddress("pt", trigpt);
+  trig->SetBranchAddress("phi", trigphi);
+  trig->SetBranchAddress("eta", trigeta);
+  trig->SetBranchAddress("e",trige);
+  trig->SetBranchAddress("iso",iso);
+
+  assoc->SetBranchAddress("evt", &evt_part);
+  assoc->SetBranchAddress("cent", &cent_part);
+  assoc->SetBranchAddress("ntracks", &npart);
+  assoc->SetBranchAddress("nphotons", &nphotons);
+  assoc->SetBranchAddress("pt", partpt);
+  assoc->SetBranchAddress("phi", partphi);
+  assoc->SetBranchAddress("eta", parteta);
+  assoc->SetBranchAddress("e", parte);
+
+  int nentrig = trig->GetEntries();
+  int nenpart = assoc->GetEntries();
+  //cout<<"Mixing: nentrig = " <<nentrig<<"; nenpart = "<<nenpart<<endl;
+ 
+  
+  for(int i=0; i<nentrig; i++){
+    //cout<<"trigger count = "<<i<<endl;
+    pooldepth = 0;
+    nloop = 0;
+    trig->GetEntry(i);
+    cbin = GetCentBin((int)cent_trig);
+
+    vector<ACluster*> photons;
+    vector<APiZero*> pi0s; 
+
+    for(int itrig=0; itrig<ntrig_pi0s; itrig++){
+      APiZero pi0;
+      MakePi0Object(&pi0, trigpt[itrig], trigphi[itrig], trigeta[itrig], trige[itrig]);
+      pi0.SetIso(iso[itrig]);
+      pi0s.push_back(pi0.clone());
+    }
+
+    for(int itrig=ntrig_pi0s; itrig<ntrig; itrig++){
+      ACluster pho;
+      MakeClusterObject(&pho, trigpt[itrig], trigphi[itrig], trigeta[itrig], trige[itrig]);
+      pho.SetIso(iso[itrig]);
+      photons.push_back(pho.clone());
+    }
+
+    int ncent_fg = 0.;
+    ncent_fg = GetCentrality((int)cent_trig);
+    
+    for(int j=0; j<nenpart; j++){
+      assoc->GetEntry(j);
+
+      //check if trigger and assoc belong to the same event
+      if(evt_trig == evt_part){
+        j = CheckPool(nenpart,j,pooldepth,size,nloop);
+        //cout<<"same event. nloop = "<<nloop<<endl;
+        if(nloop > NMIX) break;//to prevent infinite loop in case there is no interesting hadrons available 
+        continue;
+      }
+      
+      //check if trigger and partner belongs to the same event class
+      int ncent_bg = GetCentrality((int)cent_part);
+      if(ncent_fg != ncent_bg) {
+        j = CheckPool(nenpart,j,pooldepth,size,nloop);
+        //cout<<"not same centrality bin. nloop = "<<nloop<<endl;
+        if(nloop > NMIX) break;
+        continue;
+      }
+
+      vector<ATrack*> hadrons;
+      for(int ipart=0; ipart<npart; ipart++){
+        ATrack trk;
+        MakeTrackObject(&trk, partpt[ipart], partphi[ipart], parteta[ipart], parte[ipart]);
+        hadrons.push_back(trk.clone());
+      }
+
+      if( verbosity>3 ) cout <<"DoMixing: made hadrons. hadron vector size: "<<hadrons.size()<<endl;
+
+      pooldepth++;
+      if( verbosity>3 ) cout<<"pooldepth = "<<pooldepth<<endl;
+
+      for( unsigned int i = 0; i < pizeros.size(); i++ )
+      {
+        float ph_phi = PHAngle(pizeros[i]->Phi());
+        for( unsigned int j = 0; j < hadrons.size(); j++ )
+        {
+          float trk_phi = PHAngle(tracks[j]->Phi());
+          float dphifold = CalculateFoldedDphi(trk_phi,ph_phi);
+
+          h3_dphi_pi0_mix->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
+          if( pizeros[i]->IsIso() ) h3_dphi_pi0_mix_iso->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
+        }
+      }
+      for( unsigned int i = 0; i < clusters.size(); i++ )
+      {
+        float ph_phi = PHAngle(clusters[i]->Phi());
+        for( unsigned int j = 0; j < hadrons.size(); j++ )
+        {
+          float trk_phi = PHAngle(tracks[j]->Phi());
+          float dphifold = CalculateFoldedDphi(trk_phi,ph_phi);
+
+          h3_dphi_mix->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
+          if( clusters[i]->IsIso() ) h3_dphi_mix_iso->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
+        }
+      }
+
+      ClearVector(hadrons);
+      if(pooldepth == size) {/*cout<<"Mixed enough! pooldepth = "<<pooldepth<<"; nvert_fg = "<<nvert_fg<<"; ncent_fg = "<<ncent_fg<<endl; */break;}
+
+      //make sure making NMIX pairs
+      j = CheckPool(nenpart,j,pooldepth,size,nloop);
+    }
+    ClearVector(photons);
+    ClearVector(pi0s);
+  }
+}
+
+void hijing_analysis::MakeClusterObject(ACluster* aclus, float pt, float phi, float eta, float e)
+{
+  aclus->SetPtEtaPhiE(pt, eta, phi, e);
+}
+
+void hijing_analysis::MakePi0Object(APiZero* api0, float pt, float phi, float eta, float e)
+{
+  api0->SetPtEtaPhiE(pt, eta, phi, e);
+  api0->Daughter1()->SetPtEtaPhiE(pt, eta, phi, e);
+  api0->Daughter2()->SetPxPyPzE(0,0,0,0);
+}
+
+void hijing_analysis::MakeTrackObject(ATrack* atrk, float pt, float phi, float eta, float e)
+{
+  atrk->SetPtEtaPhiE(pt, eta, phi, e);
 }
 
 int hijing_analysis::GetCentrality(int mult)
