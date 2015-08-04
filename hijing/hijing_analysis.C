@@ -7,6 +7,7 @@
 #include <Fun4AllHistoManager.h>
 #include <TH2.h>
 #include <TF1.h>
+#include <TTree.h>
 #include <TFile.h>
 #include <PHAngle.h>
 #include <Fun4AllReturnCodes.h>
@@ -18,6 +19,7 @@
 #include <ACluster.h>
 #include <ATrack.h>
 #include <APiZero.h>
+#include <AMixingTree.h>
 
 using namespace std;
 using namespace findNode;

@@ -11,6 +11,7 @@ class Fun4AllHistoManager;
 class TH1F;
 class TH2F;
 class TH3F;
+class TTree;
 class THmulf;
 class ACluster;
 class ATrack;
