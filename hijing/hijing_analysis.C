@@ -295,7 +295,7 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
 
   int evt_part;
   float cent_part;
-  int npart = DIM;
+  int npart = 500;
   int nphotons;
   float partpt[npart];
   float partphi[npart];
@@ -380,15 +380,13 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
         tracks.push_back(trk.clone());
       }
 
-      if( verbosity>3 ) cout <<"DoMixing: made hadrons. hadron vector size: "<<hadrons.size()<<endl;
-
       pooldepth++;
       if( verbosity>3 ) cout<<"pooldepth = "<<pooldepth<<endl;
 
       for( unsigned int i = 0; i < pizeros.size(); i++ )
       {
         float ph_phi = PHAngle(pizeros[i]->Phi());
-        for( unsigned int j = 0; j < hadrons.size(); j++ )
+        for( unsigned int j = 0; j < tracks.size(); j++ )
         {
           float trk_phi = PHAngle(tracks[j]->Phi());
           float dphifold = CalculateFoldedDphi(trk_phi,ph_phi);
@@ -400,7 +398,7 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
       for( unsigned int i = 0; i < clusters.size(); i++ )
       {
         float ph_phi = PHAngle(clusters[i]->Phi());
-        for( unsigned int j = 0; j < hadrons.size(); j++ )
+        for( unsigned int j = 0; j < tracks.size(); j++ )
         {
           float trk_phi = PHAngle(tracks[j]->Phi());
           float dphifold = CalculateFoldedDphi(trk_phi,ph_phi);
@@ -410,14 +408,14 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
         }
       }
 
-      ClearVector(hadrons);
+      ClearVector(tracks);
       if(pooldepth == size) {/*cout<<"Mixed enough! pooldepth = "<<pooldepth<<"; nvert_fg = "<<nvert_fg<<"; ncent_fg = "<<ncent_fg<<endl; */break;}
 
       //make sure making NMIX pairs
       j = CheckPool(nenpart,j,pooldepth,size,nloop);
     }
-    ClearVector(photons);
-    ClearVector(pi0s);
+    ClearVector(clusters);
+    ClearVector(pizeros);
   }
 }
 
