@@ -93,13 +93,13 @@ public:
                                             PairType type,
                                             TH3F* h3dphi,
                                             TH3F* h3dphi_fold,
-					    TH3F* h3ptxidphi_fold = NULL,
-					    TH3F* h3ptztdphi_fold = NULL,
+                          			     		    TH3F* h3ptxidphi_fold = NULL,
+                              					    TH3F* h3ptztdphi_fold = NULL,
                                             TH3F* h3dphi_iso = NULL,
                                             std::vector<TH2F*> h2dphi_dec = std::vector<TH2F*>(),
                                             std::vector<TH2F*> h2dphi_dec_fold = std::vector<TH2F*>(),
-					    std::vector<TH2F*> h2dphixi_dec_fold = std::vector<TH2F*>(),
-					    std::vector<TH2F*> h2dphizt_dec_fold = std::vector<TH2F*>(),
+                              					    std::vector<TH2F*> h2dphixi_dec_fold = std::vector<TH2F*>(),
+                              					    std::vector<TH2F*> h2dphizt_dec_fold = std::vector<TH2F*>(),
                                             std::vector<TH2F*> h2dphi_dec_iso = std::vector<TH2F*>(),
                                             TH2F* h2paircut_bf = NULL,
                                             TH2F* h2paircut_af = NULL
@@ -119,7 +119,7 @@ public:
      
       //if( (type==MIX||type==MIXPI) ) std::cout << "Correlation::MakePairs combining " << associated.size() << " associated tracks" << std::endl;
       for(unsigned int ia = 0; ia < associated.size(); ia++){
-	float assoc_pt = associated[ia]->Pt();
+      	float assoc_pt = associated[ia]->Pt();
         float assoc_phi = associated[ia]->Phi();
         
         if(associated[ia]->Theta()<-99) continue;
@@ -160,11 +160,11 @@ public:
         h3dphi->Fill(trig_pt, assoc_pt, deltaphi);
 
         if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold);
-	float zt = assoc_pt/trig_pt;
-	float xi = log(1.0/zt);
-	
-	if( h3ptxidphi_fold ) h3ptxidphi_fold->Fill(trig_pt, xi, dphifold);
-	if( h3ptztdphi_fold ) h3ptztdphi_fold->Fill(trig_pt, zt, dphifold);
+      	float zt = assoc_pt/trig_pt;
+      	float xi = log(1.0/zt);
+      	
+      	if( h3ptxidphi_fold ) h3ptxidphi_fold->Fill(trig_pt, xi, dphifold);
+      	if( h3ptztdphi_fold ) h3ptztdphi_fold->Fill(trig_pt, zt, dphifold);
        
         //if( type==REAL||type==REALPI )
         //std::cout << "Checking trigger iso = " << triggers[it]->IsIso() << " for data-type = " << type << " in cent bin " << cbin << std::endl;
@@ -212,8 +212,6 @@ private:
   void MakePi0Object(APiZero* api0, float pt, float phi, float eta, float e, float x, float y, float z, float zvtx);
   int GetPtBin(float pt, int istrig);
   int GetCentBin(int centbin);
-//   float CorrectDelPhi(float deltaphi);
-//   float CorrectDelPhiFold(float deltaphi);
   float FindTrackDistance(ACluster* clus, ATrack* trk);
   void EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, std::vector<float>& mwweight);
   void MakeDecays(float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight, std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt_fold, std::vector<TH2F*> hdphi_iso);
