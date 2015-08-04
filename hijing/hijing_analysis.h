@@ -54,6 +54,7 @@ protected:
   void MakeClusterObject(ACluster* aclus, float pt, float phi, float eta, float e);
   void MakePi0Object(APiZero* api0, float pt, float phi, float eta, float e);
   void MakeTrackObject(ATrack* atrk, float pt, float phi, float eta, float e);
+  int CheckPool(int nenpart, int j, int pooldepth, int size, int& nloop);
 
   void Init1DHisto(TH1F*& h1, std::string name, std::string xtitle, int nxbin, double xmin, double xmax);
   void Init2DHisto(TH2F*& h2, std::string name, std::string xtitle, int nxbin, double xmin, double xmax, std::string ytitle, int nybin, double ymin, double ymax);
@@ -64,6 +65,7 @@ protected:
   int verbosity;
   int nevents;
   AMixingTree* atree;
+  int NMIX;
   
   TH1F* hmult;
   TH1F* h1_mass;

@@ -35,6 +35,7 @@ hijing_analysis::hijing_analysis(const char* output, const char* name)
   _MaxEta = 1.0;
   _MinAssocPt = 0.5;
   _MinTrigPt = 1.0;
+  NMIX = 500;
 }
 
 hijing_analysis::~hijing_analysis(){
@@ -197,7 +198,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
         ATrack track;
         if( MakeTrack((*p),&track) ) {
           tracks.push_back(track.clone());
-          atree->SetPartnerData(track.Pt(),track.Phi(),track.Eta(),atrack.E(),track.GetPemcx(),track.GetPemcy(),track.GetPemcz(),trk_vector.size()-1);
+          atree->SetPartnerData(track.Pt(),track.Phi(),track.Eta(),track.E(),track.GetPemcx(),track.GetPemcy(),track.GetPemcz(),tracks.size()-1);
         }
       }
     }
@@ -250,7 +251,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   for( unsigned int i = 0; i < clusters.size(); i++ )
   {
     atree->SetTriggerData(clusters[i]->Pt(),clusters[i]->Phi(),clusters[i]->Eta(),clusters[i]->E(),
-      clusters[i]->GetX(),clusters[i]->GetY(),clusters[i]->GetZ(),clusters[i]->IsIso(),pi0zeros.size()+clusters.size()-1);
+      clusters[i]->GetX(),clusters[i]->GetY(),clusters[i]->GetZ(),clusters[i]->IsIso(),pizeros.size()+clusters.size()-1);
     float ph_phi = PHAngle(clusters[i]->Phi());
     for( unsigned int j = 0; j < tracks.size(); j++ )
     {
@@ -260,7 +261,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       h3_dphi->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
       if( clusters[i]->IsIso() ) h3_dphi_iso->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
       if( !clusters[i]->IsTagged() ) h3_dphi_dir->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
-      if( !clusters[i]->IsTagged() && clusters[i]->IsIso() ) h3_dphi_iso_dir->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
+      if( !clusters[i]->IsTagged() && clusters[i]->IsIso() ) h3_dphi_dir_iso->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
     }
   }
   
@@ -268,7 +269,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   ClearVector(tracks);
   ClearVector(pizeros);
 
-  atree->SetEventData(nevents,0,mult,(int)clusers.size(),(int)pizeros.size(),(int)tracks.size());
+  atree->SetEventData(nevents,0,mult,(int)clusters.size(),(int)pizeros.size(),(int)tracks.size());
   if(clusters.size() > 0 || pizeros.size() > 0) atree->_ttrig->Fill();
   atree->_tpart->Fill();
 
@@ -285,7 +286,7 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
   float cent_trig;
   int ntrig_photons;
   int ntrig_pi0s;
-  int ntrig = DIM;
+  int ntrig = 500;
   float trigpt[ntrig];
   float trigphi[ntrig];
   float trigeta[ntrig];
@@ -331,23 +332,22 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
     pooldepth = 0;
     nloop = 0;
     trig->GetEntry(i);
-    cbin = GetCentBin((int)cent_trig);
 
-    vector<ACluster*> photons;
-    vector<APiZero*> pi0s; 
+    vector<ACluster*> clusters;
+    vector<APiZero*> pizeros;
 
     for(int itrig=0; itrig<ntrig_pi0s; itrig++){
       APiZero pi0;
       MakePi0Object(&pi0, trigpt[itrig], trigphi[itrig], trigeta[itrig], trige[itrig]);
       pi0.SetIso(iso[itrig]);
-      pi0s.push_back(pi0.clone());
+      pizeros.push_back(pi0.clone());
     }
 
     for(int itrig=ntrig_pi0s; itrig<ntrig; itrig++){
       ACluster pho;
       MakeClusterObject(&pho, trigpt[itrig], trigphi[itrig], trigeta[itrig], trige[itrig]);
       pho.SetIso(iso[itrig]);
-      photons.push_back(pho.clone());
+      clusters.push_back(pho.clone());
     }
 
     int ncent_fg = 0.;
@@ -373,11 +373,11 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
         continue;
       }
 
-      vector<ATrack*> hadrons;
+      vector<ATrack*> tracks;
       for(int ipart=0; ipart<npart; ipart++){
         ATrack trk;
         MakeTrackObject(&trk, partpt[ipart], partphi[ipart], parteta[ipart], parte[ipart]);
-        hadrons.push_back(trk.clone());
+        tracks.push_back(trk.clone());
       }
 
       if( verbosity>3 ) cout <<"DoMixing: made hadrons. hadron vector size: "<<hadrons.size()<<endl;
@@ -419,6 +419,20 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
     ClearVector(photons);
     ClearVector(pi0s);
   }
+}
+
+int hijing_analysis::CheckPool(int nenpart, int j, int pooldepth, int size, int& nloop)
+{
+  // cout<<"in CheckPool: before nloop = "<<nloop<<endl;
+  if(j == nenpart-1){
+    if(pooldepth < size){
+      //cout<<"pool not deep enough."<<endl;
+      j = -1;
+      nloop++;
+      //cout<<"after nloop = "<<nloop<<endl;
+    }
+  }
+  return j;
 }
 
 void hijing_analysis::MakeClusterObject(ACluster* aclus, float pt, float phi, float eta, float e)
