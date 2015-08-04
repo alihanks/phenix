@@ -57,6 +57,7 @@ include_HEADERS = \
   ACluster.h \
   ATrack.h \
   APiZero.h \
+  AMixingTree.h \
   CorrelationFunctions.h
   
 libCorrelation_la_SOURCES = \

@@ -236,7 +236,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   {
     atree->SetTriggerData(pizeros[i]->Pt(),pizeros[i]->Phi(),pizeros[i]->Eta(),pizeros[i]->E(),
       ((ACluster*)pizeros[i]->Daughter1())->GetX(),((ACluster*)pizeros[i]->Daughter1())->GetY(),((ACluster*)pizeros[i]->Daughter1())->GetZ(),
-      pizeros[i]->IsIso(),pi0zeros.size()-1);
+      pizeros[i]->IsIso(),pizeros.size()-1);
     float ph_phi = PHAngle(pizeros[i]->Phi());
     for( unsigned int j = 0; j < tracks.size(); j++ )
     {
@@ -268,7 +268,8 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   ClearVector(tracks);
   ClearVector(pizeros);
 
-  if(clus_vector.size() > 0 || pi0_vector.size() > 0) atree->_ttrig->Fill();
+  atree->SetEventData(nevents,0,mult,(int)clusers.size(),(int)pizeros.size(),(int)tracks.size());
+  if(clusters.size() > 0 || pizeros.size() > 0) atree->_ttrig->Fill();
   atree->_tpart->Fill();
 
   nevents++;
