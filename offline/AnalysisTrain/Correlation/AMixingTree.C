@@ -111,7 +111,7 @@ void AMixingTree::SetTriggerBranches()
   _ttrig->Branch("x", _x, "x[ntrig]/F");
   _ttrig->Branch("y", _y, "y[ntrig]/F");
   _ttrig->Branch("z", _z, "z[ntrig]/F");
-  _ttrig->Branch("iso", _iso, "iso[ntrig]/F");
+  _ttrig->Branch("iso", _iso, "iso[ntrig]/I");
 }
 
 void AMixingTree::SetPartnerBranches()
