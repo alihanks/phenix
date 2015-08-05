@@ -569,6 +569,9 @@ bool hijing_analysis::OutsideAcceptance(double phi)
 
 int hijing_analysis::End(PHCompositeNode *topNode){
   //calculate centrality percentiles....
+  cout<<"End."<<endl;
+  DoMixing(atree->_ttrig, atree->_tpart, NMIX);
+  cout<<"finish mixing."<<endl;
   manager->dumpHistos(outfile);
   
   return 0;
