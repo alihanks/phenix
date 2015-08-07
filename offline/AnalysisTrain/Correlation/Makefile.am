@@ -30,7 +30,7 @@ nobase_dist_mydata_DATA = \
   inputs/run11/AA_11_trig_eff_1_v0.root \
   inputs/run11/AA_11_trig_eff_2_v0.root \
   inputs/run11/AA_11_trig_eff_3_v0.root \
-  inputs/run8/merged/sharkfin_miss.root
+  inputs/run8/sharkfin_miss.root
 
 libCorrelation_la_LIBADD = \
   -L$(libdir) \
