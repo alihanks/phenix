@@ -15,7 +15,9 @@ class TVirtualPad;
 class TLegend;
 class TLatex;
 
-#define NCENTBIN 2
+const double PI = acos(-1.0);
+
+#define NCENTBIN 4
 #define NTRIGBIN 4
 #define NPARTBIN 5
 //#define NPARTBIN 4
