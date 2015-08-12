@@ -18,7 +18,7 @@
 using namespace std;
 
 
-MakeCFs::MakeCFs(int type, int isfold, int dofold, int isiso, int ispertrigger, const string fin, const string fout)
+MakeCFs::MakeCFs(int type, int ispertrigger, const string fin, const string fout)
 {
 	cout<<"start"<<endl;
 	//type == 0: inclusive photon
@@ -30,35 +30,16 @@ MakeCFs::MakeCFs(int type, int isfold, int dofold, int isiso, int ispertrigger, 
 	SetTrigPtBinning(type);
 	SetPartPtBinning();
 
-	TH1D* h1_trigpt_inc[NCENTBIN];
-	TH1D* h1_trigpt_pi0[NCENTBIN];
-	TH1D* h1_trigpt_dec[NCENTBIN];
-	TH1D* h1_trigpt_inc_mix[NCENTBIN];
-	TH1D* h1_trigpt_pi0_mix[NCENTBIN];
-	TH1D* h1_trigpt_dec_mix[NCENTBIN];
+	TH1D* h1_trigpt[NCENTBIN];
 
 	// name = "h1_part_pt_tot";
 	// TH1D* h1_partpt = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 
 	for(int ic=0; ic<NCENTBIN; ic++){
 		bin.str("");
-		bin << ic;
-		name = "h1_trig_pt_inc_c" + bin.str();
-		if( isiso ) name = "h1_trig_pt_inc_iso_c" + bin.str();
-		h1_trigpt_inc[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
-		name = "h1_trig_pt_pi0_c" + bin.str();
-		if( isiso ) name = "h1_trig_pt_pi0_iso_c" + bin.str();
-		h1_trigpt_pi0[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
-		name = "h1_trig_pt_dec_c" + bin.str();
-		h1_trigpt_dec[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
-		name = "h1_trig_pt_inc_mix_c" + bin.str();
-		if( isiso ) name = "h1_trig_pt_inc_iso_mix_c" + bin.str();
-		h1_trigpt_inc_mix[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
-		name = "h1_trig_pt_pi0_mix_c" + bin.str();
-		if( isiso ) name = "h1_trig_pt_pi0_iso_mix_c" + bin.str();
-		h1_trigpt_pi0_mix[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
-		name = "h1_trig_pt_dec_mix_c" + bin.str();
-		h1_trigpt_dec_mix[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
+		bin << "_c" << ic;
+		name = trig_name + bin.str();
+		h1_trigpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 	}
 
 	string dphi_title = ";#Delta#phi[rad]      ";
@@ -156,82 +137,22 @@ MakeCFs::MakeCFs(int type, int isfold, int dofold, int isiso, int ispertrigger, 
 					name = "h1_dphi_c" + bin.str();
 					name_mix = "h1_dphi_mix_c" + bin.str();
 
-					//*****************************************************
-					if(dofold){
-						name_fold = "dphi_fold_c" + bin.str();
-						FoldDphiDist(dphi_1d[ic][ippt][ihpt], fold[ic][ippt][ihpt],name_fold.c_str());
-						fold[ic][ippt][ihpt]->SetName(name_fold.c_str());
-						SetHisto(fold[ic][ippt][ihpt],dphi_title,1);
-						name_fold_mix = "dphi_fold_mix_c" + bin.str();
-						FoldDphiDist(dphi_1d_mix[ic][ippt][ihpt], fold_mix[ic][ippt][ihpt],name_fold_mix.c_str());
-						fold_mix[ic][ippt][ihpt]->SetName(name_fold_mix.c_str());
-						SetHisto(fold_mix[ic][ippt][ihpt],dphi_title,2);
+					corr_name.str("");
+					corr_name << "CF_c" << ic << "_p"<<ippt <<"_h"<< ihpt; 
+					corr[ic][ippt][ihpt] = new TH1D(*(TH1D*)dphi_1d[ic][ippt][ihpt]);
+					corr[ic][ippt][ihpt]->Divide(dphi_1d_mix[ic][ippt][ihpt]);
+					num_trigger[ic][ippt] = GetNTriggers(h1_trigpt[ic], trig_pt[ippt], trig_pt[ippt+1]);
+					corr[ic][ippt][ihpt]->Scale(1/num_trigger[ic][ippt]);
+					corr[ic][ippt][ihpt]->SetName(corr_name.str().c_str());
+					SetHisto(corr[ic][ippt][ihpt],dphi_title,1);
 
-						double R_fg = fold[ic][ippt][ihpt]->Integral("width")/PI;
-						fold[ic][ippt][ihpt]->Scale(1/R_fg);
-						double R_bg = fold_mix[ic][ippt][ihpt]->Integral("width")/PI;
-						fold_mix[ic][ippt][ihpt]->Scale(1/R_bg);
-
-						fold[ic][ippt][ihpt]->Write();
-						fold_mix[ic][ippt][ihpt]->Write();
-
-						TVirtualPad* pad = can_dphi[ic][ippt]->cd(ihpt+1);
-						SetPad(pad);
-						fold[ic][ippt][ihpt]->Draw();
-						fold_mix[ic][ippt][ihpt]->Draw("same");
-
-						legend_name.str("");
-						legend_name<<trig_pt[ippt]<<"-"<<trig_pt[ippt+1]<<" #times "<<part_pt[ihpt]<<"-"<<part_pt[ihpt+1]<<" GeV/c";
-						TLegend *l1 = new TLegend(0.5,0.7,0.8,0.9,legend_name.str().c_str(),"brNDC");
-						l1->AddEntry(fold[ic][ippt][ihpt],"real","lpf");
-						l1->AddEntry(fold_mix[ic][ippt][ihpt],"mixed","lpf");
-						l1->SetTextSize(0.05);
-						l1->Draw("same");
-
-					    //*****************************************************
-
-						corr_name.str("");
-						corr_name << "CF_c" << ic << "_p"<<ippt <<"_h"<< ihpt; 
-						corr[ic][ippt][ihpt] = new TH1D(*(TH1D*)fold[ic][ippt][ihpt]);
-						corr[ic][ippt][ihpt]->Divide(fold_mix[ic][ippt][ihpt]);
-						corr[ic][ippt][ihpt]->SetName(corr_name.str().c_str());
-						SetHisto(corr[ic][ippt][ihpt],dphi_title,1);
-					    //corr[ic][ippt][ihpt]->Rebin();
-
-						double r = corr[ic][ippt][ihpt]->Integral("width")/PI;
-						corr[ic][ippt][ihpt]->Scale(1/r);
-					    // if(type == 0) num_trigger = GetNTriggers(h1_trigpt_inc, trig_pt[ippt], trig_pt[ippt+1]);
-					    // if(type == 1) num_trigger = GetNTriggers(h1_trigpt_pi0, trig_pt[ippt], trig_pt[ippt+1]);
-					    // corr[ic][ippt][ihpt]->Scale(1/num_trigger);
-						corr[ic][ippt][ihpt]->Write();
-
-						TLatex *la = new TLatex(0.45, 0.75, legend_name.str().c_str());
-						la->SetNDC();
-						pad = can_corr[ic][ippt]->cd(ihpt+1);
-						SetPad(pad);
-						corr[ic][ippt][ihpt]->Draw();
-						la->Draw("same");
-					}
-
-					else{
-						corr_name.str("");
-						corr_name << "CF_c" << ic << "_p"<<ippt <<"_h"<< ihpt; 
-						corr[ic][ippt][ihpt] = new TH1D(*(TH1D*)dphi_1d[ic][ippt][ihpt]);
-						corr[ic][ippt][ihpt]->Divide(dphi_1d_mix[ic][ippt][ihpt]);
-						if(type == 0) num_trigger[ic][ippt] = GetNTriggers(h1_trigpt_inc[ic], trig_pt[ippt], trig_pt[ippt+1]);
-						if(type == 1) num_trigger[ic][ippt] = GetNTriggers(h1_trigpt_pi0[ic], trig_pt[ippt], trig_pt[ippt+1]);
-						corr[ic][ippt][ihpt]->Scale(1/num_trigger[ic][ippt]);
-						corr[ic][ippt][ihpt]->SetName(corr_name.str().c_str());
-						SetHisto(corr[ic][ippt][ihpt],dphi_title,1);
-
-						TLatex *la = new TLatex(0.45, 0.75, legend_name.str().c_str());
-						la->SetNDC();
-						TVirtualPad* pad = can_corr[ic][ippt]->cd(ihpt+1);
-						SetPad(pad);
-						corr[ic][ippt][ihpt]->Draw();
-						corr[ic][ippt][ihpt]->Write();
-						la->Draw("same");
-					}
+					TLatex *la = new TLatex(0.45, 0.75, legend_name.str().c_str());
+					la->SetNDC();
+					TVirtualPad* pad = can_corr[ic][ippt]->cd(ihpt+1);
+					SetPad(pad);
+					corr[ic][ippt][ihpt]->Draw();
+					corr[ic][ippt][ihpt]->Write();
+					la->Draw("same");
 				}
 				can_dphi[ic][ippt]->Write();
 				can_corr[ic][ippt]->Write();
@@ -244,19 +165,10 @@ MakeCFs::MakeCFs(int type, int isfold, int dofold, int isiso, int ispertrigger, 
 		cout<<"using folded histos."<<endl;
 		for(int ic=0; ic < NCENTBIN; ic++){
 			bin.str("");
-			bin << ic;
-			if(type == 0){
-				name = "h3_dphi_fold_c" + bin.str();
-				if( isiso ) name = "h3_dphi_iso_fold_c" + bin.str();
-				name_mix = "h3_dphi_mix_fold_c" + bin.str();
-				if( isiso ) name_mix = "h3_dphi_mix_iso_fold_c" + bin.str();
-			}
-			if(type == 1){
-				name = "h3_dphi_pi0_fold_c" + bin.str();
-				if( isiso ) name = "h3_dphi_pi0_iso_fold_c" + bin.str();
-				name_mix = "h3_dphi_pi0_mix_fold_c" + bin.str();
-				if( isiso ) name_mix = "h3_dphi_pi0_mix_iso_fold_c" + bin.str();
-			}
+			bin << "_c" << ic;
+
+			name = dphi_name + bin.str();
+			name_mix = dphi_mix_name + bin.str();
 
 			if(type == 0 || type == 1){
 				temp3D = new TH3D(*(TH3D*)infile->Get(name.c_str()));
@@ -289,11 +201,11 @@ MakeCFs::MakeCFs(int type, int isfold, int dofold, int isiso, int ispertrigger, 
 				cout<<"1";
 				for(int ippt=0; ippt<4; ippt++){
 					bin.str("");
-					if(ippt<3) bin<<ippt<<"_c"<<ic;	   
-					else bin<<ippt+1<<"_c"<<ic;
+					if(ippt<3) bin <<"_p"<<ippt<<"_c"<<ic;	   
+					else bin<<"_p"<<ippt+1<<"_c"<<ic;
 
-					name = "h2_dphi_dec_fold_p" + bin.str();
-					name_mix = "h2_dphi_dec_mix_fold_p" + bin.str();
+					name = dphi_name + bin.str();
+					name_mix = dphi_mix_name + bin.str();
 
 					temp2D = new TH2D(*(TH2D*)infile->Get(name.c_str()));
 					temp2D_mix = new TH2D(*(TH2D*)infile->Get(name_mix.c_str()));
@@ -345,22 +257,18 @@ MakeCFs::MakeCFs(int type, int isfold, int dofold, int isiso, int ispertrigger, 
 				can_abs[ic][ippt] = new TCanvas(can_corr_name.str().c_str(), can_corr_name.str().c_str());
 				can_abs[ic][ippt]->Divide(3,2,0.001,0.001);
 
-				if(type == 0) {
-					num_trigger[ic][ippt] = GetNTriggers(h1_trigpt_inc[ic], trig_pt[ippt], trig_pt[ippt+1]);
-					num_trigger_mix[ic][ippt] = GetNTriggers(h1_trigpt_inc_mix[ic], trig_pt[ippt], trig_pt[ippt+1]);
-				}
-				if(type == 1) {
-					num_trigger[ic][ippt] = GetNTriggers(h1_trigpt_pi0[ic], trig_pt[ippt], trig_pt[ippt+1]);
-					num_trigger_mix[ic][ippt] = GetNTriggers(h1_trigpt_pi0_mix[ic], trig_pt[ippt], trig_pt[ippt+1]);
+				if(type == 0 || type == 1) {
+					num_trigger[ic][ippt] = GetNTriggers(h1_trigpt[ic], trig_pt[ippt], trig_pt[ippt+1]);
+					num_trigger_mix[ic][ippt] = GetNTriggers(h1_trigpt[ic], trig_pt[ippt], trig_pt[ippt+1]);
 				}
 				if(type == 2) {
 					if(ippt<3){
-						num_trigger[ic][ippt] = h1_trigpt_dec[ic]->GetBinContent(ippt+1);
-						num_trigger_mix[ic][ippt] = h1_trigpt_dec_mix[ic]->GetBinContent(ippt+1);
+						num_trigger[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+1);
+						num_trigger_mix[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+1);
 					}
 					else{
-						num_trigger[ic][ippt] = h1_trigpt_dec[ic]->GetBinContent(ippt+2);
-						num_trigger_mix[ic][ippt] = h1_trigpt_dec_mix[ic]->GetBinContent(ippt+2);
+						num_trigger[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+2);
+						num_trigger_mix[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+2);
 					}
 				}
 
@@ -474,7 +382,7 @@ void MakeCFs::SetPtRange(TH3D* h3, double x_pt_min, double x_pt_max, double y_pt
 	h3->GetYaxis()->SetRangeUser(y_pt_min, y_pt_max);
 }
 
-void MakeCFs::SetTrigPtBinning(int type)
+void MakeCFs::SetTrigPtBinning()
 {
 	trig_pt[0]=5.;
 	trig_pt[1]=7.;

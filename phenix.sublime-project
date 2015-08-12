@@ -12,6 +12,9 @@
 		},
 		{
 			"path": "hijing"
+		},
+		{
+			"path": "offline/analysis/Correlation/macros"
 		}
 	]
 }
