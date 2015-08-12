@@ -1,6 +1,7 @@
 #ifndef __MAKEDIR_H__
 #define __MAKEDIR_H__
 
+#include <MakeCFs.h>
 #include <TMath.h>
 #include <string>
 #include <sstream>
@@ -14,10 +15,6 @@ class TGraphErrors;
 class TCanvas;
 class TLegend;
 class TLatex;
-
-#define NCENTBIN 2
-#define NTRIGBIN 4
-#define NPARTBIN 5
 
 class MakeDir
 {
