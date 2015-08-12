@@ -56,7 +56,7 @@ protected:
   void MakePi0Object(APiZero* api0, float pt, float phi, float eta, float e);
   void MakeTrackObject(ATrack* atrk, float pt, float phi, float eta, float e);
   int CheckPool(int nenpart, int j, int pooldepth, int size, int& nloop);
-  void EvalDecWeights(APiZero* pi0trigger, vector<float>& mwweight);
+  void EvalDecWeights(APiZero* pi0trigger, std::vector<float>& mwweight);
 
   void Init1DHisto(TH1F*& h1, std::string name, std::string xtitle, int nxbin, double xmin, double xmax);
   void Init2DHisto(TH2F*& h2, std::string name, std::string xtitle, int nxbin, double xmin, double xmax, std::string ytitle, int nybin, double ymin, double ymax);

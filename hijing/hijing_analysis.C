@@ -255,9 +255,9 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     //dec trigger counting
     vector<float> mwweight = pizeros[i]->GetDecayWeights();
     for(int ipw=0; ipw<5; ipw++){
-      h1_trig_pt_dec->Fill(ipw,mwweight[ipw]);
+      h1_trigger_dec_pt->Fill(ipw,mwweight[ipw]);
       if( pizeros[i]->IsIso() )
-        h1_trig_pt_dec_iso->Fill(ipw,mwweight[ipw]);
+        h1_trigger_dec_iso_pt->Fill(ipw,mwweight[ipw]);
     }
   }
   
