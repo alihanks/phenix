@@ -23,8 +23,12 @@ class TLatex;
 class MakeCFs
 {
 public:
-  MakeCFs(int type, int isfold, int dofold, int isiso, int ispertrigger, const std::string fin, const std::string fout);
+  MakeCFs(const std::string fin, const std::string fout);
   virtual ~MakeCFs(){};
+
+  void Run(int type, int ispertrigger);
+  void SetTriggerName(std::string name) { trig_name = name; }
+  void SetDphiNames(std::string name, std::string mix_name) { dphi_name = name; dphi_mix_name = mix_name; }
 
   void SetTrigPtBinning(int type);
   void SetPartPtBinning();
@@ -39,10 +43,11 @@ public:
   double GetHadronEff_v2(TH1D* hadron_pt, int ipart);
 
 private:
+  std::string trig_name;
+  std::string dphi_name;
+  std::string dphi_mix_name;
   std::string name;
   std::string name_mix;
-  std::string name_fold;
-  std::string name_fold_mix;
   std::ostringstream bin;
   std::ostringstream can_dphi_name;
   std::ostringstream can_corr_name;
