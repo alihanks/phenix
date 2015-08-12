@@ -32,7 +32,7 @@ public:
   void SetTriggerName(std::string name) { trig_name = name; }
   void SetDphiNames(std::string name, std::string mix_name) { dphi_name = name; dphi_mix_name = mix_name; }
 
-  void SetTrigPtBinning(int type);
+  void SetTrigPtBinning();
   void SetPartPtBinning();
   void SetPtRange(TH3D* h3, double x_pt_min, double x_pt_max, double y_pt_min, double y_pt_max);
   void MakeDphiProjection(TH3D* h3, TH1D*& h1, std::string hname);
