@@ -208,7 +208,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
           //dec weighting
           vector<float> mwweight;
           for(int i=0; i<5; i++) mwweight.push_back(0.0);
-          EvalDecWeights(&piz,0,mwweight);
+          EvalDecWeights(&piz,mwweight);
           piz.SetDecayWeights(mwweight);
 
           pizeros.push_back(piz.clone());
@@ -418,7 +418,7 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
       //dec weighting
       vector<float> mwweight;
       for(int i=0; i<5; i++) mwweight.push_back(0.0);
-      EvalDecWeights(&pi0,0,mwweight);
+      EvalDecWeights(&pi0,mwweight);
       pi0.SetDecayWeights(mwweight);
 
       pizeros.push_back(pi0.clone());
