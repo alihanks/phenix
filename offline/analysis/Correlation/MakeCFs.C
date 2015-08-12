@@ -28,7 +28,7 @@ MakeCFs::MakeCFs(const string fin, const string fout)
 }
 
 void MakeCFs::Run(int type, int ispertrigger)
-
+{
 	outfile->cd();
 	TH1D* h1_trigpt[NCENTBIN];
 
