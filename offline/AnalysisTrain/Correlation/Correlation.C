@@ -1127,37 +1127,6 @@ void Correlation::MakeClusterObject(emcClusterContent* clus, ACluster* aclus)
   }
 }
 
-bool Correlation::CheckPhiFiducial(float phi)
-{
-  float phphi = PHAngle(phi);
-  if((phphi>(WEST_LOW_EDGE+Rcut*0.25)&&phphi<(WEST_HIGH_EDGE-Rcut*0.25))||(phphi>(EAST_LOW_EDGE+Rcut*0.25)&&phphi<(EAST_HIGH_EDGE-Rcut*0.25)))
-    return true;
-  else
-    return false;
-}
-
-void Correlation::MakeClusterObject(ACluster* aclus, float pt, float phi, float eta, float e, float x, float y, float z, float zvtx)
-{
-  aclus->SetPtEtaPhiE(pt, eta, phi, e);
-  aclus->SetEcore(e);
-  aclus->SetEmcX(x);
-  aclus->SetEmcY(y);
-  aclus->SetEmcZ(z);
-  aclus->SetZvtx(zvtx);
-  aclus->SetFiducial(CheckPhiFiducial(aclus->Phi()));
-}
-
-void Correlation::MakePi0Object(APiZero* api0, float pt, float phi, float eta, float e, float x, float y, float z, float zvtx)
-{
-  api0->SetPtEtaPhiE(pt, eta, phi, e);
-  api0->Daughter1()->SetPtEtaPhiE(pt, eta, phi, e);
-  api0->Daughter2()->SetPxPyPzE(0,0,0,0);
-  api0->Daughter1()->SetEmcX(x);
-  api0->Daughter1()->SetEmcY(y);
-  api0->Daughter1()->SetEmcZ(z);
-  api0->Daughter1()->SetZvtx(zvtx);
-}
-
 void Correlation::MakeTrackObject(PHCentralTrack* trk, int itrk, ATrack* atrk)
 {
   atrk->SetZvtx(event_z);
@@ -1202,6 +1171,37 @@ void Correlation::MakeTrackObject(PHCentralTrack* trk, int itrk, ATrack* atrk)
     cout<<"trk zed = "<<atrk->GetZed()<<endl;
     cout<<"trk pt = "<<atrk->Pt()<<endl;
   }
+}
+
+bool Correlation::CheckPhiFiducial(float phi)
+{
+  float phphi = PHAngle(phi);
+  if((phphi>(WEST_LOW_EDGE+Rcut*0.25)&&phphi<(WEST_HIGH_EDGE-Rcut*0.25))||(phphi>(EAST_LOW_EDGE+Rcut*0.25)&&phphi<(EAST_HIGH_EDGE-Rcut*0.25)))
+    return true;
+  else
+    return false;
+}
+
+void Correlation::MakeClusterObject(ACluster* aclus, float pt, float phi, float eta, float e, float x, float y, float z, float zvtx)
+{
+  aclus->SetPtEtaPhiE(pt, eta, phi, e);
+  aclus->SetEcore(e);
+  aclus->SetEmcX(x);
+  aclus->SetEmcY(y);
+  aclus->SetEmcZ(z);
+  aclus->SetZvtx(zvtx);
+  aclus->SetFiducial(CheckPhiFiducial(aclus->Phi()));
+}
+
+void Correlation::MakePi0Object(APiZero* api0, float pt, float phi, float eta, float e, float x, float y, float z, float zvtx)
+{
+  api0->SetPtEtaPhiE(pt, eta, phi, e);
+  api0->Daughter1()->SetPtEtaPhiE(pt, eta, phi, e);
+  api0->Daughter2()->SetPxPyPzE(0,0,0,0);
+  api0->Daughter1()->SetEmcX(x);
+  api0->Daughter1()->SetEmcY(y);
+  api0->Daughter1()->SetEmcZ(z);
+  api0->Daughter1()->SetZvtx(zvtx);
 }
 
 void Correlation::MakeTrackObject(ATrack* atrk, float pt, float phi, float eta, float e, float pemcx, float pemcy, float pemcz, float zvtx)
@@ -1634,7 +1634,9 @@ void Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, v
   }
 }
 
-void Correlation::MakeDecays(float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight, std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt_fold, std::vector<TH2F*> hdphi_iso)
+void Correlation::MakeDecays(float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight,
+                             std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi_fold,
+                             std::vector<TH2F*> hdphizt_fold, std::vector<TH2F*> hdphi_iso, bool isiso)
 {
   float zt = partpt/trigpt;
   float xi = log(1.0/zt);
@@ -1644,11 +1646,11 @@ void Correlation::MakeDecays(float dphi, float dphifold, float partpt, float tri
       if( hdphi_fold.size()>ipw )
         hdphi_fold[ipw]->Fill(dphifold,partpt,weight[ipw]);
       if( hdphixi_fold.size()>ipw )
-	hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]);
+	      hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]);
       if( hdphizt_fold.size()>ipw )
-	hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]);
+      	hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]);
       if( hdphi_iso.size()>ipw )
-        hdphi_iso[ipw]->Fill(dphifold,partpt,weight[ipw]);
+        if( isiso ) hdphi_iso[ipw]->Fill(dphifold,partpt,weight[ipw]);
     }
   }
 }
@@ -1741,10 +1743,10 @@ for (unsigned int i = 0; i < clus_everything.size(); i++){
     delete clus_everything[i];
   }
   clus_everything.clear();
-//   for (unsigned int i = 0; i < clus_vector_novetotracks.size(); i++){
-//     delete clus_vector_novetotracks[i];
-//   }
-//   clus_vector_novetotracks.clear();
+  //   for (unsigned int i = 0; i < clus_vector_novetotracks.size(); i++){
+  //     delete clus_vector_novetotracks[i];
+  //   }
+  //   clus_vector_novetotracks.clear();
   for (unsigned int i = 0; i < clus_vector.size(); i++){
     delete clus_vector[i];
   }
@@ -1793,22 +1795,6 @@ for (unsigned int i = 0; i < clus_everything.size(); i++){
     delete lessqualtrk_vector[i];
   }
   lessqualtrk_vector.clear();
-
-  /*
-    ClearVector(clus_everything);
-  ClearVector(clus_vector);
-  ClearVector(trk_vector);
-  ClearVector(trk_vector_05sig);
-  ClearVector(trk_vector_1sig);
-  ClearVector(trk_vector_15sig);
-  ClearVector(trk_vector_2sig);
-  ClearVector(trk_vector_3sig);
-  ClearVector(pi0_vector);
-  ClearVector(bgpi0_vector);
-  ClearVector(bgclus_vector);
-  ClearVector(all_clus_vector);
-  ClearVector(lessqualtrk_vector);
-  */
 }
 
 int Correlation::End(PHCompositeNode* topNode)
@@ -2003,8 +1989,6 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
       photons.push_back(pho.clone());
     }
     //cout<<"DoMixing: made photons. photon vector size: "<<photons.size()<<endl;
-
-   
 
     float nvert_fg = 0.;
     float ncent_fg = 0.;

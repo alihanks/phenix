@@ -178,7 +178,7 @@ public:
         //******************************************
         if(type==REALPI||type==MIXPI) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making decay pairs" << std::endl;
-          MakeDecays(deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec_fold,h2dphizt_dec_fold,h2dphi_dec_iso);
+          MakeDecays(deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec_fold,h2dphizt_dec_fold,h2dphi_dec_iso,triggers[it]->IsIso());
         }
       }
       if( type==MIX && DiagFlag ) {
@@ -214,7 +214,9 @@ private:
   int GetCentBin(int centbin);
   float FindTrackDistance(ACluster* clus, ATrack* trk);
   void EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, std::vector<float>& mwweight);
-  void MakeDecays(float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight, std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt_fold, std::vector<TH2F*> hdphi_iso);
+  void MakeDecays(float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight,
+                  std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi_fold,
+                  std::vector<TH2F*> hdphizt_fold, std::vector<TH2F*> hdphi_iso, bool isiso);
   
   void AddMBEvent(DataSet data_set);
 
