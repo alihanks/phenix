@@ -30,7 +30,6 @@ void make_cfs(int type = 0, int isiso = 0, const char* fin = "dAu_merged.root", 
   }
 
   if( isfold ) {
-  	trig_name << "_fold";
   	dphi_name << "_fold";
   	dphi_mix_name << "_fold";
   }
