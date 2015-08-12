@@ -477,8 +477,8 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
           if( pizeros[i]->IsIso() ) h3_dphi_pi0_mix_iso->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
           for(unsigned int ipw=0;ipw<weight.size();ipw++){
             if(weight[ipw]>0) {
-              h2_dphi_dec_mix[ipw]->Fill(dphifold,partpt,weight[ipw]);
-              if( pizeros[i]->IsIso() ) h2_dphi_dec_mix_iso[ipw]->Fill(dphifold,partpt,weight[ipw]);
+              h2_dphi_dec_mix[ipw]->Fill(dphifold,tracks[j]->Pt(),weight[ipw]);
+              if( pizeros[i]->IsIso() ) h2_dphi_dec_mix_iso[ipw]->Fill(dphifold,tracks[j]->Pt(),weight[ipw]);
             }
           }
         }
