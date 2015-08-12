@@ -48,60 +48,87 @@ int hijing_analysis::Init(PHCompositeNode *topNode){
   manager = new Fun4AllHistoManager("hijing_analysis");
 
   string name;
+  ostringstream bin;
   
-  name = "hmult";
+  bin.str("");
+  bin << "_c" << 0;
+  name = "hmult" + bin.str();
   Init1DHisto(hmult, name.c_str(),"multiplicity",100,0,100.0);
 
-  name = "h1_mass";
+  name = "h1_mass" + bin.str();
   Init1DHisto(h1_mass, name.c_str(),"mass [GeV/c^2]",500,0,1.0);
   
-  name = "h1_trig_pt_inc";
+  name = "h1_trig_pt_inc" + bin.str();
   Init1DHisto(h1_trigger_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trig_pt_pi0";
+  name = "h1_trig_pt_pi0" + bin.str();
   Init1DHisto(h1_trigger_pi0_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trig_pt_dir";
+  name = "h1_trig_pt_dir" + bin.str();
   Init1DHisto(h1_trigger_dir_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trig_pt_iso";
+  name = "h1_trig_pt_iso" + bin.str();
   Init1DHisto(h1_trigger_iso_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trig_pt_iso_pi0";
+  name = "h1_trig_pt_iso_pi0" + bin.str();
   Init1DHisto(h1_trigger_iso_pi0_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trig_pt_iso_dir";
+  name = "h1_trig_pt_iso_dir" + bin.str();
   Init1DHisto(h1_trigger_iso_dir_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h3_dphi_fold";
+  name = "h1_trig_pt_dec" + bin.str();
+  Init1DHisto(h1_trigger_dec_pt, name.c_str(),"p_{T} bin",5,-0.5,4.5);
+  
+  name = "h1_trig_pt_dec_iso" + bin.str();
+  Init1DHisto(h1_trigger_dec_iso_pt, name.c_str(),"p_{T} bin",5,-0.5,4.5);
+  
+  name = "h3_dphi_fold" + bin.str();
   Init3DHisto(h3_dphi, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_iso_fold";
+  name = "h3_dphi_iso_fold" + bin.str();
   Init3DHisto(h3_dphi_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_dir_fold";
+  name = "h3_dphi_dir_fold" + bin.str();
   Init3DHisto(h3_dphi_dir, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_pi0_fold";
+  name = "h3_dphi_pi0_fold" + bin.str();
   Init3DHisto(h3_dphi_pi0, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_dir_iso_fold";
+  name = "h3_dphi_dir_iso_fold" + bin.str();
   Init3DHisto(h3_dphi_dir_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_pi0_iso_fold";
+  name = "h3_dphi_pi0_iso_fold" + bin.str();
   Init3DHisto(h3_dphi_pi0_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0, PI);
   
-  name = "h3_dphi_mix_fold";
+  name = "h3_dphi_mix_fold" + bin.str();
   Init3DHisto(h3_dphi_mix, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
 
-  name = "h3_dphi_mix_iso_fold";
+  name = "h3_dphi_mix_iso_fold" + bin.str();
   Init3DHisto(h3_dphi_mix_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
 
-  name = "h3_dphi_pi0_mix_fold";
+  name = "h3_dphi_pi0_mix_fold" + bin.str();
   Init3DHisto(h3_dphi_pi0_mix, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
 
-  name = "h3_dphi_pi0_mix_iso_fold";
+  name = "h3_dphi_pi0_mix_iso_fold" + bin.str();
   Init3DHisto(h3_dphi_pi0_mix_iso, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
+
+  TH2F* temp2;
+  for(int ipt=0; ipt<5; ipt++){
+    bin.str("");
+    bin << "_p" << ipt <<"_c"<<0;
+    name = "h2_dphi_dec_fold" + bin.str();
+    Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
+    h2_dphi_dec.push_back(temp2);
+    name = "h2_dphi_dec_iso_fold" + bin.str();
+    Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
+    h2_dphi_dec_iso.push_back(temp2);
+    name = "h2_dphi_dec_mix_fold" + bin.str();
+    Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
+    h2_dphi_dec_mix.push_back(temp2);
+    name = "h2_dphi_dec_mix_iso_fold" + bin.str();
+    Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
+    h2_dphi_dec_mix_iso.push_back(temp2);
+  }
 
   name = "h2_cluster_dphi_dR";
   Init2DHisto(h2_cluster_wdR, name.c_str(), "#Delta R ", 200, 0.0, 2.0, "#Delta #phi [rad]", 60, 0.0, PI);
@@ -177,7 +204,15 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       if( id==111 )
       {
         APiZero piz;
-        if( MakePiZero((*p),&piz) ) pizeros.push_back(piz.clone());
+        if( MakePiZero((*p),&piz) ) {
+          //dec weighting
+          vector<float> mwweight;
+          for(int i=0; i<5; i++) mwweight.push_back(0.0);
+          EvalDecWeights(&piz,0,mwweight);
+          piz.SetDecayWeights(mwweight);
+
+          pizeros.push_back(piz.clone());
+        }
       }
       if( (*p)->status()!=1 )continue;
       if( id==22 )
@@ -217,6 +252,13 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     SetIso(pizeros[i],tracks,clusters,Rcut,h3_cluster_pi0_dR,h3_cluster_pi0_etot,h2_cluster_pi0_wdR,h2_cluster_pi0_etot);
     if( pizeros[i]->IsIso() ) h1_trigger_iso_pi0_pt->Fill(pizeros[i]->Pt());
     //cout << "Set iso<" << Rcut << " cut for piz to " << pizeros[i]->IsIso() << endl;
+    //dec trigger counting
+    vector<float> mwweight = pizeros[i]->GetDecayWeights();
+    for(int ipw=0; ipw<5; ipw++){
+      h1_trig_pt_dec->Fill(ipw,mwweight[ipw]);
+      if( pizeros[i]->IsIso() )
+        h1_trig_pt_dec_iso->Fill(ipw,mwweight[ipw]);
+    }
   }
   
   if( verbosity ) cout << "Looping over " << clusters.size() << " clusters" << endl;
@@ -239,6 +281,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       ((ACluster*)pizeros[i]->Daughter1())->GetX(),((ACluster*)pizeros[i]->Daughter1())->GetY(),((ACluster*)pizeros[i]->Daughter1())->GetZ(),
       pizeros[i]->IsIso(),pizeros.size()-1);
     float ph_phi = PHAngle(pizeros[i]->Phi());
+    vector<float> weight = pizeros[i]->GetDecayWeights();
     for( unsigned int j = 0; j < tracks.size(); j++ )
     {
       float trk_phi = PHAngle(tracks[j]->Phi());
@@ -246,6 +289,12 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
 
       h3_dphi_pi0->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
       if( pizeros[i]->IsIso() ) h3_dphi_pi0_iso->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
+      for(unsigned int ipw=0;ipw<weight.size();ipw++){
+        if(weight[ipw]>0) {
+          h2_dphi_dec[ipw]->Fill(dphifold,partpt,weight[ipw]);
+          if( pizeros[i]->IsIso() ) h2_dphi_dec_iso[ipw]->Fill(dphifold,partpt,weight[ipw]);
+        }
+      }
     }
   }
   for( unsigned int i = 0; i < clusters.size(); i++ )
@@ -275,6 +324,32 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
 
   nevents++;
   return 0;
+}
+
+void hijing_analysis::EvalDecWeights(APiZero* pi0trigger, vector<float>& mwweight)
+{
+  float pi0trigpt = pi0trigger->Pt();
+  
+  int trigptbin = hshark[0]->FindBin(pi0trigpt);
+  if(trigptbin>400) trigptbin=400;
+  
+  for(int idecl=0;idecl<5;idecl++){
+    float mattshark=hshark[idecl]->GetBinContent(trigptbin);
+    if(mattshark>0) mwweight[idecl]=mattshark;
+  }
+}
+
+void hijing_analysis::SetSharkFin(const char* filename)
+{
+  TFile *fshark_exodus=NULL;
+  fshark_exodus = new TFile(filename);
+  
+  cout<<PHWHERE<<" loading sharkfins "<< fshark_exodus->GetName() <<endl;
+  for(int idecl=0;idecl<5;idecl++){
+    char sharkname[100];
+    sprintf(sharkname,"hshark_large_sum_%d",idecl);
+    hshark[idecl]=(TH1D*)fshark_exodus->Get(sharkname);
+  }  
 }
 
 void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
@@ -340,6 +415,12 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
       APiZero pi0;
       MakePi0Object(&pi0, trigpt[itrig], trigphi[itrig], trigeta[itrig], trige[itrig]);
       pi0.SetIso(iso[itrig]);
+      //dec weighting
+      vector<float> mwweight;
+      for(int i=0; i<5; i++) mwweight.push_back(0.0);
+      EvalDecWeights(&pi0,0,mwweight);
+      pi0.SetDecayWeights(mwweight);
+
       pizeros.push_back(pi0.clone());
     }
 
@@ -386,6 +467,7 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
       for( unsigned int i = 0; i < pizeros.size(); i++ )
       {
         float ph_phi = PHAngle(pizeros[i]->Phi());
+        vector<float> weight = pizeros[i]->GetDecayWeights();
         for( unsigned int j = 0; j < tracks.size(); j++ )
         {
           float trk_phi = PHAngle(tracks[j]->Phi());
@@ -393,6 +475,12 @@ void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
 
           h3_dphi_pi0_mix->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
           if( pizeros[i]->IsIso() ) h3_dphi_pi0_mix_iso->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
+          for(unsigned int ipw=0;ipw<weight.size();ipw++){
+            if(weight[ipw]>0) {
+              h2_dphi_dec_mix[ipw]->Fill(dphifold,partpt,weight[ipw]);
+              if( pizeros[i]->IsIso() ) h2_dphi_dec_mix_iso[ipw]->Fill(dphifold,partpt,weight[ipw]);
+            }
+          }
         }
       }
       for( unsigned int i = 0; i < clusters.size(); i++ )
