@@ -1,6 +1,7 @@
 #ifndef __MAKEJFS_H__
 #define __MAKEJFS_H__
 
+#include <MakeCFs.h>
 #include <TMath.h>
 #include <string>
 #include <sstream>
@@ -17,15 +18,6 @@ class TGraphErrors;
 class TCanvas;
 class TLegend;
 class TLatex;
-
-#define NCENTBIN 2
-#define NTRIGBIN 4
-#define NPARTBIN 5
-
-//const double PI = TMath::Pi();
-// const int NCENTBINS = 4;
-// const int NTRIGBINS = 4;
-// const int NPARTBINS = 5;
 
 class MakeJFs
 {
