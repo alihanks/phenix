@@ -35,7 +35,7 @@ void make_cfs(int type = 0, int isiso = 0, const char* fin = "dAu_merged.root", 
   	dphi_mix_name << "_fold";
   }
 
-  MakeCFs cfs = new MakeCFs(fin,fout);
+  MakeCFs* cfs = new MakeCFs(fin,fout);
   cfs->SetTriggerName(trig_name.str());
   cfs->SetDphiNames(dphi_name.str(),dphi_mix_name.str());
   cfs->Run(type,ispertrigger);

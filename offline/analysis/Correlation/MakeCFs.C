@@ -36,6 +36,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 		bin.str("");
 		bin << "_c" << ic;
 		name = trig_name + bin.str();
+		cout << "getting trig histo: " << name << endl;
 		h1_trigpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 	}
 
@@ -201,7 +202,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 			can_corr[ic][ippt]->Write();
 		}
 	}
-	
+
 	if(ispertrigger){
 	    //make JFs.
 		for(int ic=0; ic<4; ic++){
