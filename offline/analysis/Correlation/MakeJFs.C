@@ -32,9 +32,9 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   //type == 2: dec
   if(useMSMP<2)  SetV2(v2input);
   else {
-    inc_v2[centbin][trigbin] = {0};
-    pi0_v2[centbin][trigbin] = {0};
-    dec_v2[centbin][trigbin] = {0};
+    inc_v2[centbin][trigbin] = 0;
+    pi0_v2[centbin][trigbin] = 0;
+    dec_v2[centbin][trigbin] = 0;
   }
   if(type==0) trigv2 = inc_v2[centbin][trigbin];
   if(type==1) trigv2 = pi0_v2[centbin][trigbin];
