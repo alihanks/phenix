@@ -40,287 +40,168 @@ void MakeCFs::Run(int type, int ispertrigger)
 	}
 
 	string dphi_title = ";#Delta#phi[rad]      ";
-	if(!isfold){
-		for(int ic=0; ic < NCENTBIN; ic++){
-			bin.str("");
-			bin << ic;
-			if(type == 0){
-				name = "h3_dphi_c" + bin.str();
-				name_mix = "h3_dphi_mix_c" + bin.str();
-			}
-			if(type == 1){
-				name = "h3_dphi_pi0_c" + bin.str();
-				name_mix = "h3_dphi_pi0_mix_c" + bin.str();
-			}
+	cout<<"using folded histos."<<endl;
+	for(int ic=0; ic < NCENTBIN; ic++){
+		bin.str("");
+		bin << "_c" << ic;
 
-			if(type == 0 || type == 1){
-				temp3D = new TH3D(*(TH3D*)infile->Get(name.c_str()));
-				temp3D_mix = new TH3D(*(TH3D*)infile->Get(name_mix.c_str()));
+		name = dphi_name + bin.str();
+		name_mix = dphi_mix_name + bin.str();
 
-				for(int ippt = 0; ippt < NTRIGBIN; ippt++){
-					for(int ihpt = 0; ihpt < NPARTBIN; ihpt++){
-						dphi_3d[ic][ippt][ihpt] = new TH3D(*(TH3D*)temp3D);
-						dphi_3d_mix[ic][ippt][ihpt] = new TH3D(*(TH3D*)temp3D_mix);
-					    // SetPtRange(dphi_3d[ic][ippt][ihpt], trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1]);
-					    // SetPtRange(dphi_3d_mix[ic][ippt][ihpt], trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1]);
+		if(type == 0 || type == 1){
+			temp3D = new TH3D(*(TH3D*)infile->Get(name.c_str()));
+			temp3D_mix = new TH3D(*(TH3D*)infile->Get(name_mix.c_str()));
+			//cout<<"get temp3D: "<<name.c_str()<<endl;
+			for(int ippt = 0; ippt < NTRIGBIN; ippt++){
+				for(int ihpt = 0; ihpt < NPARTBIN; ihpt++){
+					dphi_3d[ic][ippt][ihpt] = new TH3D(*(TH3D*)temp3D);
+					dphi_3d_mix[ic][ippt][ihpt] = new TH3D(*(TH3D*)temp3D_mix);
 
-						bin.str("");
-						bin << ic <<"_p"<<ippt<<"_h"<<ihpt;
-						name = "h1_dphi_c" + bin.str();
-						name_mix = "h1_dphi_mix_c" + bin.str();
-						MakeDphiProjection(dphi_3d[ic][ippt][ihpt],dphi_1d[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name.c_str());
-					    //dphi_1d[ic][ippt][ihpt]->Sumw2();
-						dphi_1d[ic][ippt][ihpt]->SetName(name.c_str());
-						SetHisto(dphi_1d[ic][ippt][ihpt],dphi_title,1);
-
-						MakeDphiProjection(dphi_3d_mix[ic][ippt][ihpt],dphi_1d_mix[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name_mix.c_str());
-					    //dphi_3d_mix[ic][ippt][ihpt]->Sumw2();
-						dphi_1d_mix[ic][ippt][ihpt]->SetName(name_mix.c_str());
-						SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
-					}
-				}
-			}
-			if(type == 2){
-				name_mix = "h3_dphi_mix_c" + bin.str();
-				temp3D_mix = new TH3D(*(TH3D*)infile->Get(name_mix.c_str()));
-				for(int ippt=0; ippt<4; ippt++){
 					bin.str("");
-					if(ippt<3){
-						bin<<ippt<<"_c"<<ic;
-						name = "h2_dphi_dec_p" + bin.str();
-					}
-					else {
-						bin<<ippt+1<<"_c"<<ic;
-						name = "h2_dphi_dec_p" + bin.str();
-					}
-					temp2D = new TH2D(*(TH2D*)infile->Get(name.c_str()));
+					bin << ic <<"_p"<<ippt<<"_h"<<ihpt;
+					name = "h1_dphi_c" + bin.str();
+					name_mix = "h1_dphi_mix_c" + bin.str();
+					MakeDphiProjection(dphi_3d[ic][ippt][ihpt],dphi_1d[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name.c_str());
+					SetHisto(dphi_1d[ic][ippt][ihpt],dphi_title,1);
+					dphi_1d[ic][ippt][ihpt]->SetName(name.c_str());
 
-					for(int ihpt=0; ihpt < NPARTBIN; ihpt++){  
-						dphi_3d_mix[ic][ippt][ihpt] = new TH3D(*(TH3D*)temp3D_mix);    
-					    //SetPtRange(dphi_3d_mix[ic][ippt][ihpt], trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1]);
-						dphi_2d[ic][ippt][ihpt] = new TH2D(*(TH2D*)temp2D);
-					    //dphi_2d[ic][ippt][ihpt]->GetYaxis()->SetRangeUser(part_pt[ihpt],part_pt[ihpt+1]);
-						bin.str("");
-						bin << ic <<"_p"<<ippt<<"_h"<<ihpt;
-						name = "h1_dphi_c" + bin.str();
-						name_mix = "h1_dphi_mix_c" + bin.str();
-
-						MakeDphiProjection(dphi_3d_mix[ic][ippt][ihpt],dphi_1d_mix[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name_mix.c_str());
-					    //dphi_1d_mix[ic][ippt][ihpt]->Sumw2();
-						int ybinlo = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ippt]);
-						int ybinhi = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ippt+1]);
-						dphi_1d[ic][ippt][ihpt] = new TH1D (*(TH1D*)dphi_2d[ic][ippt][ihpt]->ProjectionX(name.c_str(),ybinlo,ybinhi));
-					    //dphi_1d[ic][ippt][ihpt]->Sumw2();
+					MakeDphiProjection(dphi_3d_mix[ic][ippt][ihpt],dphi_1d_mix[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name_mix.c_str());
+					SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
+					dphi_1d_mix[ic][ippt][ihpt]->SetName(name_mix.c_str());
+					if(ispertrigger) {
+						dphi_1d_mix[ic][ippt][ihpt]->Scale(1/100.0);
+						meanpart[ic][ippt][ihpt] = dphi_1d_mix[ic][ippt][ihpt]->Integral();
 					}
 				}
 			}
 		}
+		if(type == 2){
+			cout<<"1";
+			for(int ippt=0; ippt<4; ippt++){
+				bin.str("");
+				if(ippt<3) bin <<"_p"<<ippt<<"_c"<<ic;	   
+				else bin<<"_p"<<ippt+1<<"_c"<<ic;
 
-		for(int ic=0; ic<NCENTBIN; ic++){
-			for(int ippt=0; ippt<NTRIGBIN; ippt++){
-				can_dphi_name.str("");
-				can_dphi_name << "can_dphi_c"<<ic<<"_p"<<ippt;
-				can_dphi[ic][ippt] = new TCanvas(can_dphi_name.str().c_str(), can_dphi_name.str().c_str());
-				can_dphi[ic][ippt]->Divide(3,2,0.001,0.001);
-				can_corr_name.str("");
-				can_corr_name << "can_corr_c"<<ic<<"_p"<<ippt;
-				can_corr[ic][ippt] = new TCanvas(can_corr_name.str().c_str(), can_corr_name.str().c_str());
-				can_corr[ic][ippt]->Divide(3,2,0.001,0.001);
+				name = dphi_name + bin.str();
+				name_mix = dphi_mix_name + bin.str();
 
-
-				for(int ihpt=0; ihpt<NPARTBIN; ihpt++){
+				temp2D = new TH2D(*(TH2D*)infile->Get(name.c_str()));
+				temp2D_mix = new TH2D(*(TH2D*)infile->Get(name_mix.c_str()));
+				cout<<"2";
+				for(int ihpt=0; ihpt < NPARTBIN; ihpt++){  
+					dphi_2d[ic][ippt][ihpt] = new TH2D(*(TH2D*)temp2D);
+					dphi_2d_mix[ic][ippt][ihpt] = new TH2D(*(TH2D*)temp2D_mix);
 					bin.str("");
 					bin << ic <<"_p"<<ippt<<"_h"<<ihpt;
 					name = "h1_dphi_c" + bin.str();
 					name_mix = "h1_dphi_mix_c" + bin.str();
 
-					corr_name.str("");
-					corr_name << "CF_c" << ic << "_p"<<ippt <<"_h"<< ihpt; 
-					corr[ic][ippt][ihpt] = new TH1D(*(TH1D*)dphi_1d[ic][ippt][ihpt]);
-					corr[ic][ippt][ihpt]->Divide(dphi_1d_mix[ic][ippt][ihpt]);
-					num_trigger[ic][ippt] = GetNTriggers(h1_trigpt[ic], trig_pt[ippt], trig_pt[ippt+1]);
-					corr[ic][ippt][ihpt]->Scale(1/num_trigger[ic][ippt]);
-					corr[ic][ippt][ihpt]->SetName(corr_name.str().c_str());
-					SetHisto(corr[ic][ippt][ihpt],dphi_title,1);
-
-					TLatex *la = new TLatex(0.45, 0.75, legend_name.str().c_str());
-					la->SetNDC();
-					TVirtualPad* pad = can_corr[ic][ippt]->cd(ihpt+1);
-					SetPad(pad);
-					corr[ic][ippt][ihpt]->Draw();
-					corr[ic][ippt][ihpt]->Write();
-					la->Draw("same");
+					cout<<"3";
+					int ymin = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
+					int ymax = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
+					dphi_1d[ic][ippt][ihpt] = new TH1D (*(TH1D*)dphi_2d[ic][ippt][ihpt]->ProjectionX(name.c_str(),ymin,ymax));
+					SetHisto(dphi_1d[ic][ippt][ihpt],dphi_title,1);
+					ymin = dphi_2d_mix[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
+					ymax = dphi_2d_mix[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
+					dphi_1d_mix[ic][ippt][ihpt] = new TH1D (*(TH1D*)dphi_2d_mix[ic][ippt][ihpt]->ProjectionX(name_mix.c_str(),ymin,ymax));
+					SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
+					if(ispertrigger) {
+						dphi_1d_mix[ic][ippt][ihpt]->Scale(1/100.0);
+						meanpart[ic][ippt][ihpt] = dphi_1d_mix[ic][ippt][ihpt]->Integral();
+					}
+					cout<<"4";
 				}
-				can_dphi[ic][ippt]->Write();
-				can_corr[ic][ippt]->Write();
 			}
 		}
 	}
 
-	else {
+	cout<<"5";
+	for(int ic=0; ic<NCENTBIN; ic++){
+		for(int ippt=0; ippt<NTRIGBIN; ippt++){
+			can_dphi_name.str("");
+			can_dphi_name << "can_dphi_c"<<ic<<"_p"<<ippt;
+			can_dphi[ic][ippt] = new TCanvas(can_dphi_name.str().c_str(), can_dphi_name.str().c_str());
+			can_dphi[ic][ippt]->Divide(3,2,0.001,0.001);
+			can_corr_name.str("");
+			can_corr_name << "can_corr_c"<<ic<<"_p"<<ippt;
+			can_corr[ic][ippt] = new TCanvas(can_corr_name.str().c_str(), can_corr_name.str().c_str());
+			can_corr[ic][ippt]->Divide(3,2,0.001,0.001);
+			can_corr_name.str("");
+			can_corr_name << "can_jet_c"<<ic<<"_p"<<ippt;
+			can_jet[ic][ippt] = new TCanvas(can_corr_name.str().c_str(), can_corr_name.str().c_str());
+			can_jet[ic][ippt]->Divide(3,2,0.001,0.001);
+			can_corr_name.str("");
+			can_corr_name << "can_abs_c"<<ic<<"_p"<<ippt;
+			can_abs[ic][ippt] = new TCanvas(can_corr_name.str().c_str(), can_corr_name.str().c_str());
+			can_abs[ic][ippt]->Divide(3,2,0.001,0.001);
 
-		cout<<"using folded histos."<<endl;
-		for(int ic=0; ic < NCENTBIN; ic++){
-			bin.str("");
-			bin << "_c" << ic;
-
-			name = dphi_name + bin.str();
-			name_mix = dphi_mix_name + bin.str();
-
-			if(type == 0 || type == 1){
-				temp3D = new TH3D(*(TH3D*)infile->Get(name.c_str()));
-				temp3D_mix = new TH3D(*(TH3D*)infile->Get(name_mix.c_str()));
-				//cout<<"get temp3D: "<<name.c_str()<<endl;
-				for(int ippt = 0; ippt < NTRIGBIN; ippt++){
-					for(int ihpt = 0; ihpt < NPARTBIN; ihpt++){
-						dphi_3d[ic][ippt][ihpt] = new TH3D(*(TH3D*)temp3D);
-						dphi_3d_mix[ic][ippt][ihpt] = new TH3D(*(TH3D*)temp3D_mix);
-
-						bin.str("");
-						bin << ic <<"_p"<<ippt<<"_h"<<ihpt;
-						name = "h1_dphi_c" + bin.str();
-						name_mix = "h1_dphi_mix_c" + bin.str();
-						MakeDphiProjection(dphi_3d[ic][ippt][ihpt],dphi_1d[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name.c_str());
-						SetHisto(dphi_1d[ic][ippt][ihpt],dphi_title,1);
-						dphi_1d[ic][ippt][ihpt]->SetName(name.c_str());
-
-						MakeDphiProjection(dphi_3d_mix[ic][ippt][ihpt],dphi_1d_mix[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name_mix.c_str());
-						SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
-						dphi_1d_mix[ic][ippt][ihpt]->SetName(name_mix.c_str());
-						if(ispertrigger) {
-							dphi_1d_mix[ic][ippt][ihpt]->Scale(1/100.0);
-							meanpart[ic][ippt][ihpt] = dphi_1d_mix[ic][ippt][ihpt]->Integral();
-						}
-					}
+			if(type == 0 || type == 1) {
+				num_trigger[ic][ippt] = GetNTriggers(h1_trigpt[ic], trig_pt[ippt], trig_pt[ippt+1]);
+				num_trigger_mix[ic][ippt] = GetNTriggers(h1_trigpt[ic], trig_pt[ippt], trig_pt[ippt+1]);
+			}
+			if(type == 2) {
+				if(ippt<3){
+					num_trigger[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+1);
+					num_trigger_mix[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+1);
+				}
+				else{
+					num_trigger[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+2);
+					num_trigger_mix[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+2);
 				}
 			}
-			if(type == 2){
-				cout<<"1";
-				for(int ippt=0; ippt<4; ippt++){
-					bin.str("");
-					if(ippt<3) bin <<"_p"<<ippt<<"_c"<<ic;	   
-					else bin<<"_p"<<ippt+1<<"_c"<<ic;
 
-					name = dphi_name + bin.str();
-					name_mix = dphi_mix_name + bin.str();
+			cout<<"num_trigger = "<<num_trigger[ic][ippt]<<endl;
+			cout<<"num_trigger_mix = "<<num_trigger_mix[ic][ippt]<<endl;
 
-					temp2D = new TH2D(*(TH2D*)infile->Get(name.c_str()));
-					temp2D_mix = new TH2D(*(TH2D*)infile->Get(name_mix.c_str()));
-					cout<<"2";
-					for(int ihpt=0; ihpt < NPARTBIN; ihpt++){  
-						dphi_2d[ic][ippt][ihpt] = new TH2D(*(TH2D*)temp2D);
-						dphi_2d_mix[ic][ippt][ihpt] = new TH2D(*(TH2D*)temp2D_mix);
-						bin.str("");
-						bin << ic <<"_p"<<ippt<<"_h"<<ihpt;
-						name = "h1_dphi_c" + bin.str();
-						name_mix = "h1_dphi_mix_c" + bin.str();
+			for(int ihpt=0; ihpt<NPARTBIN; ihpt++){
 
-						cout<<"3";
-						int ymin = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
-						int ymax = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
-						dphi_1d[ic][ippt][ihpt] = new TH1D (*(TH1D*)dphi_2d[ic][ippt][ihpt]->ProjectionX(name.c_str(),ymin,ymax));
-						SetHisto(dphi_1d[ic][ippt][ihpt],dphi_title,1);
-						ymin = dphi_2d_mix[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
-						ymax = dphi_2d_mix[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
-						dphi_1d_mix[ic][ippt][ihpt] = new TH1D (*(TH1D*)dphi_2d_mix[ic][ippt][ihpt]->ProjectionX(name_mix.c_str(),ymin,ymax));
-						SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
-						if(ispertrigger) {
-							dphi_1d_mix[ic][ippt][ihpt]->Scale(1/100.0);
-							meanpart[ic][ippt][ihpt] = dphi_1d_mix[ic][ippt][ihpt]->Integral();
-						}
-						cout<<"4";
-					}
+				double R_bg = dphi_1d_mix[ic][ippt][ihpt]->Integral("width")/PI;
+				dphi_1d_mix[ic][ippt][ihpt]->Scale(1/R_bg);
+
+				double R_fg = dphi_1d[ic][ippt][ihpt]->Integral("width")/PI;
+				if(!ispertrigger) dphi_1d[ic][ippt][ihpt]->Scale(1/R_fg);
+
+				TVirtualPad* pad = can_dphi[ic][ippt]->cd(ihpt+1);
+				SetPad(pad);
+				dphi_1d[ic][ippt][ihpt]->Draw();
+				dphi_1d_mix[ic][ippt][ihpt]->Draw("same");
+
+				legend_name.str("");
+				legend_name<<trig_pt[ippt]<<"-"<<trig_pt[ippt+1]<<" #times "<<part_pt[ihpt]<<"-"<<part_pt[ihpt+1]<<" GeV/c";
+				TLegend *l1 = new TLegend(0.5,0.7,0.8,0.9,legend_name.str().c_str(),"brNDC");
+				l1->AddEntry(dphi_1d[ic][ippt][ihpt],"real","lpf");
+				l1->AddEntry(dphi_1d_mix[ic][ippt][ihpt],"mixed","lpf");
+				l1->SetTextSize(0.05);
+				l1->Draw("same");
+
+			    //*****************************************************	  
+				corr_name.str("");
+				corr_name << "CF_c" << ic << "_p"<<ippt <<"_h"<< ihpt; 
+				corr[ic][ippt][ihpt] = new TH1D(*(TH1D*)dphi_1d[ic][ippt][ihpt]);
+				corr[ic][ippt][ihpt]->Divide(dphi_1d_mix[ic][ippt][ihpt]);
+				SetHisto(corr[ic][ippt][ihpt],dphi_title,1);
+				corr[ic][ippt][ihpt]->SetName(corr_name.str().c_str());
+
+				if(ispertrigger) corr[ic][ippt][ihpt]->Scale(1/num_trigger[ic][ippt]);
+
+				else{
+					double r = corr[ic][ippt][ihpt]->Integral("width")/PI;
+					corr[ic][ippt][ihpt]->Scale(1/r);
 				}
+
+				TLatex *la = new TLatex(0.45, 0.75, legend_name.str().c_str());
+				la->SetNDC();
+				pad = can_corr[ic][ippt]->cd(ihpt+1);
+				SetPad(pad);
+				corr[ic][ippt][ihpt]->Draw();
+				corr[ic][ippt][ihpt]->Write();
+				la->Draw("same");
 			}
-		}
-
-		cout<<"5";
-		for(int ic=0; ic<NCENTBIN; ic++){
-			for(int ippt=0; ippt<NTRIGBIN; ippt++){
-				can_dphi_name.str("");
-				can_dphi_name << "can_dphi_c"<<ic<<"_p"<<ippt;
-				can_dphi[ic][ippt] = new TCanvas(can_dphi_name.str().c_str(), can_dphi_name.str().c_str());
-				can_dphi[ic][ippt]->Divide(3,2,0.001,0.001);
-				can_corr_name.str("");
-				can_corr_name << "can_corr_c"<<ic<<"_p"<<ippt;
-				can_corr[ic][ippt] = new TCanvas(can_corr_name.str().c_str(), can_corr_name.str().c_str());
-				can_corr[ic][ippt]->Divide(3,2,0.001,0.001);
-				can_corr_name.str("");
-				can_corr_name << "can_jet_c"<<ic<<"_p"<<ippt;
-				can_jet[ic][ippt] = new TCanvas(can_corr_name.str().c_str(), can_corr_name.str().c_str());
-				can_jet[ic][ippt]->Divide(3,2,0.001,0.001);
-				can_corr_name.str("");
-				can_corr_name << "can_abs_c"<<ic<<"_p"<<ippt;
-				can_abs[ic][ippt] = new TCanvas(can_corr_name.str().c_str(), can_corr_name.str().c_str());
-				can_abs[ic][ippt]->Divide(3,2,0.001,0.001);
-
-				if(type == 0 || type == 1) {
-					num_trigger[ic][ippt] = GetNTriggers(h1_trigpt[ic], trig_pt[ippt], trig_pt[ippt+1]);
-					num_trigger_mix[ic][ippt] = GetNTriggers(h1_trigpt[ic], trig_pt[ippt], trig_pt[ippt+1]);
-				}
-				if(type == 2) {
-					if(ippt<3){
-						num_trigger[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+1);
-						num_trigger_mix[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+1);
-					}
-					else{
-						num_trigger[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+2);
-						num_trigger_mix[ic][ippt] = h1_trigpt[ic]->GetBinContent(ippt+2);
-					}
-				}
-
-				cout<<"num_trigger = "<<num_trigger[ic][ippt]<<endl;
-				cout<<"num_trigger_mix = "<<num_trigger_mix[ic][ippt]<<endl;
-
-				for(int ihpt=0; ihpt<NPARTBIN; ihpt++){
-
-					double R_bg = dphi_1d_mix[ic][ippt][ihpt]->Integral("width")/PI;
-					dphi_1d_mix[ic][ippt][ihpt]->Scale(1/R_bg);
-
-					double R_fg = dphi_1d[ic][ippt][ihpt]->Integral("width")/PI;
-					if(!ispertrigger) dphi_1d[ic][ippt][ihpt]->Scale(1/R_fg);
-
-					TVirtualPad* pad = can_dphi[ic][ippt]->cd(ihpt+1);
-					SetPad(pad);
-					dphi_1d[ic][ippt][ihpt]->Draw();
-					dphi_1d_mix[ic][ippt][ihpt]->Draw("same");
-
-					legend_name.str("");
-					legend_name<<trig_pt[ippt]<<"-"<<trig_pt[ippt+1]<<" #times "<<part_pt[ihpt]<<"-"<<part_pt[ihpt+1]<<" GeV/c";
-					TLegend *l1 = new TLegend(0.5,0.7,0.8,0.9,legend_name.str().c_str(),"brNDC");
-					l1->AddEntry(dphi_1d[ic][ippt][ihpt],"real","lpf");
-					l1->AddEntry(dphi_1d_mix[ic][ippt][ihpt],"mixed","lpf");
-					l1->SetTextSize(0.05);
-					l1->Draw("same");
-
-				    //*****************************************************	  
-					corr_name.str("");
-					corr_name << "CF_c" << ic << "_p"<<ippt <<"_h"<< ihpt; 
-					corr[ic][ippt][ihpt] = new TH1D(*(TH1D*)dphi_1d[ic][ippt][ihpt]);
-					corr[ic][ippt][ihpt]->Divide(dphi_1d_mix[ic][ippt][ihpt]);
-					SetHisto(corr[ic][ippt][ihpt],dphi_title,1);
-					corr[ic][ippt][ihpt]->SetName(corr_name.str().c_str());
-
-					if(ispertrigger) corr[ic][ippt][ihpt]->Scale(1/num_trigger[ic][ippt]);
-
-					else{
-						double r = corr[ic][ippt][ihpt]->Integral("width")/PI;
-						corr[ic][ippt][ihpt]->Scale(1/r);
-					}
-
-					TLatex *la = new TLatex(0.45, 0.75, legend_name.str().c_str());
-					la->SetNDC();
-					pad = can_corr[ic][ippt]->cd(ihpt+1);
-					SetPad(pad);
-					corr[ic][ippt][ihpt]->Draw();
-					corr[ic][ippt][ihpt]->Write();
-					la->Draw("same");
-				}
-				can_dphi[ic][ippt]->Write();
-				can_corr[ic][ippt]->Write();
-			}
+			can_dphi[ic][ippt]->Write();
+			can_corr[ic][ippt]->Write();
 		}
 	}
+	
 	if(ispertrigger){
 	    //make JFs.
 		for(int ic=0; ic<4; ic++){
