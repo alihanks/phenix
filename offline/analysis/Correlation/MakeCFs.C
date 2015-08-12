@@ -18,22 +18,19 @@
 using namespace std;
 
 
-MakeCFs::MakeCFs(int type, int ispertrigger, const string fin, const string fout)
+MakeCFs::MakeCFs(const string fin, const string fout)
 {
 	cout<<"start"<<endl;
-	//type == 0: inclusive photon
-	//type == 1: pi0
-	//type == 2: decay photon
 	infile = new TFile(fin.c_str());
 	outfile = new TFile(fout.c_str(),"recreate");
-	outfile->cd();
-	SetTrigPtBinning(type);
+	SetTrigPtBinning();
 	SetPartPtBinning();
+}
 
+void MakeCFs::Run(int type, int ispertrigger)
+
+	outfile->cd();
 	TH1D* h1_trigpt[NCENTBIN];
-
-	// name = "h1_part_pt_tot";
-	// TH1D* h1_partpt = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 
 	for(int ic=0; ic<NCENTBIN; ic++){
 		bin.str("");
