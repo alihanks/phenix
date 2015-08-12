@@ -291,8 +291,8 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       if( pizeros[i]->IsIso() ) h3_dphi_pi0_iso->Fill(pizeros[i]->Pt(), tracks[j]->Pt(), dphifold);
       for(unsigned int ipw=0;ipw<weight.size();ipw++){
         if(weight[ipw]>0) {
-          h2_dphi_dec[ipw]->Fill(dphifold,partpt,weight[ipw]);
-          if( pizeros[i]->IsIso() ) h2_dphi_dec_iso[ipw]->Fill(dphifold,partpt,weight[ipw]);
+          h2_dphi_dec[ipw]->Fill(dphifold,tracks[j]->Pt(),weight[ipw]);
+          if( pizeros[i]->IsIso() ) h2_dphi_dec_iso[ipw]->Fill(dphifold,tracks[j]->Pt(),weight[ipw]);
         }
       }
     }
