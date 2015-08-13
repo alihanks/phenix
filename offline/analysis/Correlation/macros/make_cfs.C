@@ -8,12 +8,14 @@ void make_cfs(int type = 0, int isiso = 0, const char* fin = "dAu_merged.root", 
   string rgamma_file = "/phenix/u/workarea/ahanks/devel/offline/AnalysisTrain/combinesimple/wrk/run10/Rgamma/Rgamma_final_test.root";
   ostringstream trig_name, dphi_name, dphi_mix_name;
   if( type==0 ) {
-  	trig_name << "h1_trig_pt_inc";
+  	if( !isiso ) trig_name << "h1_trig_pt_inc";
+  	if( isiso ) trig_name << "h1_trig_pt_iso";
   	dphi_name << "h3_dphi";
   	dphi_mix_name << "h3_dphi_mix";
   }
   if( type==1 ) {
-  	trig_name << "h1_trig_pt_pi0";
+  	if( !isiso ) trig_name << "h1_trig_pt_pi0";
+  	if( isiso ) trig_name << "h1_trig_pt_iso_pi0";
   	dphi_name << "h3_dphi_pi0";
   	dphi_mix_name << "h3_dphi_pi0_mix";
   }
@@ -24,7 +26,7 @@ void make_cfs(int type = 0, int isiso = 0, const char* fin = "dAu_merged.root", 
   }
 
   if( isiso ) {
-  	trig_name << "_iso";
+  	//trig_name << "_iso";
   	dphi_name << "_iso";
   	dphi_mix_name << "_iso";
   }
