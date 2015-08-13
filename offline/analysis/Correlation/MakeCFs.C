@@ -205,7 +205,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 
 	if(ispertrigger){
 	    //make JFs.
-		for(int ic=0; ic<4; ic++){
+		for(int ic=0; ic<NCENTBIN; ic++){
 			for(int itrig=0; itrig<4; itrig++){
 				for(int ipart=0; ipart<5; ipart++){
 					MakeJFs(type,ic,itrig,ipart,corr[ic][itrig][ipart],meanpart[ic][itrig][ipart],num_trigger_mix[ic][itrig],infile,"v2_inputs.root",5,ispertrigger,flow[ic][itrig][ipart],jet[ic][itrig][ipart]);
