@@ -21,6 +21,7 @@
 #include <APiZero.h>
 #include <AMixingTree.h>
 #include <TLorentzVector.h>
+#include <TRandom.h>
 
 using namespace std;
 using namespace findNode;
