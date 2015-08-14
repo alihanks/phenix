@@ -236,7 +236,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
         {
           for( unsigned int j = i+1; j < clusters.size(); j++)
           {
-            TLorentzVector* pair = clusters[i] + clusters[j];
+            TLorentzVector* pair = (TLorentzVector*)clusters[i] + (TLorentzVector*)clusters[j];
             if( pair->M() > 0.120 && pair->M() < 0.160 )
             {
               clusters[i]->SetTag(true);
