@@ -222,13 +222,27 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       {
         ACluster clus;
         if( MakeCluster((*p),&clus) ) {
+          /*
           for( HepMC::GenVertex::particles_in_const_iterator ip = (*v)->particles_in_const_begin(); ip != (*v)->particles_in_const_end(); ++ip )
           {
             int pid = (*ip)->pdg_id();
             if( pid==111 || pid==221 || pid==223 ) clus.SetTag(true);
-          if( verbosity ) cout << "Photon with E = " << clus.E() << " and parent id = " << pid << endl;
+            if( verbosity ) cout << "Photon with E = " << clus.E() << " and parent id = " << pid << endl;
           }
+          */
           clusters.push_back(clus.clone());
+        }
+        for( unsigned int i = 0; i < clusters.size()-1; i++)
+        {
+          for( unsgigned int j = i+1; j < clusters.size(); j++)
+          {
+            TLorentzVector* pair = clusters[i] + clusters[j];
+            if( pair->M() > 0.120 && pair->M() < 0.160 )
+            {
+              clusters[i]->SetTag(true);
+              clusters[j]->SetTag(true);
+            }
+          }
         }
       }
       if( (fabs(id)==211 || fabs(id)==321 || fabs(id)==2212) )
@@ -262,24 +276,6 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       if( pizeros[i]->IsIso() )
         h1_trigger_dec_iso_pt->Fill(ipw,mwweight[ipw]);
     }
-  }
-  
-  if( verbosity ) cout << "Looping over " << clusters.size() << " clusters" << endl;
-  for( unsigned int i = 0; i < clusters.size(); i++ )
-  {
-    if( !clusters[i]->IsTagged() ) {
-      h1_trigger_dir_pt->Fill(clusters[i]->Pt());
-      SetIso(clusters[i],tracks,clusters,Rcut,h3_cluster_dir_dR,h3_cluster_dir_etot,h2_cluster_dir_wdR,h2_cluster_dir_etot);
-      if( clusters[i]->IsIso() ) h1_trigger_iso_dir_pt->Fill(clusters[i]->Pt());
-    }
-    h1_trigger_pt->Fill(clusters[i]->Pt());
-    SetIso(clusters[i],tracks,clusters,Rcut,h3_cluster_dR,h3_cluster_etot,h2_cluster_wdR,h2_cluster_etot);
-    if( clusters[i]->IsIso() ) h1_trigger_iso_pt->Fill(clusters[i]->Pt());
-  }
-
-  if( verbosity ) cout << "Looping over " << tracks.size() << " tracks" << endl;
-  for( unsigned int i = 0; i < pizeros.size(); i++ )
-  {
     atree->SetTriggerData(pizeros[i]->Pt(),pizeros[i]->Phi(),pizeros[i]->Eta(),pizeros[i]->E(),
       ((ACluster*)pizeros[i]->Daughter1())->GetX(),((ACluster*)pizeros[i]->Daughter1())->GetY(),((ACluster*)pizeros[i]->Daughter1())->GetZ(),
       pizeros[i]->IsIso(),pizeros.size()-1);
@@ -300,8 +296,20 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       }
     }
   }
+  
+  if( verbosity ) cout << "Looping over " << clusters.size() << " clusters" << endl;
   for( unsigned int i = 0; i < clusters.size(); i++ )
   {
+    if( clusters[i]->IsTagged() ) continue;
+
+    h1_trigger_dir_pt->Fill(clusters[i]->Pt());
+    SetIso(clusters[i],tracks,clusters,Rcut,h3_cluster_dir_dR,h3_cluster_dir_etot,h2_cluster_dir_wdR,h2_cluster_dir_etot);
+    if( clusters[i]->IsIso() ) h1_trigger_iso_dir_pt->Fill(clusters[i]->Pt());
+
+    h1_trigger_pt->Fill(clusters[i]->Pt());
+    SetIso(clusters[i],tracks,clusters,Rcut,h3_cluster_dR,h3_cluster_etot,h2_cluster_wdR,h2_cluster_etot);
+    if( clusters[i]->IsIso() ) h1_trigger_iso_pt->Fill(clusters[i]->Pt());
+
     atree->SetTriggerData(clusters[i]->Pt(),clusters[i]->Phi(),clusters[i]->Eta(),clusters[i]->E(),
       clusters[i]->GetX(),clusters[i]->GetY(),clusters[i]->GetZ(),clusters[i]->IsIso(),pizeros.size()+clusters.size()-1);
     float ph_phi = PHAngle(clusters[i]->Phi());
@@ -312,10 +320,11 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
 
       h3_dphi->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
       if( clusters[i]->IsIso() ) h3_dphi_iso->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
-      if( !clusters[i]->IsTagged() ) h3_dphi_dir->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
-      if( !clusters[i]->IsTagged() && clusters[i]->IsIso() ) h3_dphi_dir_iso->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
+      h3_dphi_dir->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
+      if( clusters[i]->IsIso() ) h3_dphi_dir_iso->Fill(clusters[i]->Pt(), tracks[j]->Pt(), dphifold);
     }
   }
+
   
   ClearVector(clusters);
   ClearVector(tracks);
