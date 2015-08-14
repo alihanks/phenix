@@ -234,7 +234,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
         }
         for( unsigned int i = 0; i < clusters.size()-1; i++)
         {
-          for( unsgigned int j = i+1; j < clusters.size(); j++)
+          for( unsigned int j = i+1; j < clusters.size(); j++)
           {
             TLorentzVector* pair = clusters[i] + clusters[j];
             if( pair->M() > 0.120 && pair->M() < 0.160 )
