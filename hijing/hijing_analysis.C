@@ -20,6 +20,7 @@
 #include <ATrack.h>
 #include <APiZero.h>
 #include <AMixingTree.h>
+#include <TLorentzVector.h>
 
 using namespace std;
 using namespace findNode;
@@ -41,6 +42,7 @@ hijing_analysis::hijing_analysis(const char* output, const char* name)
 hijing_analysis::~hijing_analysis(){
    delete manager;
 }
+
 int hijing_analysis::Init(PHCompositeNode *topNode){
 
   cout << "Initializing histograms" << endl;
@@ -352,6 +354,30 @@ void hijing_analysis::SetSharkFin(const char* filename)
   }  
 }
 
+void hijing_analysis::ApplyEnergyResolution(TLorentzVector* mom4, int pbsc_pbgl)
+{
+  double px, py, pz, E, theta, phi;
+  double sigma=0;
+
+  E  = mom4->E();
+  theta = mom4->Theta();
+  phi   = mom4->Phi();
+
+  if(pbsc_pbgl==0)  
+    sigma = E*sqrt((0.06)*(0.06)+(0.081/sqrt(E))*(0.081/sqrt(E))); //more realistic
+  if(pbsc_pbgl==1)
+    sigma = E*sqrt((0.05)*(0.05)+(0.06/sqrt(E))*(0.06/sqrt(E))); 
+  
+  // cout<<" pbsc_pbgl "<<pbsc_pbgl<<" sigma "<<sigma<<endl;
+  E     = gRandom->Gaus(E,sigma);
+  px    = E*sin(theta)*cos(phi);
+  py    = E*sin(theta)*sin(phi);
+  pz    = E*cos(theta);
+
+  mom4->SetPxPyPzE(px,py,pz,E);
+
+}
+
 void hijing_analysis::DoMixing(TTree* trig, TTree* assoc, int size)
 {
   int pooldepth = 0;
@@ -583,6 +609,9 @@ bool hijing_analysis::MakeCluster(HepMC::GenParticle* p, ACluster* clus)
   if( clus->E() < _MinTrigPt ) return false;
   if( fabs(clus->Eta()) > _MaxEta ) return false;
   if( OutsideAcceptance(clus->Phi()) ) return false;
+  int pbsc_pbgl = 0;
+  if( clus->Phi() > 15.0*PI/16.0 ) pbsc_pbgl = 1;
+  ApplyEnergyResolution((TLorentzVector*)clus, pbsc_pbgl);
   clus->SetTag(false);
   
   // If cluster comes from hadronic decay set tag to true, assume all other photons are direct
@@ -629,6 +658,9 @@ bool hijing_analysis::MakePiZero(HepMC::GenParticle* p, APiZero* piz)
   if( piz->E() < _MinTrigPt ) return false;
   if( fabs(piz->Eta()) > _MaxEta ) return false;
   if( OutsideAcceptance(piz->Phi()) ) return false;
+  int pbsc_pbgl = 0;
+  if( piz->Phi() > 15.0*PI/16.0 ) pbsc_pbgl = 1;
+  ApplyEnergyResolution((TLorentzVector*)piz, pbsc_pbgl);
   if( verbosity ) std::cout << "Adding piz with E = " << piz->E() << ", M = " << piz->M();
   HepMC::GenVertex* vtx = p->end_vertex();
   if( !vtx ) {if( verbosity ) cout << " - found no decay vertex for this piz!" << endl;}

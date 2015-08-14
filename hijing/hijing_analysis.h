@@ -17,6 +17,7 @@ class ACluster;
 class ATrack;
 class APiZero;
 class AMixingTree;
+class TLorentzVector;
 
 namespace HepMC
 {
@@ -57,6 +58,7 @@ protected:
   void MakeTrackObject(ATrack* atrk, float pt, float phi, float eta, float e);
   int CheckPool(int nenpart, int j, int pooldepth, int size, int& nloop);
   void EvalDecWeights(APiZero* pi0trigger, std::vector<float>& mwweight);
+  void ApplyEnergyResolution(TLorentzVector* mom4, int pbsc_pbgl);
 
   void Init1DHisto(TH1F*& h1, std::string name, std::string xtitle, int nxbin, double xmin, double xmax);
   void Init2DHisto(TH2F*& h2, std::string name, std::string xtitle, int nxbin, double xmin, double xmax, std::string ytitle, int nybin, double ymin, double ymax);
