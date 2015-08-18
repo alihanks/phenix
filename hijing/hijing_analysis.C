@@ -234,20 +234,6 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
           */
           clusters.push_back(clus.clone());
         }
-        for( unsigned int i = 0; i < clusters.size()-1; i++)
-        {
-          for( unsigned int j = i+1; j < clusters.size(); j++)
-          {
-            TLorentzVector pair = TLorentzVector(*clusters[i] + *clusters[j]);
-            cout << "checking cluster pair with mass = " << pair.M() << endl;
-            if( pair.M() > 0.120 && pair.M() < 0.160 )
-            {
-              cout << "Found pi0-pair!" << endl;
-              clusters[i]->SetTag(true);
-              clusters[j]->SetTag(true);
-            }
-          }
-        }
       }
       if( (fabs(id)==211 || fabs(id)==321 || fabs(id)==2212) )
       {
@@ -259,6 +245,20 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       }
     }
     iv++;
+  }
+  for( unsigned int i = 0; i < clusters.size()-1; i++)
+  {
+    for( unsigned int j = i+1; j < clusters.size(); j++)
+    {
+      TLorentzVector pair = TLorentzVector(*clusters[i] + *clusters[j]);
+      cout << "checking cluster pair with mass = " << pair.M() << endl;
+      if( pair.M() > 0.120 && pair.M() < 0.160 )
+      {
+        cout << "Found pi0-pair!" << endl;
+        clusters[i]->SetTag(true);
+        clusters[j]->SetTag(true);
+      }
+    }
   }
   
   int cent_bin = GetCentrality(mult);
