@@ -178,7 +178,7 @@ int hijing_analysis::Init(PHCompositeNode *topNode){
 
 int hijing_analysis::process_event(PHCompositeNode* topNode)
 {
-  if( verbosity )
+  //if( verbosity )
     cout << "Event: " << nevents << endl;
   if( nevents%500 ) cout << "Event: " << nevents << endl;
   HepMC::GenEvent* evt = NULL;
@@ -240,6 +240,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
             TLorentzVector pair = TLorentzVector(*clusters[i] + *clusters[j]);
             if( pair.M() > 0.120 && pair.M() < 0.160 )
             {
+              cout << "Found pi0-pair!" << endl;
               clusters[i]->SetTag(true);
               clusters[j]->SetTag(true);
             }
