@@ -286,6 +286,10 @@ int Correlation::Init(PHCompositeNode* topNode)
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_dphi_pi0_mix_iso_fold.push_back(temp3);
     
+    name = "h1_trig_pt_all_c" + bin.str();
+    Init1DHisto(temp, name.c_str(),"p_{T} [GeV/c]",200,0.,20.);
+    h1_trig_pt_all.push_back(temp);
+    
     name = "h1_trig_pt_inc_c" + bin.str();
     Init1DHisto(temp, name.c_str(),"p_{T} [GeV/c]",200,0.,20.);
     h1_trig_pt_inc.push_back(temp);
@@ -797,6 +801,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
     SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,h3_cluster_dR[cbin],h3_cluster_etot[cbin],h2_cluster_wdR[cbin],h2_cluster_etot[cbin],h3_iso_acc[cbin]);
     if( verbosity > 1 ) cout << "Photon isTagged = " << all_clus_vector[iclus]->IsTagged() << " and IsIso = " << all_clus_vector[iclus]->IsIso() << endl;
     
+    h1_trig_pt_all[cbin]->Fill(cluster_pt); // Keep track of all photons before tagging rejection (for dAu or p+p)
     // In Run8 reject all tagged photons prior to making pairs...
     if( data_set == Run8dAu && all_clus_vector[iclus]->IsTagged() ) continue;
     
