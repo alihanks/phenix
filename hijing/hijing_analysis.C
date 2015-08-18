@@ -238,6 +238,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
           for( unsigned int j = i+1; j < clusters.size(); j++)
           {
             TLorentzVector pair = TLorentzVector(*clusters[i] + *clusters[j]);
+            cout << "checking cluster pair with mass = " << pair.M() << endl;
             if( pair.M() > 0.120 && pair.M() < 0.160 )
             {
               cout << "Found pi0-pair!" << endl;
