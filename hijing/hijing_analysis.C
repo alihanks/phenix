@@ -61,19 +61,19 @@ int hijing_analysis::Init(PHCompositeNode *topNode){
   name = "h1_mass" + bin.str();
   Init1DHisto(h1_mass, name.c_str(),"mass [GeV/c^2]",500,0,1.0);
   
-  name = "h1_trig_pt_inc" + bin.str();
+  name = "h1_trig_pt_all" + bin.str();
   Init1DHisto(h1_trigger_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
   name = "h1_trig_pt_pi0" + bin.str();
   Init1DHisto(h1_trigger_pi0_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trig_pt_dir" + bin.str();
+  name = "h1_trig_pt_inc" + bin.str();
   Init1DHisto(h1_trigger_dir_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trig_pt_iso" + bin.str();
+  name = "h1_trig_pt_inc_iso" + bin.str();
   Init1DHisto(h1_trigger_iso_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
-  name = "h1_trig_pt_iso_pi0" + bin.str();
+  name = "h1_trig_pt_pi0_iso" + bin.str();
   Init1DHisto(h1_trigger_iso_pi0_pt, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0);
   
   name = "h1_trig_pt_iso_dir" + bin.str();
