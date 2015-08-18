@@ -198,7 +198,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   int mult = 0;
   for(HepMC::GenEvent::vertex_const_iterator v = evt->vertices_begin(); v != evt->vertices_end(); ++v)
   {
-    if( verbosity ) cout << "Checking vertex " << iv << endl;
+    if( verbosity > 1 ) cout << "Checking vertex " << iv << endl;
     for( HepMC::GenVertex::particles_out_const_iterator p = (*v)->particles_out_const_begin(); p != (*v)->particles_out_const_end(); ++p )
     {
       int id = (*p)->pdg_id();
