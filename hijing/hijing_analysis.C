@@ -353,7 +353,7 @@ void hijing_analysis::EvalDecWeights(APiZero* pi0trigger, vector<float>& mwweigh
   for(int idecl=0;idecl<5;idecl++){
     float mattshark=hshark[idecl]->GetBinContent(trigptbin);
     if(mattshark>0) mwweight[idecl]=mattshark;
-    if( verbosity ) cout << "setting weight = " << mattshark << " for pi0 with pt = " << pi0trigpt << endl;
+    if( verbosity>1 ) cout << "setting weight = " << mattshark << " for pi0 with pt = " << pi0trigpt << endl;
   }
 }
 
