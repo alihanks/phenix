@@ -202,7 +202,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     for( HepMC::GenVertex::particles_out_const_iterator p = (*v)->particles_out_const_begin(); p != (*v)->particles_out_const_end(); ++p )
     {
       int id = (*p)->pdg_id();
-      if( verbosity ) cout << "Checking particle with id = " << id << endl;
+      if( verbosity > 1 ) cout << "Checking particle with id = " << id << endl;
       double eta = (*p)->momentum().eta();
       if( eta > -4 && eta < -3 ) mult++;
 
