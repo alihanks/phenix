@@ -178,7 +178,7 @@ int hijing_analysis::Init(PHCompositeNode *topNode){
 
 int hijing_analysis::process_event(PHCompositeNode* topNode)
 {
-  if( verbosity )
+  //if( verbosity )
     cout << "Event: " << nevents << endl;
   if( nevents%500 ) cout << "Event: " << nevents << endl;
   HepMC::GenEvent* evt = NULL;
