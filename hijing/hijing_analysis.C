@@ -617,17 +617,14 @@ bool hijing_analysis::MakeCluster(HepMC::GenParticle* p, ACluster* clus)
 {
   const HepMC::FourVector& mom_vector = p->momentum();
   
-  clus->SetPx(mom_vector.px());
-  clus->SetPy(mom_vector.py());
-  clus->SetPz(mom_vector.pz());
-  clus->SetE(mom_vector.e());
+  clus->SetPxPyPzE(mom_vector.px(),mom_vector.py(),mom_vector.pz(),mom_vector.e());
   
   if( clus->E() < _MinTrigPt ) return false;
   if( fabs(clus->Eta()) > _MaxEta ) return false;
   if( OutsideAcceptance(clus->Phi()) ) return false;
   int pbsc_pbgl = 0;
   if( clus->Phi() > 15.0*PI/16.0 ) pbsc_pbgl = 1;
-  ApplyEnergyResolution((TLorentzVector*)clus, pbsc_pbgl);
+  //ApplyEnergyResolution((TLorentzVector*)clus, pbsc_pbgl);
   clus->SetTag(false);
   
   // If cluster comes from hadronic decay set tag to true, assume all other photons are direct
@@ -663,20 +660,16 @@ bool hijing_analysis::MakePiZero(HepMC::GenParticle* p, APiZero* piz)
 {
   const HepMC::FourVector& mom_vector = p->momentum();
   
-  piz->SetPx(mom_vector.px());
-  piz->SetPy(mom_vector.py());
-  piz->SetPz(mom_vector.pz());
-  piz->SetE(mom_vector.e());
-  piz->Daughter1()->SetPx(mom_vector.px());
-  piz->Daughter1()->SetPy(mom_vector.py());
-  piz->Daughter1()->SetPz(mom_vector.pz());
-  piz->Daughter1()->SetE(mom_vector.e());
+  piz->SetPxPyPzE(mom_vector.px(),mom_vector.py(),mom_vector.pz(),mom_vector.e());
+  piz->Daughter1()->SetPxPyPzE(mom_vector.px(),mom_vector.py(),mom_vector.pz(),mom_vector.e());
+
   if( piz->E() < _MinTrigPt ) return false;
   if( fabs(piz->Eta()) > _MaxEta ) return false;
   if( OutsideAcceptance(piz->Phi()) ) return false;
   int pbsc_pbgl = 0;
   if( piz->Phi() > 15.0*PI/16.0 ) pbsc_pbgl = 1;
-  ApplyEnergyResolution((TLorentzVector*)piz, pbsc_pbgl);
+
+  //ApplyEnergyResolution((TLorentzVector*)piz, pbsc_pbgl);
   if( verbosity ) std::cout << "Adding piz with E = " << piz->E() << ", M = " << piz->M();
   HepMC::GenVertex* vtx = p->end_vertex();
   if( !vtx ) {if( verbosity ) cout << " - found no decay vertex for this piz!" << endl;}
