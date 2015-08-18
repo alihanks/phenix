@@ -299,14 +299,14 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   
   if( verbosity ) cout << "Looping over " << clusters.size() << " clusters" << endl;
   for( unsigned int i = 0; i < clusters.size(); i++ )
-  {
+  {    
+    h1_trigger_pt->Fill(clusters[i]->Pt());
     if( clusters[i]->IsTagged() ) continue;
 
     h1_trigger_dir_pt->Fill(clusters[i]->Pt());
     SetIso(clusters[i],tracks,clusters,Rcut,h3_cluster_dir_dR,h3_cluster_dir_etot,h2_cluster_dir_wdR,h2_cluster_dir_etot);
     if( clusters[i]->IsIso() ) h1_trigger_iso_dir_pt->Fill(clusters[i]->Pt());
 
-    h1_trigger_pt->Fill(clusters[i]->Pt());
     SetIso(clusters[i],tracks,clusters,Rcut,h3_cluster_dR,h3_cluster_etot,h2_cluster_wdR,h2_cluster_etot);
     if( clusters[i]->IsIso() ) h1_trigger_iso_pt->Fill(clusters[i]->Pt());
 
