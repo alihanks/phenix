@@ -204,7 +204,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     for( HepMC::GenVertex::particles_out_const_iterator p = (*v)->particles_out_const_begin(); p != (*v)->particles_out_const_end(); ++p )
     {
       int id = (*p)->pdg_id();
-      if( verbosity > 1 ) cout << "Checking particle with id = " << id << endl;
+      if( verbosity ) cout << "Checking particle with id = " << id << endl;
       double eta = (*p)->momentum().eta();
       if( eta > -4 && eta < -3 ) mult++;
 
@@ -248,6 +248,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     }
     iv++;
   }
+
   for( unsigned int i = 0; i < clusters.size()-1; i++)
   {
     for( unsigned int j = i+1; j < clusters.size(); j++)
@@ -648,7 +649,7 @@ bool hijing_analysis::MakeTrack(HepMC::GenParticle* p, ATrack* track)
   const HepMC::FourVector& mom_vector = p->momentum();
   
   track->SetPxPyPzE(mom_vector.px(),mom_vector.py(),mom_vector.pz(),mom_vector.e());
-  if( track->Pt() < _MinAssocPt || track->Pt() > 99 ) return false;
+  if( track->Pt() < _MinAssocPt || track->Pt() > 15.0 ) return false;
   if( fabs(track->Eta()) > _MaxEta ) return false;
   if( OutsideAcceptance(track->Phi()) ) return false;
   
