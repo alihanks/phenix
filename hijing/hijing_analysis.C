@@ -682,6 +682,7 @@ bool hijing_analysis::MakePiZero(HepMC::GenParticle* p, APiZero* piz)
   if( verbosity ) std::cout << "Adding piz with E = " << piz->E() << ", M = " << piz->M();
   ApplyEnergyResolution(piz, pbsc_pbgl);
   if( verbosity ) std::cout << "  smeared to E = " << piz->E() << ", M = " << piz->M();
+  /*
   HepMC::GenVertex* vtx = p->end_vertex();
   if( !vtx ) {if( verbosity ) cout << " - found no decay vertex for this piz!" << endl;}
   else {
@@ -692,7 +693,8 @@ bool hijing_analysis::MakePiZero(HepMC::GenParticle* p, APiZero* piz)
     }
     if( verbosity ) cout << endl;
   }
-  
+  */
+
   return true;
 }
 
