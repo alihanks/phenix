@@ -196,57 +196,51 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   vector<ATrack*> tracks;
   vector<APiZero*> pizeros;
 
-  int iv = 0;
   int mult = 0;
-  for(HepMC::GenEvent::vertex_const_iterator v = evt->vertices_begin(); v != evt->vertices_end(); ++v)
+  for(HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p)
   {
-    if( verbosity ) cout << "Checking vertex " << iv << endl;
-    for( HepMC::GenVertex::particles_out_const_iterator p = (*v)->particles_out_const_begin(); p != (*v)->particles_out_const_end(); ++p )
+    int id = (*p)->pdg_id();
+    if( verbosity ) cout << "Checking particle with id = " << id << endl;
+    double eta = (*p)->momentum().eta();
+    if( eta > -4 && eta < -3 ) mult++;
+
+    if( id==111 )
     {
-      int id = (*p)->pdg_id();
-      if( verbosity ) cout << "Checking particle with id = " << id << endl;
-      double eta = (*p)->momentum().eta();
-      if( eta > -4 && eta < -3 ) mult++;
+      APiZero piz;
+      if( MakePiZero((*p),&piz) ) {
+        //dec weighting
+        vector<float> mwweight;
+        for(int i=0; i<5; i++) mwweight.push_back(0.0);
+        EvalDecWeights(&piz,mwweight);
+        piz.SetDecayWeights(mwweight);
 
-      if( id==111 )
-      {
-        APiZero piz;
-        if( MakePiZero((*p),&piz) ) {
-          //dec weighting
-          vector<float> mwweight;
-          for(int i=0; i<5; i++) mwweight.push_back(0.0);
-          EvalDecWeights(&piz,mwweight);
-          piz.SetDecayWeights(mwweight);
-
-          pizeros.push_back(piz.clone());
-        }
-      }
-      if( (*p)->status()!=1 )continue;
-      if( id==22 )
-      {
-        ACluster clus;
-        if( MakeCluster((*p),&clus) ) {
-          /*
-          for( HepMC::GenVertex::particles_in_const_iterator ip = (*v)->particles_in_const_begin(); ip != (*v)->particles_in_const_end(); ++ip )
-          {
-            int pid = (*ip)->pdg_id();
-            if( pid==111 || pid==221 || pid==223 ) clus.SetTag(true);
-            if( verbosity ) cout << "Photon with E = " << clus.E() << " and parent id = " << pid << endl;
-          }
-          */
-          clusters.push_back(clus.clone());
-        }
-      }
-      if( (fabs(id)==211 || fabs(id)==321 || fabs(id)==2212) )
-      {
-        ATrack track;
-        if( MakeTrack((*p),&track) ) {
-          tracks.push_back(track.clone());
-          atree->SetPartnerData(track.Pt(),track.Phi(),track.Eta(),track.E(),track.GetPemcx(),track.GetPemcy(),track.GetPemcz(),tracks.size()-1);
-        }
+        pizeros.push_back(piz.clone());
       }
     }
-    iv++;
+    if( (*p)->status()!=1 )continue;
+    if( id==22 )
+    {
+      ACluster clus;
+      if( MakeCluster((*p),&clus) ) {
+        /*
+        for( HepMC::GenVertex::particles_in_const_iterator ip = (*v)->particles_in_const_begin(); ip != (*v)->particles_in_const_end(); ++ip )
+        {
+          int pid = (*ip)->pdg_id();
+          if( pid==111 || pid==221 || pid==223 ) clus.SetTag(true);
+          if( verbosity ) cout << "Photon with E = " << clus.E() << " and parent id = " << pid << endl;
+        }
+        */
+        clusters.push_back(clus.clone());
+      }
+    }
+    if( (fabs(id)==211 || fabs(id)==321 || fabs(id)==2212) )
+    {
+      ATrack track;
+      if( MakeTrack((*p),&track) ) {
+        tracks.push_back(track.clone());
+        atree->SetPartnerData(track.Pt(),track.Phi(),track.Eta(),track.E(),track.GetPemcx(),track.GetPemcy(),track.GetPemcz(),tracks.size()-1);
+      }
+    }
   }
 
   for( unsigned int i = 0; i < clusters.size()-1; i++)
