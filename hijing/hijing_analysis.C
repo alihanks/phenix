@@ -252,10 +252,10 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     for( unsigned int j = i+1; j < clusters.size(); j++)
     {
       TLorentzVector pair = TLorentzVector(*clusters[i] + *clusters[j]);
-      cout << "checking cluster pair with mass = " << pair.M() << endl;
+      if( verbosity > 1 ) cout << "checking cluster pair with mass = " << pair.M() << endl;
       if( pair.M() > 0.120 && pair.M() < 0.160 )
       {
-        cout << "Found pi0-pair!" << endl;
+        cout << "Found pi0-pair with mass = " << pair.M() << endl;
         clusters[i]->SetTag(true);
         clusters[j]->SetTag(true);
       }
@@ -381,12 +381,12 @@ void hijing_analysis::ApplyEnergyResolution(AParticle* mom4, int pbsc_pbgl)
   phi   = mom4->Phi();
 
   if(pbsc_pbgl==0)  
-    sigma = E*sqrt((0.06)*(0.06)+(0.081/sqrt(E))*(0.081/sqrt(E))); //more realistic
+    sigma = sqrt((0.06)*(0.06)+(0.081/sqrt(E))*(0.081/sqrt(E))); //more realistic
   if(pbsc_pbgl==1)
-    sigma = E*sqrt((0.05)*(0.05)+(0.06/sqrt(E))*(0.06/sqrt(E))); 
+    sigma = sqrt((0.05)*(0.05)+(0.06/sqrt(E))*(0.06/sqrt(E))); 
   
   // cout<<" pbsc_pbgl "<<pbsc_pbgl<<" sigma "<<sigma<<endl;
-  E  = gRandom->Gaus(E,sigma);
+  E  = E*gRandom->Gaus(1,sigma);
   pt = E*sin(phi);
 
   //mom4->SetE(E);
