@@ -201,7 +201,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   for(HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p)
   {
     int id = (*p)->pdg_id();
-    if( verbosity ) cout << "Checking particle with id = " << id << endl;
+    if( verbosity > 1 ) cout << "Checking particle with id = " << id << endl;
     double eta = (*p)->momentum().eta();
     if( eta > -4 && eta < -3 ) mult++;
 
@@ -251,7 +251,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     ClearVector(pizeros);
     return 0; 
   }
-  
+
   for( unsigned int i = 0; i < clusters.size()-1; i++)
   {
     for( unsigned int j = i+1; j < clusters.size(); j++)
