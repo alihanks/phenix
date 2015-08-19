@@ -640,10 +640,11 @@ bool hijing_analysis::MakeCluster(HepMC::GenParticle* p, ACluster* clus)
   clus->SetTag(false);
   
   // If cluster comes from hadronic decay set tag to true, assume all other photons are direct
-  //std::cout << "Adding cluster with E = " << clus->E() << " with status = " << p->status() << endl;
+  if( verbosity ) std::cout << "Adding cluster with E = " << clus->E() << " with status = " << p->status() << endl;
 
   return true;
 
+  /*
   HepMC::GenVertex* vtx = p->production_vertex();
   for( HepMC::GenVertex::particles_in_const_iterator ip = vtx->particles_in_const_begin(); ip != vtx->particles_in_const_end(); ++ip )
   {
@@ -652,6 +653,7 @@ bool hijing_analysis::MakeCluster(HepMC::GenParticle* p, ACluster* clus)
     if( verbosity ) cout << "Photon with E = " << clus->E() << " and parent id = " << pid << endl;
   }
   return true;
+  */
 }
 
 bool hijing_analysis::MakeTrack(HepMC::GenParticle* p, ATrack* track)
