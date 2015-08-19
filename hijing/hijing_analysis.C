@@ -192,6 +192,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     return -1;
   }
   
+  nevents++;
   vector<ACluster*> clusters;
   vector<ATrack*> tracks;
   vector<APiZero*> pizeros;
@@ -243,6 +244,13 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     }
   }
 
+  if( clusters.size() == 0 && pizeros.size()==0 ) {
+    ClearVector(clusters);
+    ClearVector(tracks);
+    ClearVector(pizeros);
+    return 0; 
+  }
+  
   for( unsigned int i = 0; i < clusters.size()-1; i++)
   {
     for( unsigned int j = i+1; j < clusters.size(); j++)
@@ -327,7 +335,6 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     }
   }
 
-  
   ClearVector(clusters);
   ClearVector(tracks);
   ClearVector(pizeros);
@@ -336,7 +343,6 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   if(clusters.size() > 0 || pizeros.size() > 0) atree->_ttrig->Fill();
   atree->_tpart->Fill();
 
-  nevents++;
   return 0;
 }
 
