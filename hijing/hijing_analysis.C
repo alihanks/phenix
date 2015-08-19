@@ -373,12 +373,12 @@ void hijing_analysis::SetSharkFin(const char* filename)
 
 void hijing_analysis::ApplyEnergyResolution(AParticle* mom4, int pbsc_pbgl)
 {
-  //double px, py, pz, E, theta, phi;
+  double px, py, pz, E, theta, phi;
   double sigma=0;
 
-  double E  = mom4->E();
-  //theta = mom4->Theta();
-  //phi   = mom4->Phi();
+  E  = mom4->E();
+  theta = mom4->Theta();
+  phi   = mom4->Phi();
 
   if(pbsc_pbgl==0)  
     sigma = E*sqrt((0.06)*(0.06)+(0.081/sqrt(E))*(0.081/sqrt(E))); //more realistic
@@ -387,11 +387,12 @@ void hijing_analysis::ApplyEnergyResolution(AParticle* mom4, int pbsc_pbgl)
   
   // cout<<" pbsc_pbgl "<<pbsc_pbgl<<" sigma "<<sigma<<endl;
   E     = gRandom->Gaus(E,sigma);
-  //px    = E*sin(theta)*cos(phi);
-  //py    = E*sin(theta)*sin(phi);
-  //pz    = E*cos(theta);
+  px    = E*sin(theta)*cos(phi);
+  py    = E*sin(theta)*sin(phi);
+  pz    = E*cos(theta);
 
-  mom4->SetE(E);
+  //mom4->SetE(E);
+  mom4->SetPxPyPzE(px,py,pz,E);
 
 }
 
