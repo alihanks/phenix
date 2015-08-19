@@ -246,6 +246,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   if( verbosity ) cout << "Found " << tracks.size() << " associated tracks" << endl;
 
   if( clusters.size() == 0 && pizeros.size() == 0 ) {
+    cout << "Found no triggers: cleaning up." << endl;
     ClearVector(clusters);
     ClearVector(tracks);
     ClearVector(pizeros);
@@ -269,7 +270,13 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   
   if( verbosity ) cout << "Getting event multiplicity" << endl;
   int cent_bin = GetCentrality(mult);
-  if( cent_bin != Centrality && Centrality>=0 ) return 0;
+  if( cent_bin != Centrality && Centrality>=0 ) {
+    ClearVector(clusters);
+    ClearVector(tracks);
+    ClearVector(pizeros);
+    return 0;
+  }
+
   if( verbosity )
     cout << "Event multiplicity = " << mult << endl;
   hmult->Fill((float)mult);
