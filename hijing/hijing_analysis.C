@@ -182,7 +182,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
 {
   if( verbosity )
     cout << "Event: " << nevents << endl;
-  if( nevents%500 ) cout << "Event: " << nevents << endl;
+  if( nevents%500==0 ) cout << "Event: " << nevents << endl;
   HepMC::GenEvent* evt = NULL;
   PHNodeIterator iter(topNode);
   PHHepMCGenEvent *genevent = findNode::getClass<PHHepMCGenEvent>(topNode,"PHHepMCGenEvent");
