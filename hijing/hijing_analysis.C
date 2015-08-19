@@ -243,6 +243,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
       }
     }
   }
+  if( verbosity ) cout << "Found " << tracks.size() << " associated tracks" << endl;
 
   if( clusters.size() == 0 && pizeros.size()==0 ) {
     ClearVector(clusters);
@@ -271,7 +272,6 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   if( verbosity )
     cout << "Event multiplicity = " << mult << endl;
   hmult->Fill((float)mult);
-  if( verbosity ) cout << "Found " << tracks.size() << " associated tracks" << endl;
   if( verbosity ) cout << "Looping over " << pizeros.size() << " pizeros" << endl;
   for( unsigned int i = 0; i < pizeros.size(); i++ )
   {
