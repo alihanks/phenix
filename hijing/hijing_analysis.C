@@ -381,16 +381,16 @@ void hijing_analysis::ApplyEnergyResolution(AParticle* mom4, int pbsc_pbgl)
   phi   = mom4->Phi();
 
   if(pbsc_pbgl==0)  
-    sigma = sqrt((0.06)*(0.06)+(0.081/sqrt(E))*(0.081/sqrt(E))); //more realistic
+    sigma = E*sqrt((0.06)*(0.06)+(0.081/sqrt(E))*(0.081/sqrt(E))); //more realistic
   if(pbsc_pbgl==1)
-    sigma = sqrt((0.05)*(0.05)+(0.06/sqrt(E))*(0.06/sqrt(E))); 
+    sigma = E*sqrt((0.05)*(0.05)+(0.06/sqrt(E))*(0.06/sqrt(E))); 
   
   // cout<<" pbsc_pbgl "<<pbsc_pbgl<<" sigma "<<sigma<<endl;
-  E  = E*gRandom->Gaus(1,sigma);
+  E  = gRandom->Gaus(E,sigma);
   pt = E*sin(phi);
 
-  //mom4->SetE(E);
-  mom4->SetPtEtaPhiE(pt,eta,phi,E);
+  mom4->SetE(E);
+  //mom4->SetPtEtaPhiE(pt,eta,phi,E);
 
 }
 
