@@ -21,6 +21,7 @@
 #include <ATrack.h>
 #include <APiZero.h>
 #include <AMixingTree.h>
+#include <TMath.h>
 #include <TLorentzVector.h>
 #include <TRandom.h>
 
@@ -387,10 +388,10 @@ void hijing_analysis::ApplyEnergyResolution(AParticle* mom4, int pbsc_pbgl)
   
   // cout<<" pbsc_pbgl "<<pbsc_pbgl<<" sigma "<<sigma<<endl;
   E  = gRandom->Gaus(E,sigma);
-  pt = E*sin(phi);
+  pt = E/TMath::CosH(eta);
 
-  mom4->SetE(E);
-  //mom4->SetPtEtaPhiE(pt,eta,phi,E);
+  //mom4->SetE(E);
+  mom4->SetPtEtaPhiE(pt,eta,phi,E);
 
 }
 
