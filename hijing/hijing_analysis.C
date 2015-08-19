@@ -16,6 +16,7 @@
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenVertex.h>
 #include <HepMC/GenParticle.h>
+#include <AParticle.h>
 #include <ACluster.h>
 #include <ATrack.h>
 #include <APiZero.h>
@@ -370,12 +371,12 @@ void hijing_analysis::SetSharkFin(const char* filename)
   }  
 }
 
-void hijing_analysis::ApplyEnergyResolution(TLorentzVector* mom4, int pbsc_pbgl)
+void hijing_analysis::ApplyEnergyResolution(AParticle* mom4, int pbsc_pbgl)
 {
-  double px, py, pz, E, theta, phi;
+  //double px, py, pz, E, theta, phi;
   double sigma=0;
 
-  E  = mom4->E();
+  double E  = mom4->E();
   //theta = mom4->Theta();
   //phi   = mom4->Phi();
 
@@ -624,7 +625,7 @@ bool hijing_analysis::MakeCluster(HepMC::GenParticle* p, ACluster* clus)
   if( OutsideAcceptance(clus->Phi()) ) return false;
   int pbsc_pbgl = 0;
   if( clus->Phi() > 15.0*PI/16.0 ) pbsc_pbgl = 1;
-  ApplyEnergyResolution((TLorentzVector*)clus, pbsc_pbgl);
+  ApplyEnergyResolution(clus, pbsc_pbgl);
   clus->SetTag(false);
   
   // If cluster comes from hadronic decay set tag to true, assume all other photons are direct
@@ -667,7 +668,7 @@ bool hijing_analysis::MakePiZero(HepMC::GenParticle* p, APiZero* piz)
   int pbsc_pbgl = 0;
   if( piz->Phi() > 15.0*PI/16.0 ) pbsc_pbgl = 1;
 
-  ApplyEnergyResolution((TLorentzVector*)piz, pbsc_pbgl);
+  ApplyEnergyResolution(piz, pbsc_pbgl);
   if( verbosity ) std::cout << "Adding piz with E = " << piz->E() << ", M = " << piz->M();
   HepMC::GenVertex* vtx = p->end_vertex();
   if( !vtx ) {if( verbosity ) cout << " - found no decay vertex for this piz!" << endl;}
