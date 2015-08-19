@@ -275,6 +275,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   if( verbosity ) cout << "Looping over " << pizeros.size() << " pizeros" << endl;
   for( unsigned int i = 0; i < pizeros.size(); i++ )
   {
+    if(pizeros[i]->Pt() < 4.0 ) continue;
     h1_trigger_pi0_pt->Fill(pizeros[i]->Pt());
     SetIso(pizeros[i],tracks,clusters,Rcut,h3_cluster_pi0_dR,h3_cluster_pi0_etot,h2_cluster_pi0_wdR,h2_cluster_pi0_etot);
     if( pizeros[i]->IsIso() ) h1_trigger_iso_pi0_pt->Fill(pizeros[i]->Pt());
@@ -310,6 +311,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   if( verbosity ) cout << "Looping over " << clusters.size() << " clusters" << endl;
   for( unsigned int i = 0; i < clusters.size(); i++ )
   {    
+    if( clusters[i]->Pt() < 5.0 ) continue;
     h1_trigger_pt->Fill(clusters[i]->Pt());
     if( clusters[i]->IsTagged() ) continue;
 
