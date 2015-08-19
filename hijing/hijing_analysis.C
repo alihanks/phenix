@@ -619,7 +619,7 @@ bool hijing_analysis::MakeCluster(HepMC::GenParticle* p, ACluster* clus)
   
   clus->SetPxPyPzE(mom_vector.px(),mom_vector.py(),mom_vector.pz(),mom_vector.e());
   
-  if( clus->E() < _MinTrigPt ) return false;
+  if( clus->E() < _MinTrigPt/2.0 ) return false;
   if( fabs(clus->Eta()) > _MaxEta ) return false;
   if( OutsideAcceptance(clus->Phi()) ) return false;
   int pbsc_pbgl = 0;
@@ -631,6 +631,7 @@ bool hijing_analysis::MakeCluster(HepMC::GenParticle* p, ACluster* clus)
   //std::cout << "Adding cluster with E = " << clus->E() << " with status = " << p->status() << endl;
 
   return true;
+
   HepMC::GenVertex* vtx = p->production_vertex();
   for( HepMC::GenVertex::particles_in_const_iterator ip = vtx->particles_in_const_begin(); ip != vtx->particles_in_const_end(); ++ip )
   {
@@ -645,11 +646,8 @@ bool hijing_analysis::MakeTrack(HepMC::GenParticle* p, ATrack* track)
 {
   const HepMC::FourVector& mom_vector = p->momentum();
   
-  track->SetPx(mom_vector.px());
-  track->SetPy(mom_vector.py());
-  track->SetPz(mom_vector.pz());
-  track->SetE(mom_vector.e());
-  if( track->Pt() < _MinAssocPt && track->Pt() < 99 ) return false;
+  track->SetPxPyPzE(mom_vector.px(),mom_vector.py(),mom_vector.pz(),mom_vector.e());
+  if( track->Pt() < _MinAssocPt || track->Pt() > 99 ) return false;
   if( fabs(track->Eta()) > _MaxEta ) return false;
   if( OutsideAcceptance(track->Phi()) ) return false;
   
