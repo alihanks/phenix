@@ -245,7 +245,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   }
 
   if( clusters.size() == 0 && pizeros.size() == 0 ) {
-    cout << "Found no triggers: cleaning up." << endl;
+    if( verbosity ) cout << "Found no triggers: cleaning up." << endl;
     ClearVector(clusters);
     ClearVector(tracks);
     ClearVector(pizeros);
