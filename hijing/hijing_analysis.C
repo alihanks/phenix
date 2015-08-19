@@ -245,7 +245,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   }
   if( verbosity ) cout << "Found " << tracks.size() << " associated tracks" << endl;
 
-  if( clusters.size() == 0 && pizeros.size()==0 ) {
+  if( clusters.size() == 0 && pizeros.size() == 0 ) {
     ClearVector(clusters);
     ClearVector(tracks);
     ClearVector(pizeros);
@@ -257,7 +257,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     for( unsigned int j = i+1; j < clusters.size(); j++)
     {
       TLorentzVector pair = TLorentzVector(*clusters[i] + *clusters[j]);
-      if( verbosity > 1 ) cout << "checking cluster pair with mass = " << pair.M() << endl;
+      if( verbosity ) cout << "checking cluster pair with mass = " << pair.M() << endl;
       if( pair.M() > 0.120 && pair.M() < 0.160 )
       {
         cout << "Found pi0-pair with mass = " << pair.M() << endl;
@@ -267,6 +267,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     }
   }
   
+  if( verbosity ) cout << "Getting event multiplicity" << endl;
   int cent_bin = GetCentrality(mult);
   if( cent_bin != Centrality && Centrality>=0 ) return 0;
   if( verbosity )
