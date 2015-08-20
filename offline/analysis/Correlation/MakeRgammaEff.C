@@ -36,7 +36,7 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 	double trigpt_bins[NTRIGBIN+1] = {5.0,7.0,9.0,12.0,15.0};
 	double trigpt[NTRIGBIN] = {5.0,7.0,9.0,12.0};
 
-	int NCENTBIN = 1;
+	const int NCENTBIN = 1;
 	TH1D* h1_trigpt_iso[NCENTBIN];
 	TH1D* h1_trigpt_all[NCENTBIN];
 	TH1D* h1_trigpt[NCENTBIN];
