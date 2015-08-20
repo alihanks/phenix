@@ -23,6 +23,7 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 	// e_tag,dec = Rg*(1-N_ntag/N_inc)
 
 	TFile* infile = new TFile(trigger_input);
+	TFile* Rgfile = new TFile(Rgamma_input,"recreate");
 
 	int NTRIGBIN = 4;
 	double Rgamma[NTRIGBIN];
@@ -73,13 +74,16 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 			Rgamma_eff[ip] = Rgamma[ip]*alpha/((1-e_niso)(1-e_tag));
 		}
 
+		Rgfile->cd();
 	    name = "gr" + bin.str();
 	    gr[ic] = new TGraphErrors(NTRIGBIN,trigpt,0,Rgamma_eff,0);
+	    gr[ic]->Write();
 	    name = "stat" + bin.str();
 	    stat[ic] = new TGraphErrors(NTRIGBIN,trigpt,0,Rgamma_eff,0);
+	    stat[ic]->Write();
 	    name = "sys" + bin.str();
 	    sys[ic] = new TGraphErrors(NTRIGBIN,trigpt,0,Rgamma_eff,0);
-
+	    sys[ic]->Write();
 	}
 
 }
