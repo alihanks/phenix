@@ -81,12 +81,15 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 		Rgfile->cd();
 	    name = "gr" + bin.str();
 	    gr[ic] = new TGraphErrors(NTRIGBIN,trigpt,0,Rgamma_eff,0);
+	    gr[i]->SetName(name.c_str());
 	    gr[ic]->Write();
 	    name = "stat" + bin.str();
 	    stat[ic] = new TGraphErrors(NTRIGBIN,trigpt,0,Rgamma_eff,0);
+	    stat[i]->SetName(name.c_str());
 	    stat[ic]->Write();
 	    name = "sys" + bin.str();
 	    sys[ic] = new TGraphErrors(NTRIGBIN,trigpt,0,Rgamma_eff,0);
+	    sys[i]->SetName(name.c_str());
 	    sys[ic]->Write();
 	}
 
