@@ -58,7 +58,7 @@ void MakeDir::SetRgamma(string Rgamma_input, int ic)
   double *rga_err = gr[ic]->GetEY();
   for(int ip=0; ip<NTRIGBIN; ip++){
     rgamma[ic][ip] = rga[ip];
-    int trigpt_bin_mod = itrig;
+    int trigpt_bin_mod = ip;
     if( trigpt_bin_mod==4 ) trigpt_bin_mod=3;
     float sep_eff=1.;
     //for n=7 (from PISA) w/ eta already exluded
