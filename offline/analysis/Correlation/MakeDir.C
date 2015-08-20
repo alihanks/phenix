@@ -73,14 +73,14 @@ void MakeDir::SetRgamma(string Rgamma_input, int ic)
   }
 
   bin.str("");
-  bin<<ic;
+  bin<< "_c" <<ic;
   name = "stat" + bin.str();
   stat[ic] = new TGraphErrors(*(TGraphErrors*)Rgammafile->Get(name.c_str()));
   double *rga_stat = stat[ic]->GetEY();
   for(int ip=0; ip<NTRIGBIN; ip++) rgamma_stat[ic][ip] = rga_stat[ip];
 
   bin.str("");
-  bin<<ic;
+  bin<< "_c" <<ic;
   name = "sys" + bin.str();
   sys[ic] = new TGraphErrors(*(TGraphErrors*)Rgammafile->Get(name.c_str()));
   double *rga_sys = sys[ic]->GetEY();
