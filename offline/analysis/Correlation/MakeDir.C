@@ -51,7 +51,7 @@ void MakeDir::SetRgamma(string Rgamma_input, int ic)
 {
   Rgammafile = new TFile(Rgamma_input.c_str());
   bin.str("");
-  bin<<ic;
+  bin << "_c" << ic;
   name = "gr" + bin.str();
   gr[ic] = new TGraphErrors(*(TGraphErrors*)Rgammafile->Get(name.c_str()));
   double *rga = gr[ic]->GetY();
