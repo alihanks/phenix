@@ -24,10 +24,10 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
   fileinc = new TFile (finc.c_str());
   filedec = new TFile (fdec.c_str());
   fileout = new TFile (fout.c_str(),"recreate");
-  fileout->cd();
 
   for(int ic=0; ic<NCENTBIN; ic++){
     SetRgamma(Rgamma_input,ic);
+    fileout->cd();
     for(int itrig=0; itrig<NTRIGBIN; itrig++){
       for(int ipart=0; ipart<NPARTBIN; ipart++){
       	bin.str("");
