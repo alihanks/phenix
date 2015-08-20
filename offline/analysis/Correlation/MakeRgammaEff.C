@@ -64,16 +64,16 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 		h1_trigpt_dec_iso[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 
 		for(int ip=0; ip<NTRIGBIN; ip++){
-			ntrig_all = GetNTriggers(h1_trigpt_all[ic],trigpt_bins[ip],trigpt_bins[ip+1]);
-			ntrig_ntag = GetNTriggers(h1_trigpt[ic],trigpt_bins[ip],trigpt_bins[ip+1]);
-			ntrig_iso = GetNTriggers(h1_trigpt_iso[ic],trigpt_bins[ip],trigpt_bins[ip+1]);
+			double ntrig_all = GetNTriggers(h1_trigpt_all[ic],trigpt_bins[ip],trigpt_bins[ip+1]);
+			double ntrig_ntag = GetNTriggers(h1_trigpt[ic],trigpt_bins[ip],trigpt_bins[ip+1]);
+			double ntrig_iso = GetNTriggers(h1_trigpt_iso[ic],trigpt_bins[ip],trigpt_bins[ip+1]);
 			double alpha = ntrig_iso/ntrig_all;
 			cout << "alpha = " << alpha << endl;
 			double e_tag = Rgamma[ip]*(1-ntrig_ntag/ntrig_all);
 			cout << "e-tag = " << e_tag << endl;
 			double e_niso = 1 - h1_trigpt_dec_iso[ic]->GetBinContent(ip+1)/h1_trigpt_dec[ic]->GetBinContent(ip+1);
 			cout << "e-niso = " << e_niso << endl;
-			Rgamma_eff[ip] = Rgamma[ip]*alpha/((1-e_niso)(1-e_tag));
+			Rgamma_eff[ip] = Rgamma[ip]*alpha/((1.0-e_niso)(1.0-e_tag));
 			cout << "Rg = " << Rgamma_eff[ip] << endl;
 		}
 
