@@ -22,7 +22,7 @@ public:
   MakeDir(const std::string Rgamma_input, const std::string finc, const std::string fdec, const std::string fout);
   virtual ~MakeDir(){};
 
-  void SetRgamma(const std::string Rgamma_input);
+  void SetRgamma(const std::string Rgamma_input, int ic);
   void DoSubtraction(TH1D* incjet, TH1D* decjet, double Rgamma, TH1D*& dirjet);
 
 private:

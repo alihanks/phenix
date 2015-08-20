@@ -15,15 +15,9 @@ class TVirtualPad;
 class TLegend;
 class TLatex;
 
-<<<<<<< MakeCFs.h
 const double PI = acos(-1.0);
 
 #define NCENTBIN 1
-=======
-const double PI = acos(-1.0);
-
-#define NCENTBIN 4
->>>>>>> 1.2
 #define NTRIGBIN 4
 #define NPARTBIN 5
 

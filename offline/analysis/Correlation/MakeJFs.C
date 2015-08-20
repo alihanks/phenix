@@ -30,16 +30,12 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   //type == 0: inclusive photon
   //type == 1: pi0
   //type == 2: dec
-<<<<<<< MakeJFs.C
   if(useMSMP<2)  SetV2(v2input);
   else {
     inc_v2[centbin][trigbin] = 0;
     pi0_v2[centbin][trigbin] = 0;
     dec_v2[centbin][trigbin] = 0;
   }
-=======
-  if(useMSMP<2)  SetV2(v2input);
->>>>>>> 1.3
   if(type==0) trigv2 = inc_v2[centbin][trigbin];
   if(type==1) trigv2 = pi0_v2[centbin][trigbin];
   if(type==2) trigv2 = dec_v2[centbin][trigbin];
