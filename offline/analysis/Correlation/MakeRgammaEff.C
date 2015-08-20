@@ -25,7 +25,7 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 	TFile* infile = new TFile(trigger_input);
 	TFile* Rgfile = new TFile(Rgamma_input,"recreate");
 
-	int NTRIGBIN = 4;
+	const int NTRIGBIN = 4;
 	double Rgamma[NTRIGBIN];
     Rgamma[0]=1.18352;
     Rgamma[1]=1.33204;
