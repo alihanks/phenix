@@ -73,6 +73,7 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 			cout << "e-tag = " << e_tag << endl;
 			double e_niso = 1 - h1_trigpt_dec_iso[ic]->GetBinContent(ip+1)/h1_trigpt_dec[ic]->GetBinContent(ip+1);
 			cout << "e-niso = " << e_niso << endl;
+			if(ip==0) e_tag = e_tag*1.2;
 			Rgamma_eff[ip] = Rgamma[ip]*alpha/((1.0-e_niso)*(1.0-e_tag));
 			cout << "Rg = " << Rgamma_eff[ip] << endl;
 		}
