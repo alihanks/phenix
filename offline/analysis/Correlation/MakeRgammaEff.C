@@ -47,6 +47,7 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 	TGraphErrors* stat[NCENTBIN];
 	TGraphErrors* sys[NCENTBIN];
 
+	std::ostringstream bin;
 	for(int ic=0; ic<NCENTBIN; ic++){
 		bin.str("");
 		bin << "_c" << ic;
