@@ -73,7 +73,7 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 			cout << "e-tag = " << e_tag << endl;
 			double e_niso = 1 - h1_trigpt_dec_iso[ic]->GetBinContent(ip+1)/h1_trigpt_dec[ic]->GetBinContent(ip+1);
 			cout << "e-niso = " << e_niso << endl;
-			if(ip==0) e_tag = e_tag*1.2;
+			if(ip==0) e_tag = e_tag*1.5;
 			Rgamma_eff[ip] = Rgamma[ip]*alpha/((1.0-e_niso)*(1.0-e_tag));
 			cout << "Rg = " << Rgamma_eff[ip] << endl;
 		}
@@ -81,15 +81,15 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 		Rgfile->cd();
 	    name = "gr" + bin.str();
 	    gr[ic] = new TGraphErrors(NTRIGBIN,trigpt,0,Rgamma_eff,0);
-	    gr[i]->SetName(name.c_str());
+	    gr[ic]->SetName(name.c_str());
 	    gr[ic]->Write();
 	    name = "stat" + bin.str();
 	    stat[ic] = new TGraphErrors(NTRIGBIN,trigpt,0,Rgamma_eff,0);
-	    stat[i]->SetName(name.c_str());
+	    stat[ic]->SetName(name.c_str());
 	    stat[ic]->Write();
 	    name = "sys" + bin.str();
 	    sys[ic] = new TGraphErrors(NTRIGBIN,trigpt,0,Rgamma_eff,0);
-	    sys[i]->SetName(name.c_str());
+	    sys[ic]->SetName(name.c_str());
 	    sys[ic]->Write();
 	}
 
