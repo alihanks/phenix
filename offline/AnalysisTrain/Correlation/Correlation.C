@@ -1073,7 +1073,7 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
     //dec weighting
     vector<float> mwweight;
     for(int i=0; i<5; i++) mwweight.push_back(0.0);
-    EvalDecWeights(&api0,event_z,cbin,mwweight);
+    EvalDecWeights(pi0_vector[i],event_z,cbin,mwweight);
     pi0_vector[i]->SetDecayWeights(mwweight);
 
     //dec trigger counting
