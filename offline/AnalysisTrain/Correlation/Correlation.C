@@ -1053,12 +1053,6 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
       if( verbosity > 1 )
         cout << "Event " << evt << " - Found pi0 with isolation = " << api0.IsIso() << endl;
       
-      //dec weighting
-      vector<float> mwweight;
-      for(int i=0; i<5; i++) mwweight.push_back(0.0);
-      EvalDecWeights(&api0,event_z,cbin,mwweight);
-      api0.SetDecayWeights(mwweight);
-
       pi0_vector.push_back(api0.clone());
 
       //cout<<"setting pi0 trigger data: pt = "<<api0.Pt()<<"; phi = "<<api0.Phi()<<"; eta = "<<api0.Eta()<<"; e = "<<api0.E()<<"; x = "<<((ACluster*)api0.Daughter1())->GetX()<<"; y = "<<((ACluster*)api0.Daughter1())->GetY()<<"; z = "<<((ACluster*)api0.Daughter1())->GetZ()<<endl;
@@ -1075,6 +1069,12 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
       h1_trig_pt_pi0_iso[cbin]->Fill(pi0_vector[i]->Pt());
     h1_trig_pt_pi0_tot->Fill(pi0_vector[i]->Pt());
     h2_ptvscent_trig_pi0->Fill(pi0_vector[i]->Pt(),cent);
+
+    //dec weighting
+    vector<float> mwweight;
+    for(int i=0; i<5; i++) mwweight.push_back(0.0);
+    EvalDecWeights(&api0,event_z,cbin,mwweight);
+    pi0_vector[i]->SetDecayWeights(mwweight);
 
     //dec trigger counting
     for(int ipw=0; ipw<5; ipw++){
