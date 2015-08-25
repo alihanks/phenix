@@ -3,6 +3,34 @@
 	{
 		"selected_items":
 		[
+			[
+				"Rgamma",
+				"Rgamma_eff"
+			],
+			[
+				"Rgamm",
+				"Rgamma_input"
+			],
+			[
+				"Rg",
+				"Rgamma_eff"
+			],
+			[
+				"Rgam",
+				"Rgamma_input"
+			],
+			[
+				"Get",
+				"GetNTriggers"
+			],
+			[
+				"mult",
+				"multiplicity"
+			],
+			[
+				"h2_dph",
+				"h2_dphi_dec_iso"
+			]
 		]
 	},
 	"buffers":
@@ -19,23 +47,7 @@
 			"file": "offline/AnalysisTrain/Correlation/Makefile.am",
 			"settings":
 			{
-				"buffer_size": 2337,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "hijing/hijing_analysis.C",
-			"settings":
-			{
-				"buffer_size": 21143,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "offline/AnalysisTrain/Correlation/AMixingTree.C",
-			"settings":
-			{
-				"buffer_size": 3924,
+				"buffer_size": 2509,
 				"line_ending": "Unix"
 			}
 		},
@@ -43,7 +55,23 @@
 			"file": "hijing/hijing_analysis.h",
 			"settings":
 			{
-				"buffer_size": 2881,
+				"buffer_size": 3330,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "hijing/hijing_analysis.C",
+			"settings":
+			{
+				"buffer_size": 26166,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "offline/AnalysisTrain/Correlation/Correlation.C",
+			"settings":
+			{
+				"buffer_size": 86346,
 				"line_ending": "Unix"
 			}
 		},
@@ -56,13 +84,18 @@
 			}
 		},
 		{
-			"contents": "#include <Correlation.h>\n#include <Warnmap.h>\n#include <AParticle.h>\n#include <ACluster.h>\n#include <APiZero.h>\n#include <ATrack.h>\n#include <AEvent.h>\n#include <AMixingPool.h>\n#include <AMixingTree.h>\n\n#include <TFile.h>\n#include <THmulf.h>\n#include <TF1.h>\n#include <TLorentzVector.h>\n#include <TGraphErrors.h>\n#include <TTree.h>\n\n#include <Fun4AllServer.h>\n#include <Fun4AllReturnCodes.h>\n#include <PHCompositeNode.h>\n#include <getClass.h>\n#include <PHAngle.h>\n#include <PHCentralTrack.h>\n#include <PHGlobal.h>\n#include <emcClusterContainer.h>\n#include <emcClusterContent.h>\n#include <SvxCentralTrackList.h>\n#include <SvxCentralTrack.h>\n#include <SvxClusterList.h>\n#include <SvxCluster.h>\n#include <ConversionVeto.h>\n#include <RunHeader.h>\n#include <EventHeader.h>\n#include <TriggerHelper.h>\n#include <TrigLvl1.h>\n#include <ErtOut.h>\n\n#include <TOAD.h>\n\n#include <string>\n#include <sstream>\n#include <iostream>\n\nusing namespace std;\n\n//some constants for the pbgl\nstatic const float vnx[2][4] = { { 0.92619,     0.999986,     0.921968,     0.702254 }, {-0.92627,     -0.999996,    -0.921187,    -0.702855 } };\nstatic const float vny[2][4] = { {-0.377058,    0.00528539,   0.387266,     0.711927 }, {-0.37686,      0.00268898,   0.389118,     0.711332 } };\nstatic const float vnz[2][4] = { { 4.61055e-05, 7.46704e-05, -0.000252431, -0.000332109}, {-0.000400881, -0.000738336, -0.000926837, -0.000577316} };\n\nCorrelation::Correlation(const char* outfile)\n{\n  NZVTX = 12;\n  NCENT = 20;\n  NCBINS = 1;\n  NMIX = 100;\n  Rcut = 0.3;\n  zVertexCut = 20.0;\n  fieldPolarity = 1.0;\n  nsvxpart = 0;\n  output = outfile;\n  evt = 0;\n  event = 0;\n  event_z = -9999.;\n  cbin = -1;\n  photon_pt_min = 5.0; photon_pt_max = 15.0;\n  hadron_pt_min = 0.5; hadron_pt_max = 7.0;\n  photon_ecore_min = 1.0;\n  pi0_pt_min = 4.0; pi0_pt_max = 17.0;\n  useVtx = 0;\n  DiagFlag = 0;\n  RecalFlag = 1;\n  PC3_NSIGMA = 2.0;\n  EMC_NSIGMA = 2.0;\n  vetoPtCut = 1.0;\n  minAsym = 0.15;\n  fhadeff = NULL;\n  fhadroneff = NULL;\n  fpi0eff_0 = NULL;\n  fpi0eff_1 = NULL;\n  fpi0eff_2 = NULL;\n  fpi0eff_3 = NULL;\n  grpi0eff_0 = NULL;\n  grpi0eff_1 = NULL;\n  grpi0eff_2 = NULL;\n  grpi0eff_3 = NULL;\n  manager = NULL;\n  global = NULL;\n  emcclustercontainer = NULL;\n  particle = NULL;\n  svxcntlist = NULL;\n  svxcluslist = NULL;\n  svxcnttrk = NULL;\n  toad_loader = NULL;\n  warnmap = NULL;\n  atree = NULL;\n  \n  InitHistos();\n}\n\nCorrelation::~Correlation()\n{\n  if(warnmap) delete warnmap;\n  \n  if(fhadroneff) delete fhadroneff;\n  if( fhadeff ){\n    fhadeff->Close();\n    delete fhadeff;\n  }\n                \n  if(grpi0eff_0) delete grpi0eff_0;\n  if( fpi0eff_0 ){\n    fpi0eff_0->Close();\n    delete fpi0eff_0;\n  }\n  if( grpi0eff_1 ) delete grpi0eff_1;\n  if( fpi0eff_1 ){\n    fpi0eff_1->Close();\n    delete fpi0eff_1;\n  }\n  if( grpi0eff_2 ) delete grpi0eff_2;\n  if( fpi0eff_2 ){\n    fpi0eff_2->Close();\n    delete fpi0eff_2;\n  }\n  if( grpi0eff_3 ) delete grpi0eff_3;\n  if( fpi0eff_3 ){\n    fpi0eff_3->Close();\n    delete fpi0eff_3;\n  }\n  delete toad_loader;\n  delete manager;\n  if(atree) delete atree;\n}\n\nvoid Correlation::SetWarnmaps(vector<string> filename, vector<double> ptcut)\n{\n  if( filename.size() != ptcut.size() )\n  {\n    cout << \"ERROR: Correlation::SetWarnmaps() - must have a pt cutoff for each input file!\" << endl;\n    return;\n  }\n  for( unsigned int i = 0; i < filename.size(); i++ )\n  {\n    warnmap_filenames.push_back(filename[i]);\n    warnmap_cuts.push_back(ptcut[i]);\n  }\n}\n\nint Correlation::Init(PHCompositeNode* topNode)\n{\n  manager = new Fun4AllHistoManager(\"MyHistos\");\n  toad_loader = new TOAD(\"Correlation\");\n  warnmap = new Warnmap(warnmap_filenames.size());\n  warnmap->SetPtRange(warnmap_cuts);\n  \n  for( unsigned int i = 0; i < warnmap_filenames.size(); i++ )\n  {\n    cout << \"finding WARNMAP input \" << i << \": \" << warnmap_filenames[i] << \"...\" << endl;\n    string file_location = toad_loader->location(warnmap_filenames[i].c_str());\n    warnmap->ReadMap(file_location.c_str(),i);\n    cout << \"WARNMAP input \" << i << \": \" << file_location << \" loaded\" << endl;\n  }\n  \n  string fhadroneff_location = toad_loader->location(_hadeffFilename.c_str());\n  SetHadronEfficiency(fhadroneff_location.c_str());\n  \n  string feff_0_location = toad_loader->location(_pi0effFilename_0.c_str());\n  string feff_1_location = toad_loader->location(_pi0effFilename_1.c_str());\n  string feff_2_location = toad_loader->location(_pi0effFilename_2.c_str());\n  string feff_3_location = toad_loader->location(_pi0effFilename_3.c_str());\n  SetTriggerEfficiency(feff_0_location.c_str(), feff_1_location.c_str(), feff_2_location.c_str(), feff_3_location.c_str());\n  cout << \"pi0 trigger efficiency loaded\" << endl;\n  \n  string sharkfin_file = toad_loader->location(_sharkfinname.c_str());\n  SetSharkFin(sharkfin_file.c_str());\n  cout << \"sharkfin input loaded\" << endl;\n  \n  ostringstream bin;\n  string name, name_mix;\n  \n  TH1F* temp;\n  TH2F* temp2;\n  TH3F* temp3;\n  for(int ic = 0; ic < NCBINS; ic++){\n    bin.str(\"\");\n    bin << ic;\n\n    name = \"h1_centrality_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(), \"centrality\", 2, 0, 2);\n    h1_centrality.push_back(temp);\n\n    name = \"h3_dphi_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 60, -PI/2, 3*PI/2);\n    h3_dphi.push_back(temp3);\n    \n    name = \"h3_dphi_1sig_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 60, -PI/2, 3*PI/2);\n    h3_dphi_1sig.push_back(temp3);\n    \n    name = \"h3_dphi_2sig_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 60, -PI/2, 3*PI/2);\n    h3_dphi_2sig.push_back(temp3);\n    \n    name = \"h3_dphi_mix_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 60, -PI/2, 3*PI/2);\n    h3_dphi_mix.push_back(temp3);\n    \n    name = \"h3_dphi_pi0_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 60, -PI/2, 3*PI/2);\n    h3_dphi_pi0.push_back(temp3);\n    \n    name = \"h3_dphi_pi0_mix_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 60, -PI/2, 3*PI/2);\n    h3_dphi_pi0_mix.push_back(temp3);\n    \n    name = \"h3_dphi_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_dphi_fold.push_back(temp3);\n\n    name = \"h3_ptxidphi_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"xi\", 25, -1.0, 4.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_ptxidphi_fold.push_back(temp3);\n\n    name = \"h3_ptztdphi_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"zt\", 40, 0.0, 2.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_ptztdphi_fold.push_back(temp3);\n    \n    name = \"h3_dphi_iso_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_dphi_iso_fold.push_back(temp3);\n    \n    name = \"h3_dphi_fold_1sig_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_dphi_fold_1sig.push_back(temp3);\n    \n    name = \"h3_dphi_fold_2sig_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_dphi_fold_2sig.push_back(temp3);\n    \n    name = \"h3_dphi_mix_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_dphi_mix_fold.push_back(temp3);\n\n    name = \"h3_ptxidphi_mix_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"xi\", 25, -1.0, 4.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_ptxidphi_mix_fold.push_back(temp3);\n\n    name = \"h3_ptztdphi_mix_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"zt\", 40, 0.0, 2.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_ptztdphi_mix_fold.push_back(temp3);\n    \n    name = \"h3_dphi_mix_iso_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #gamma} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_dphi_mix_iso_fold.push_back(temp3);\n    \n    name = \"h3_dphi_pi0_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_dphi_pi0_fold.push_back(temp3);\n\n    name = \"h3_ptxidphi_pi0_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 20, 0.0, 20.0, \"xi\", 25, -1.0, 4.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_ptxidphi_pi0_fold.push_back(temp3);\n\n    name = \"h3_ptztdphi_pi0_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 20, 0.0, 20.0, \"zt\", 40, 0.0, 2.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_ptztdphi_pi0_fold.push_back(temp3);\n    \n    name = \"h3_dphi_pi0_iso_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_dphi_pi0_iso_fold.push_back(temp3);\n    \n    name = \"h3_dphi_pi0_mix_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_dphi_pi0_mix_fold.push_back(temp3);\n\n    name = \"h3_ptxidphi_pi0_mix_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 20, 0.0, 20.0, \"xi\", 25, -1.0, 4.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_ptxidphi_pi0_mix_fold.push_back(temp3);\n\n    name = \"h3_ptztdphi_pi0_mix_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 20, 0.0, 20.0, \"zt\", 40, 0.0, 2.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_ptztdphi_pi0_mix_fold.push_back(temp3);\n    \n    name = \"h3_dphi_pi0_mix_iso_fold_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 20, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 30, 0., PI);\n    h3_dphi_pi0_mix_iso_fold.push_back(temp3);\n    \n    name = \"h1_trig_pt_inc_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} [GeV/c]\",200,0.,20.);\n    h1_trig_pt_inc.push_back(temp);\n    \n    name = \"h1_trig_pt_inc_iso_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} [GeV/c]\",200,0.,20.);\n    h1_trig_pt_inc_iso.push_back(temp);\n    \n    name = \"h1_trig_pt_pi0_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} [GeV/c]\",200,0.,20.);\n    h1_trig_pt_pi0.push_back(temp);\n    \n    name = \"h1_trig_pt_pi0_iso_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} [GeV/c]\",200,0.,20.);\n    h1_trig_pt_pi0_iso.push_back(temp);\n    \n    name = \"h1_trig_pt_dec_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} bin\",5,-0.5,4.5);\n    h1_trig_pt_dec.push_back(temp);\n    \n    name = \"h1_trig_pt_dec_iso_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} bin\",5,-0.5,4.5);\n    h1_trig_pt_dec_iso.push_back(temp);\n    \n    name = \"h1_trig_pt_inc_mix_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} [GeV/c]\",200,0.,20.);\n    h1_trig_pt_inc_mix.push_back(temp);\n    \n    name = \"h1_trig_pt_inc_iso_mix_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} [GeV/c]\",200,0.,20.);\n    h1_trig_pt_inc_iso_mix.push_back(temp);\n    \n    name = \"h1_trig_pt_pi0_mix_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} [GeV/c]\",200,0.,20.);\n    h1_trig_pt_pi0_mix.push_back(temp);\n    \n    name = \"h1_trig_pt_pi0_iso_mix_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} [GeV/c]\",200,0.,20.);\n    h1_trig_pt_pi0_iso_mix.push_back(temp);\n    \n    name = \"h1_trig_pt_dec_mix_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} bin\",5,-0.5,4.5);\n    h1_trig_pt_dec_mix.push_back(temp);\n    \n    name = \"h1_trig_pt_dec_iso_mix_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} bin\",5,-0.5,4.5);\n    h1_trig_pt_dec_iso_mix.push_back(temp);\n    \n    name = \"h1_part_pt_c\" + bin.str();\n    Init1DHisto(temp, name.c_str(),\"p_{T} [GeV/c]\",100,0.,10.);\n    h1_part_pt.push_back(temp);\n    \n    name = \"h2_pi0mass_c\" + bin.str();\n    Init2DHisto(temp2, name.c_str(), \"p_{T} [GeV/c]\", 100, 0.0, 20.0, \"m [GeV/c^{2}]\", 200, 0.0, 0.6);\n    h2_pi0mass.push_back(temp2);\n    \n    name = \"h2_cluster_dphi_dR_c\" + bin.str();\n    Init2DHisto(temp2, name.c_str(), \"#Delta R [GeV]\", 200, 0.0, 2.0, \"#Delta #phi\", 60, 0.0, PI);\n    h2_cluster_wdR.push_back(temp2);\n    \n    name = \"h2_cluster_pi0_dphi_dR_c\" + bin.str();\n    Init2DHisto(temp2, name.c_str(), \"#Delta R [GeV]\", 200, 0.0, 2.0, \"#Delta #phi\", 60, 0.0, PI);\n    h2_cluster_pi0_wdR.push_back(temp2);\n    \n    name = \"h2_cluster_mix_dphi_dR_c\" + bin.str();\n    Init2DHisto(temp2, name.c_str(), \"#Delta R [GeV]\", 200, 0.0, 2.0, \"#Delta #phi\", 60, 0.0, PI);\n    h2_cluster_mix_wdR.push_back(temp2);\n    \n    name = \"h3_cluster_etot_dR_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T} [GeV/c]\", 60, 0.0, 15.0, \"E_{tot} [GeV]\", 40, 0.0, 2.0,\"#Delta R\",200,0.0,2.0);\n    h3_cluster_etot.push_back(temp3);\n    \n    name = \"h3_cluster_etot_pi0_dR_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T} [GeV/c]\", 60, 0.0, 15.0, \"E_{tot} [GeV]\", 40, 0.0, 2.0,\"#Delta R\",200,0.0,2.0);\n    h3_cluster_pi0_etot.push_back(temp3);\n    \n    name = \"h3_cluster_etot_mix_dR_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T} [GeV/c]\", 60, 0.0, 15.0, \"E_{tot} [GeV]\", 40, 0.0, 2.0,\"#Delta R\",200,0.0,2.0);\n    h3_cluster_mix_etot.push_back(temp3);\n    \n    name = \"h3_cluster_dR_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T} [GeV/c]\", 60, 0.0, 15.0, \"E_{assoc} [GeV]\", 40, 0.0, 10.0,\"#Delta R\",200,0.0,2.0);\n    h3_cluster_dR.push_back(temp3);\n    \n    name = \"h3_cluster_pi0_dR_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T} [GeV/c]\", 60, 0.0, 15.0, \"E_{assoc} [GeV]\", 40, 0.0, 10.0,\"#Delta R\",200,0.0,2.0);\n    h3_cluster_pi0_dR.push_back(temp3);\n    \n    name = \"h3_cluster_mix_dR_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"p_{T} [GeV/c]\", 60, 0.0, 15.0, \"E_{assoc} [GeV]\", 40, 0.0, 10.0,\"#Delta R\",200,0.0,2.0);\n    h3_cluster_mix_dR.push_back(temp3);\n    \n    name = \"h2_cluster_etot_dR_c\" + bin.str();\n    Init2DHisto(temp2, name.c_str(), \"E_{tot}/p_{T}\", 60, 0.0, 5.0, \"p_{T} [GeV/c]\", 60, 0.0, 15.0);\n    h2_cluster_etot.push_back(temp2);\n    \n    name = \"h2_cluster_etot_pi0_dR_c\" + bin.str();\n    Init2DHisto(temp2, name.c_str(), \"E_{tot}/p_{T}\", 60, 0.0, 5.0, \"p_{T} [GeV/c]\", 60, 0.0, 15.0);\n    h2_cluster_pi0_etot.push_back(temp2);\n    \n    name = \"h2_cluster_etot_mix_dR_c\" + bin.str();\n    Init2DHisto(temp2, name.c_str(), \"E_{tot}/p_{T}\", 60, 0.0, 5.0, \"p_{T} [GeV/c]\", 60, 0.0, 15.0);\n    h2_cluster_mix_etot.push_back(temp2);\n    \n    name = \"h3_iso_acc_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"#phi [rad]\", 60, -1*PI, PI, \"#eta\", 80, -0.4, 0.4,\"p_{T} [GeV/c]\",60,0.0,15.0);\n    h3_iso_acc.push_back(temp3);\n    \n    name = \"h3_iso_pi0_acc_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"#phi [rad]\", 60, -1*PI, PI, \"#eta\", 80, -0.4, 0.4,\"p_{T} [GeV/c]\",60,0.0,15.0);\n    h3_iso_pi0_acc.push_back(temp3);\n    \n    name = \"h3_iso_mix_acc_c\" + bin.str();\n    Init3DHisto(temp3, name.c_str(), \"#phi [rad]\", 60, -1*PI, PI, \"#eta\", 80, -0.4, 0.4,\"p_{T} [GeV/c]\",60,0.0,15.0);\n    h3_iso_mix_acc.push_back(temp3);\n    \n    if(DiagFlag){\n      name = \"h3_dphi_pi0_bg_c\" + bin.str();\n      Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 200, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 60, -PI/2, 3*PI/2);\n      h3_dphi_pi0_bg.push_back(temp3);\n      name = \"h3_dphi_pi0_bg_mix_c\" + bin.str();\n      Init3DHisto(temp3, name.c_str(), \"p_{T, #pi^{0}} [GeV/c]\", 200, 0.0, 20.0, \"p_{T, h} [GeV/c]\", 100, 0.0, 10.0, \"#Delta#phi [rad]\", 60, -PI/2, 3*PI/2);\n      h3_dphi_pi0_bg_mix.push_back(temp3);\n      name = \"h3_mintrackdist_fg_c\" + bin.str();\n      Init3DHisto(temp3, name.c_str(), \"track_dist[cm]\", 100,0.,100., \"trigger pt [GeV/c]\", 20, 0.,20, \"veto track p_{T} [GeV/c]\", 40,0.,20.);\n      h3_mintrackdist_fg.push_back(temp3);\n      name = \"h3_mintrackdist_bg_c\" + bin.str();\n      Init3DHisto(temp3, name.c_str(), \"track_dist[cm]\", 100,0.,100., \"trigger pt [GeV/c]\", 20, 0.,20, \"veto track p_{T} [GeV/c]\", 40,0.,20.);\n      h3_mintrackdist_bg.push_back(temp3);\n      name = \"h3_EoverP_c\" + bin.str();\n      Init3DHisto(temp3, name.c_str(), \"p_{T} [GeV/c]\", 100, 0., 10., \"E/p\", 50, 0., 1., \"#Delta#phi [rad]\", 30, 0.0, PI);\n      h3_EoverP.push_back(temp3);\n    }\n  }\n  \n  name = \"h2_pi0mass_PbGl\";\n  Init2DHisto(h2_pi0mass_PbGl, name.c_str(), \"p_{T} [GeV/c]\", 100, 0.0, 20.0, \"m [GeV/c^{2}]\", 200, 0.0, 0.6);\n  name = \"h2_pi0mass_PbSc\";\n  Init2DHisto(h2_pi0mass_PbSc, name.c_str(), \"p_{T} [GeV/c]\", 100, 0.0, 20.0, \"m [GeV/c^{2}]\", 200, 0.0, 0.6);\n\n  double pos_array[100];\n  for (int i = 0; i < 100; i++) {pos_array[i] = i;}\n\n  for(int ias=0; ias<N_ARMSECT; ias++){\n    bin.str(\"\");\n    bin << ias;\n    name = \"h2_pi0mass_as\" + bin.str();\n    Init2DHisto(h2_pi0mass_as[ias], name.c_str(), \"p_{T} [GeV/c]\", 100, 0.0, 20.0, \"m [GeV/c^{2}]\", 200, 0.0, 0.6);\n    if(DiagFlag){\n      name = \"h2_pi0_bg_as\" + bin.str();\n      Init2DHisto(h2_pi0_bg_as[ias], name.c_str(), \"p_{T} [GeV/c]\", 100, 0.0, 20.0, \"m [GeV/c^{2}]\", 200, 0.0, 0.6);\n    }\n\n    name = \"nhit_as\" + bin.str();\n    int ny_max, nz_max;\n    if (IsPbGl(ias)) { ny_max = N_YPOS_PBGL;  nz_max = N_ZPOS_PBGL; }\n    else             { ny_max = N_YPOS_PBSC;  nz_max = N_ZPOS_PBSC; }\n\n    int pt_max=25;\n\n    Init3DHisto(h3_nhit[ias], name.c_str(), \"ecore [GeV]\", pt_max, pos_array, \"ypos\", ny_max, pos_array, \"zpos\", nz_max, pos_array);\n    name = \"nhit_mywarn_as\" + bin.str();\n    Init3DHisto(h3_nhit_mywarn[ias], name.c_str(), \"ecore [GeV]\", pt_max, pos_array, \"ypos\", ny_max, pos_array, \"zpos\", nz_max, pos_array);\n\n    name = \"h1_chi2_as\" + bin.str();\n    Init1DHisto(h1_chi2[ias], name.c_str(), \"#chi^{2}\", 20, 0., 10.);\n    name = \"h3_disp_as\" + bin.str();\n    Init3DHisto(h3_disp[ias], name.c_str(), \"dispMax\", 20, 0., 2., \"dispCut\", 20, 0., 2., \"pass\", 2,0,2);\n    name = \"h1_trigger_as\" + bin.str();\n    Init1DHisto(h1_trigger[ias], name.c_str(), \"ERT Supermodule\", 50, 0., 50.);\n  }\n\n  if(DiagFlag){\n    name = \"h2_pi0_bg\";\n    Init2DHisto(h2_pi0_bg, name.c_str(), \"p_{T} [GeV/c]\", 100, 0.0, 20.0, \"m [GeV/c^{2}]\", 200, 0.0, 0.6);\n    name = \"h2_pi0_bg_PbGl\";\n    Init2DHisto(h2_pi0_bg_PbGl, name.c_str(), \"p_{T} [GeV/c]\", 100, 0.0, 20.0, \"m [GeV/c^{2}]\", 200, 0.0, 0.6);\n    name = \"h2_pi0_bg_PbSc\";\n    Init2DHisto(h2_pi0_bg_PbSc, name.c_str(), \"p_{T} [GeV/c]\", 100, 0.0, 20.0, \"m [GeV/c^{2}]\", 200, 0.0, 0.6);\n\n    Init2DHisto(h2_emctrkdphi_bf, \"h2_emctrkdphi_bf\", \"p_{T} [GeV/c]\", 30, 0.0, 15.0, \"emctrkdphi [rad]\", 60, -0.2, 0.2);\n    Init2DHisto(h2_emctrkdz_bf, \"h2_emctrkdz_bf\", \"p_{T} [GeV/c]\", 30, 0.0, 15.0, \"emctrkdz [cm]\", 70, -70.0, 70.0);\n    Init2DHisto(h2_emcpc3dphi_bf, \"h2_emcpc3dphi_bf\", \"p_{T} [GeV/c]\", 30, 0.0, 15.0, \"emcpc3dphi [rad]\", 60, -0.2, 0.2);\n    Init2DHisto(h2_emcpc3dz_bf, \"h2_emcpc3dz_bf\", \"p_{T} [GeV/c]\", 30, 0.0, 15.0, \"emcpc3dz [cm]\", 70, -70.0, 70.0);\n    \n    Init2DHisto(h2_emctrkdphi_aft, \"h2_emctrkdphi_aft\", \"p_{T} [GeV/c]\", 30, 0.0, 15.0, \"emctrkdphi [rad]\", 60, -0.2, 0.2);\n    Init2DHisto(h2_emctrkdz_aft, \"h2_emctrkdz_aft\", \"p_{T} [GeV/c]\", 30, 0.0, 15.0, \"emctrkdz [cm]\", 70, -70.0, 70.0);\n    Init2DHisto(h2_emcpc3dphi_aft, \"h2_emcpc3dphi_aft\", \"p_{T} [GeV/c]\", 30, 0.0, 15.0, \"emcpc3dphi [rad]\", 60, -0.2, 0.2);\n    Init2DHisto(h2_emcpc3dz_aft, \"h2_emcpc3dz_aft\", \"p_{T} [GeV/c]\", 30, 0.0, 15.0, \"emcpc3dz [cm]\", 70, -70.0, 70.0);\n    \n    //track information-before cut\n    Init2DHisto(h2_pc3sdphi_bf, \"h2_pc3sdphi_bf\", \"p_{T} [GeV/c]\", 35, 0.0, 7.0, \"pc3sdphi [rad]\", 40, -10.0, 10.0);\n    Init2DHisto(h2_pc3sdz_bf, \"h2_pc3sdz_bf\", \"p_{T} [GeV/c]\", 35, 0.0, 7.0, \"pc3sdz [cm]\", 40, -10.0, 10.0);\n    //-after cut\n    Init2DHisto(h2_pc3sdphi_aft, \"h2_pc3sdphi_aft\", \"p_{T} [GeV/c]\", 35, 0.0, 7.0, \"pc3sdphi [rad]\", 40, -10.0, 10.0);\n    Init2DHisto(h2_pc3sdz_aft, \"h2_pc3sdz_aft\", \"p_{T} [GeV/c]\", 35, 0.0, 7.0, \"pc3sdz [cm]\", 40, -10.0, 10.0);\n    \n    //DC acceptance\n    Init2DHisto(h2_phi_zed_bf, \"h2_phi_zed_bf\", \"zed [cm]\", 160, -80, 80,\"#phi [rad]\", 100, -1.0, 4.0);\n    Init2DHisto(h2_phi_zed_aft, \"h2_phi_zed_aft\", \"zed [cm]\", 160, -80, 80,\"#phi [rad]\", 100, -1.0, 4.0);\n    \n    //PC3 acceptance\n    Init2DHisto(h2_ppc3_west_bf, \"h2_ppc3_west_bf\", \"ppc3z [cm]\", 400, -200, 200, \"ppc3y [cm]\", 750, -300, 450);\n    Init2DHisto(h2_ppc3_east_bf, \"h2_ppc3_east_bf\", \"ppc3z [cm]\", 400, -200, 200, \"ppc3y [cm]\", 750, -300, 450);\n    Init2DHisto(h2_ppc3_west_aft, \"h2_ppc3_west_aft\", \"ppc3z [cm]\", 400, -200, 200, \"ppc3y [cm]\", 750, -300, 450);\n    Init2DHisto(h2_ppc3_east_aft, \"h2_ppc3_east_aft\", \"ppc3z [cm]\", 400, -200, 200, \"ppc3y [cm]\", 750, -300, 450);\n    //PC1 acceptance\n    Init2DHisto(h2_ppc1_west_bf, \"h2_ppc1_west_bf\", \"ppc1z [cm]\", 200, -100, 100, \"ppc1y [cm]\", 380, -150, 230);\n    Init2DHisto(h2_ppc1_east_bf, \"h2_ppc1_east_bf\", \"ppc1z [cm]\", 200, -100, 100, \"ppc1y [cm]\", 380, -150, 230);\n    Init2DHisto(h2_ppc1_west_aft, \"h2_ppc1_west_aft\", \"ppc1z [cm]\", 200, -100, 100, \"ppc1y [cm]\", 380, -150, 230);\n    Init2DHisto(h2_ppc1_east_aft, \"h2_ppc1_east_aft\", \"ppc1z [cm]\", 200, -100, 100, \"ppc1y [cm]\", 380, -150, 230);\n    Init2DHisto(h2_EoverPvspt, \"h2_EoverPvspt\", \"p_{T} [GeV/c]\", 100, 0., 10., \"E/p\", 50, 0., 1.);\n    \n    InitPhotonCutChecker(\"photon_cut_check\", photon_cut_check);\n    InitHadronCutChecker(\"hadron_cut_check\", hadron_cut_check);\n\n    Init3DHisto(h3_mintrackdist_fg_allcent, \"h3_mintrackdist_fg_allcent\", \"track_dist[cm]\", 100,0.,100., \"trigger pt [GeV/c]\", 20, 0.,20, \"veto track p_{T} [GeV/c]\", 40,0.,20.);\n    Init3DHisto(h3_mintrackdist_bg_allcent, \"h3_mintrackdist_bg_allcent\", \"track_dist[cm]\", 100,0.,100., \"trigger pt [GeV/c]\", 20, 0.,20, \"veto track p_{T} [GeV/c]\", 40,0.,20.);\n  }\n\n  Init1DHisto(h1_zvertex, \"h1_zvertex\",\"z [cm]\",60,-30,30);\n  //Init1DHisto(h1_centrality, \"h1_centrality\",\"centrality [%]\",50,0,100);\n  Init1DHisto(h1_trig_pt_inc_tot, \"h1_trig_pt_inc_tot\",\"p_{T} [GeV/c]\",200,0.,20.);\n  Init1DHisto(h1_trig_pt_pi0_tot, \"h1_trig_pt_pi0_tot\",\"p_{T} [GeV/c]\",200,0.,20.);\n  Init1DHisto(h1_trig_pt_dec_tot, \"h1_trig_pt_dec_tot\",\"p_{T} bin\",5,-0.5,4.5);\n  Init1DHisto(h1_trig_pt_inc_mix_tot, \"h1_trig_pt_inc_mix_tot\",\"p_{T} [GeV/c]\",200,0.,20.);\n  Init1DHisto(h1_trig_pt_pi0_mix_tot, \"h1_trig_pt_pi0_mix_tot\",\"p_{T} [GeV/c]\",200,0.,20.);\n  Init1DHisto(h1_trig_pt_dec_mix_tot, \"h1_trig_pt_dec_mix_tot\",\"p_{T} bin\",5,-0.5,4.5);\n  Init1DHisto(h1_part_pt_tot, \"h1_part_pt_tot\",\"p_{T} [GeV/c]\",100,0.,10.);\n  Init1DHisto(h1_part_pt_05sig, \"h1_part_pt_05sig\",\"p_{T} [GeV/c]\",100,0.,10.);\n  Init1DHisto(h1_part_pt_1sig, \"h1_part_pt_1sig\",\"p_{T} [GeV/c]\",100,0.,10.);\n  Init1DHisto(h1_part_pt_15sig, \"h1_part_pt_15sig\",\"p_{T} [GeV/c]\",100,0.,10.);\n  Init1DHisto(h1_part_pt_2sig, \"h1_part_pt_2sig\",\"p_{T} [GeV/c]\",100,0.,10.);\n  Init1DHisto(h1_part_pt_3sig, \"h1_part_pt_3sig\",\"p_{T} [GeV/c]\",100,0.,10.);\n  Init2DHisto(h2_ptvscent_trig_inc, \"h2_ptvscent_trig_inc\",\"p_{T} [GeV/c]\",200,0.,20., \"centrality [%]\",101,0,100);\n  Init2DHisto(h2_ptvscent_part, \"h2_ptvscent_part\",\"p_{T} [GeV/c]\",100,0.,10., \"centrality [%]\",101,0,100);\n  Init2DHisto(h2_ptvscent_trig_pi0, \"h2_ptvscent_trig_pi0\",\"p_{T} [GeV/c]\",200,0.,20., \"centrality [%]\",101,0,100);\n  Init2DHisto(h2_bfpaircut_inc,\"h2_bfpaircut_inc\",\"p_{T,#gamma} bin\",4,-0.5,3.5,\"p_{T,h} bin\",5,-0.5,4.5);\n  Init2DHisto(h2_aftpaircut_inc,\"h2_aftpaircut_inc\",\"p_{T,#gamma} bin\",4,-0.5,3.5,\"p_{T,h} bin\",5,-0.5,4.5);\n  Init2DHisto(h2_bfpaircut_pi0,\"h2_bfpaircut_pi0\",\"p_{T,#gamma} bin\",4,-0.5,3.5,\"p_{T,h} bin\",5,-0.5,4.5);\n  Init2DHisto(h2_aftpaircut_pi0,\"h2_aftpaircut_pi0\",\"p_{T,#gamma} bin\",4,-0.5,3.5,\"p_{T,h} bin\",5,-0.5,4.5);\n\n  h2_dphi_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );\n  h2_dphi_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );\n  h2_dphixi_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );\n  h2_dphizt_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );\n  h2_dphi_dec_iso_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );\n  h2_dphi_dec_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );\n  h2_dphixi_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );\n  h2_dphizt_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );\n  h2_dphi_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );\n  h2_dphi_dec_mix_iso_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );\n\n  for(int ic=0; ic<NCBINS; ic++){\n    for(int ipt=0; ipt<5; ipt++){\n      bin.str(\"\");\n      bin << ipt <<\"_c\"<<ic;\n      name = \"h2_dphi_dec_p\" + bin.str();\n      Init2DHisto(temp2, name.c_str(), \"#Delta#phi [rad]\", 60, -PI/2, 3*PI/2, \"p_{T, h} [GeV/c]\",100,0.0,10.0);\n      h2_dphi_dec[ic].push_back(temp2);\n      name = \"h2_dphi_dec_fold_p\" + bin.str();\n      Init2DHisto(temp2, name.c_str(), \"#Delta#phi [rad]\", 30, 0., PI, \"p_{T, h} [GeV/c]\",100,0.0,10.0);\n      h2_dphi_dec_fold[ic].push_back(temp2);\n      name = \"h2_dphixi_dec_fold_p\" + bin.str();\n      Init2DHisto(temp2, name.c_str(), \"#Delta#phi [rad]\", 30, 0., PI, \"xi\",25,-1.0,4.0);\n      h2_dphixi_dec_fold[ic].push_back(temp2);\n      name = \"h2_dphizt_dec_fold_p\" + bin.str();\n      Init2DHisto(temp2, name.c_str(), \"#Delta#phi [rad]\", 30, 0., PI, \"zt\",40,0.0,2.0);\n      h2_dphizt_dec_fold[ic].push_back(temp2);\n      name = \"h2_dphi_dec_iso_fold_p\" + bin.str();\n      Init2DHisto(temp2, name.c_str(), \"#Delta#phi [rad]\", 30, 0., PI, \"p_{T, h} [GeV/c]\",100,0.0,10.0);\n      h2_dphi_dec_iso_fold[ic].push_back(temp2);\n      name = \"h2_dphi_dec_mix_p\" + bin.str();\n      Init2DHisto(temp2, name.c_str(), \"#Delta#phi [rad]\", 60, -PI/2, 3*PI/2, \"p_{T, h} [GeV/c]\",100,0.0,10.0);\n      h2_dphi_dec_mix[ic].push_back(temp2);\n      name = \"h2_dphi_dec_mix_fold_p\" + bin.str();\n      Init2DHisto(temp2, name.c_str(), \"#Delta#phi [rad]\", 30, 0., PI, \"p_{T, h} [GeV/c]\",100,0.0,10.0);\n      h2_dphi_dec_mix_fold[ic].push_back(temp2);\n      name = \"h2_dphixi_dec_mix_fold_p\" + bin.str();\n      Init2DHisto(temp2, name.c_str(), \"#Delta#phi [rad]\", 30, 0., PI, \"xi\",25,-1.0,4.0);\n      h2_dphixi_dec_mix_fold[ic].push_back(temp2);\n      name = \"h2_dphizt_dec_mix_fold_p\" + bin.str();\n      Init2DHisto(temp2, name.c_str(), \"#Delta#phi [rad]\", 30, 0., PI, \"zt\",40,0.0,2.0);\n      h2_dphizt_dec_mix_fold[ic].push_back(temp2);\n      name = \"h2_dphi_dec_mix_iso_fold_p\" + bin.str();\n      Init2DHisto(temp2, name.c_str(), \"#Delta#phi [rad]\", 30, 0., PI, \"p_{T, h} [GeV/c]\",100,0.0,10.0);\n      h2_dphi_dec_mix_iso_fold[ic].push_back(temp2);\n    }\n  }\n\n  Init1DHisto(h1_n0,\"h1_n0\",\"n0\",11,-1,10);\n\n  atree = new AMixingTree();\n  atree->SetTriggerBranches();\n  atree->SetPartnerBranches();\n\n  return 0;\n}\n\nint Correlation::ResetEvent(PHCompositeNode* topNode)\n{\n  emcclustercontainer = 0;\n  particle = 0;\n  return 0;\n}\n\nint Correlation::process_event(PHCompositeNode* topNode)\n{\n  if( evt%5000==0 )\n    cout << \"Correlation: at event \" << evt << endl;\n  evt++;\n  \n  global = findNode::getClass<PHGlobal>(topNode,\"PHGlobal\");\n  if(!global)\n  {\n      cout << PHWHERE << \"findNode::GetClass: PHGlobal not in Node Tree\" << endl;\n      //return ABORTEVENT;\n  }\n  \n  emcclustercontainer = findNode::getClass<emcClusterContainer>(topNode, \"emcClusterContainer\");\n  if(!emcclustercontainer)\n    {\n      cout << PHWHERE << \"emcclustercontainter not in Node Tree\" << endl;\n      //return EVENT_OK;\n      return -2;\n    }\n\n  particle = findNode::getClass<PHCentralTrack>(topNode, \"PHCentralTrack\");\n  if(!particle) {\n    cout << PHWHERE << \"PHCentralTrack not in Node Tree\" << endl;\n    //return EVENT_OK;\n    return -2;\n  }\n\n  RunHeader* runheader = findNode::getClass<RunHeader>(topNode, \"RunHeader\");\n  if(!runheader){\n    cout << PHWHERE << \" RunHeader not found\"  << endl;\n    //return EVENT_OK;\n    return 0;\n  }\n\n  int RunNumber = runheader->get_RunNumber();\n  DataSet data_set = GetDataSet(RunNumber);\n  if( data_set == INVALID ) {\n    cout << PHWHERE << \"Warning: run# outside valid range! Add this Run to DataSet options\" << endl;\n    return EVENT_OK;\n  }\n\n  EventHeader *evtsync = findNode::getClass<EventHeader>(topNode, \"EventHeader\");\n  if(!evtsync){\n    cout << PHWHERE << \"CombinedSimple:: EventHeader not in Node Tree\" << endl;\n    return 0;\n  }\n  \n  //using SvxCentralTracks (CNT-based track associated with VTX)\n  if( data_set == Run11AuAu && useVtx ){\n    svxcntlist = findNode::getClass<SvxCentralTrackList>(topNode, \"SvxCentralTrackList\");\n    if(svxcntlist==NULL) {\n      cout << PHWHERE << \"SvxCentralTrackList not in Node Tree\" << endl;\n      return EVENT_OK;\n    }\n    nsvxpart = svxcntlist->get_nCentralTracks();\n    \n    svxcluslist = findNode::getClass<SvxClusterList>(topNode, \"SvxClusterList\");\n    if(svxcluslist==NULL) { cerr << PHWHERE << \" SvxClusterList node not found.\" << endl; }\n  }\n\n  event_z = global->getBbcZVertex();\n  event_c = global->getCentrality();\n  \n  if (verbosity > 2) cout << \"BBC vertex: \"<< event_z <<\" Centrality: \"<< event_c << endl;\n\n  if (event_z < -1*zVertexCut || event_z > zVertexCut) {\n    if(verbosity > 0) cout<<\"Outside vertex range: z = \"<<event_z<<endl;\n    //return EVENT_OK;\n    return 0;\n  }\n\n  if(runheader->get_currentCentral()>0) fieldPolarity = 1.0;\n  else fieldPolarity = -1.0;\n\n  // For looking at triggered data\n  TriggerHelper trig_help(topNode);\n  int fire_4x4c_bbc = trig_help.trigScaled(\"ERTLL1_4x4c&BBCLL1\");\n  if( verbosity > 2 ) cout << \"Checked trigger bit for 4x4c - \" << fire_4x4c_bbc << endl;\n  ErtOut* ertout = findNode::getClass<ErtOut>(topNode, \"ErtOut\");\n  const int trigmode_4x4b = 1; // see $OFFLINE_MAIN/include/ErtOutv1.h\n\n  AEvent aevent;\n  MakeEventObject(global, &aevent);\n  int vtxbin = aevent.GetVertexBin();\n  int centbin = aevent.GetCentralityBin();\n  int centrality = (int)event_c;\n  cbin = GetCentBin(centrality);\n  if(verbosity > 2) cout<<\"vtxbin = \"<<vtxbin<<\"; centbin = \"<<centbin<< \"; cbin = \"<<cbin<<endl;\n  \n  int nclus = emcclustercontainer->size();\n  int npart = particle->get_npart();\n  if (verbosity > 2)   cout<<\"At event #\" <<evt<<\": nclus = \"<<nclus<<\" npart = \"<<npart<<endl;\n\n  h1_zvertex->Fill(event_z);\n\n  if ( (vtxbin < 0) || (cbin < 0) || (cbin > (NCBINS-1))) {\n    if(verbosity > 0) cout<<\"Invalid ZVertex/centrality bin! vtxbin = \"<<vtxbin<<\"; cbin = \"<<cbin<<\"; event_c = \"<<event_c<<endl;\n    return 0;\n  }\n  h1_centrality[cbin]->Fill(1);\n\n  //*****************************************************************************\n  //*  Select track sample (quality > 7) to compute track min dist later        *\n  //*****************************************************************************\n  for(int ipart = 0; ipart < npart; ipart++){\n    if(particle->get_the0(ipart) < -99) continue;\n    if(particle->get_quality(ipart) <= 7) continue;\n    ATrack atrack;\n    MakeTrackObject(particle, ipart, &atrack);\n    lessqualtrk_vector.push_back(atrack.clone());\n  }\n  if(verbosity > 1) cout<<\"NEW: lessqualtrk_vector size: \"<<lessqualtrk_vector.size()<<endl;\n\n  //*************************************************\n  //*  Selecting inclusive photon sample            *\n  //*************************************************\n  for(int iclus = 0; iclus < nclus; iclus++){\n    emcClusterContent* clus = emcclustercontainer->getCluster(iclus);\n    ACluster acluster;\n    MakeClusterObject(clus, &acluster);\n    double ecore = acluster.GetEcore();\n    if( ecore < 0.1 ) continue;\n    int armsect = acluster.GetArmSect();\n    int ypos = acluster.GetIypos();\n    int zpos = acluster.GetIzpos();\n    h3_nhit[armsect]->Fill(ecore, ypos, zpos);\n    if( !IsGoodTower(&acluster) ) continue;\n    if( !IsGoodCluster(&acluster,data_set) ) continue;\n    // Check trigger bit - for triggered data\n    if( data_set == Run8dAu ) {\n      int ert_sm = (acluster.GetArm()==1&&acluster.GetSec()<2) ? acluster.GetIypos()/12*8 + acluster.GetIzpos()/12 : acluster.GetIypos()/12*6 + acluster.GetIzpos()/12;\n      if( verbosity > 1 ) cout << \"Photon in SM \" << ert_sm << endl;\n      int sm_fired = 0;\n      if( ertout ) sm_fired = ertout->get_ERTbit(trigmode_4x4b, acluster.GetArm(), acluster.GetSec(), ert_sm);\n      if( (armsect==2 && ert_sm==17) || (armsect==3 && (ert_sm==4||ert_sm==10||ert_sm==15||ert_sm==16)) || (armsect==4 && ert_sm==30) || (armsect==7 && ert_sm==15) ) sm_fired = 0;\n      if( sm_fired ) {\n        acluster.SetTrigger(true);\n        if( verbosity > 0 ) cout << \"Photon in sector \" << armsect << \", SM \" << ert_sm << \" fired ERT trigger!\" << endl;\n      }\n      else acluster.SetTrigger(false);\n    }\n    else acluster.SetTrigger(true); // For other data sets just set trigger status to true by default\n    if( ecore<5.0 || acluster.IsTrigger() )\n      h3_nhit_mywarn[armsect]->Fill(ecore, ypos, zpos);\n    \n    all_clus_vector.push_back(acluster.clone());\n  }\n  if( verbosity > 2 ) cout << \"Found \" << all_clus_vector.size() << \" raw clusters\" << endl;\n\n  //******************************************************\n  //*   Select decay photon sample and construct pi0s.   *\n  //******************************************************\n  if( all_clus_vector.size() > 0 ) MakePi0s(all_clus_vector,centrality,event_z,data_set);\n  if(verbosity > 1) cout<<\"evt#: \"<<evt<<\"; NEW: pi0_vector size: \"<<pi0_vector.size()<<endl;\n  \n  for(unsigned int iclus = 0; iclus < all_clus_vector.size(); iclus++){\n    double ecore = all_clus_vector[iclus]->GetEcore();\n    \n    if( ecore < 0.3 ) continue;\n\n    float cluster_pt = all_clus_vector[iclus]->Pt();\n    if((cluster_pt <= photon_pt_min) || (cluster_pt >= photon_pt_max)) continue;\n    //cout<<\"vtxbin = \"<<vtxbin<<\"; centbin = \"<<centbin<< \"; cbin = \"<<cbin<<endl;\n\n    if( verbosity > 1 ) cout << \"Found cluster with ecore = \" << ecore << endl;\n\n    if(DiagFlag) FillClusterQAHistos(0,cluster_pt,all_clus_vector[iclus]->GetEmctrkdphi(),all_clus_vector[iclus]->GetEmctrkdz(),all_clus_vector[iclus]->GetEmcpc3dphi(),all_clus_vector[iclus]->GetEmcpc3dz());\n    \n    if( verbosity > 1 ) cout << \"Checking charge veto cut...    \" << endl;\n    float mindist = 99.;\n    float ptofvetotrack = -1.0;\n    VetoTracks(all_clus_vector[iclus],lessqualtrk_vector,mindist,ptofvetotrack);\n    if(DiagFlag){\n      h3_mintrackdist_fg_allcent->Fill(mindist,all_clus_vector[iclus]->Pt(), ptofvetotrack);\n      h3_mintrackdist_fg[cbin]->Fill(mindist,all_clus_vector[iclus]->Pt(), ptofvetotrack);\n    }\n    if(mindist<8.0) continue;\n    \n    if( verbosity > 1 ) cout << \"Cluster passed!\" << endl;\n    if(ecore < photon_ecore_min) continue;\n    if(DiagFlag) FillClusterQAHistos(1,cluster_pt,all_clus_vector[iclus]->GetEmctrkdphi(),all_clus_vector[iclus]->GetEmctrkdz(),all_clus_vector[iclus]->GetEmcpc3dphi(),all_clus_vector[iclus]->GetEmcpc3dz());\n \n    int armsect = all_clus_vector[iclus]->GetArmSect();\n    emcClusterContent* clus = all_clus_vector[iclus]->GetemcClusterContent(); \n\n    if(!Chi2Cut(clus,event_z,h1_chi2[armsect],h3_disp[armsect])) { continue; } //chi2 cut on inclusive photons\n\n    if( !all_clus_vector[iclus]->IsTrigger() ) { continue; }\n\n    int ert_sm = (all_clus_vector[iclus]->GetArm()==1&&all_clus_vector[iclus]->GetSec()<2) ? all_clus_vector[iclus]->GetIypos()/12*8 + all_clus_vector[iclus]->GetIzpos()/12 : all_clus_vector[iclus]->GetIypos()/12*6 + all_clus_vector[iclus]->GetIzpos()/12;\n    h1_trigger[armsect]->Fill(ert_sm);\n\n    //fiducial cut on inclusive photon\n    float x1 = all_clus_vector[iclus]->GetX();\n    float y1 = all_clus_vector[iclus]->GetY();\n    float z1 = all_clus_vector[iclus]->GetZ();\n\n    float zemcsub = z1*510.0/sqrt(x1*x1+y1*y1);\n    if(fabs(zemcsub)>155.0) continue;\n    if( all_clus_vector[iclus]->IsTagged() )\n      SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,h3_cluster_pi0_dR[cbin],h3_cluster_pi0_etot[cbin],h2_cluster_pi0_wdR[cbin],h2_cluster_pi0_etot[cbin],h3_iso_pi0_acc[cbin]);\n    SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,h3_cluster_dR[cbin],h3_cluster_etot[cbin],h2_cluster_wdR[cbin],h2_cluster_etot[cbin],h3_iso_acc[cbin]);\n    if( verbosity > 1 ) cout << \"Photon isTagged = \" << all_clus_vector[iclus]->IsTagged() << \" and IsIso = \" << all_clus_vector[iclus]->IsIso() << endl;\n    \n    // In Run8 reject all tagged photons prior to making pairs...\n    if( data_set == Run8dAu && all_clus_vector[iclus]->IsTagged() ) continue;\n    \n    h1_trig_pt_inc[cbin]->Fill(cluster_pt);\n    if( all_clus_vector[iclus]->IsIso() ) h1_trig_pt_inc_iso[cbin]->Fill(cluster_pt);\n    h1_trig_pt_inc_tot->Fill(cluster_pt);\n    h2_ptvscent_trig_inc->Fill(cluster_pt, centrality);\n    //h2_trig_pt_zvtx_inc->Fill(cluster_pt,vtxbin);\n    \n    clus_vector.push_back(all_clus_vector[iclus]->clone());\n    atree->SetTriggerData(cluster_pt,all_clus_vector[iclus]->Phi(),all_clus_vector[iclus]->Eta(),all_clus_vector[iclus]->E(),all_clus_vector[iclus]->GetX(),all_clus_vector[iclus]->GetY(),all_clus_vector[iclus]->GetZ(),all_clus_vector[iclus]->IsIso(),pi0_vector.size()+clus_vector.size()-1);\n  }\n  if(verbosity > 1) cout<<\"NEW: clus_vector size: \"<<clus_vector.size()<<endl;\n\n\n  //*****************************************\n  //*   Associate Hadrons                   *\n  //*****************************************\n  int ntrack = 0;\n  if( data_set == Run11AuAu && useVtx ) ntrack = nsvxpart;\n  else ntrack = npart;\n\n  for(int ipart = 0; ipart < ntrack; ipart++){\n    ATrack atrack;\n    if(useVtx){\n      svxcnttrk = svxcntlist->getCentralTrack(ipart);  \n      int icnttrk = svxcnttrk->getDchIndex();\n      MakeTrackObject(particle, icnttrk, &atrack);\n    }\n    else MakeTrackObject(particle, ipart, &atrack);\n    float trk_pt = atrack.Pt();\n    float charge = atrack.GetCharge();\n\n    if(useVtx){\n      ConversionVeto vetofunc;\n      if(!vetofunc.calculate(fieldPolarity, trk_pt, charge, svxcnttrk, svxcluslist)) continue;\n    }\n    \n    if (atrack.GetPhi() <= -99) continue;    \n    if(trk_pt < hadron_pt_min || trk_pt > hadron_pt_max) continue;\n    \n    if(DiagFlag){\n      FillTrackQAHistos(0,atrack.GetPpc3x(),atrack.GetPpc3z(),atrack.GetPpc3y(),atrack.GetPpc1z(),atrack.GetPpc1y(),atrack.GetZed(),atrack.GetPhiD(),trk_pt,atrack.GetQuality(),atrack.GetN0(),atrack.GetPc3sdphi(),atrack.GetPc3sdz());\n    }\n    if((atrack.GetQuality()!=31) && (atrack.GetQuality()!=63)) continue;\n\n    int trk_n0 = atrack.GetN0();\n    if(trk_n0 < 0) trk_n0 = -1;\n    h1_n0->Fill(trk_n0);\n    if(trk_pt < 5.0 && trk_n0 >= 0) continue;    \n    \n    if(DiagFlag){\n      FillTrackQAHistos(1,atrack.GetPpc3x(),atrack.GetPpc3z(),atrack.GetPpc3y(),atrack.GetPpc1z(),atrack.GetPpc1y(),atrack.GetZed(),atrack.GetPhiD(),trk_pt,atrack.GetQuality(),atrack.GetN0(),atrack.GetPc3sdphi(),atrack.GetPc3sdz());\n    }\n    //********make different matching cuts on hadron samples*************\n    if(data_set == Run11AuAu){\n      if(PassMatchingCut(&atrack,0.5,0.5)) trk_vector_05sig.push_back(atrack.clone());\n      if(PassMatchingCut(&atrack,1.0,1.0)) trk_vector_1sig.push_back(atrack.clone());\n      if(PassMatchingCut(&atrack,1.5,1.5)) trk_vector_15sig.push_back(atrack.clone());\n      if(PassMatchingCut(&atrack,2.0,2.0)) trk_vector_2sig.push_back(atrack.clone());\n      if(PassMatchingCut(&atrack,3.0,3.0)) trk_vector_3sig.push_back(atrack.clone());\n    }\n    else{\n      if(PassMatchingCut(&atrack,0.5)) trk_vector_05sig.push_back(atrack.clone());\n      if(PassMatchingCut(&atrack,1.0)) trk_vector_1sig.push_back(atrack.clone());\n      if(PassMatchingCut(&atrack,1.5)) trk_vector_15sig.push_back(atrack.clone());\n      if(PassMatchingCut(&atrack,2.0)) trk_vector_2sig.push_back(atrack.clone());\n      if(PassMatchingCut(&atrack,3.0)) trk_vector_3sig.push_back(atrack.clone());\n    }\n    if(!IsGoodTrack(&atrack,data_set)) continue; \n    if(DiagFlag){\n      h2_pc3sdphi_aft->Fill(trk_pt, atrack.GetPc3sdphi());\n      h2_pc3sdz_aft->Fill(trk_pt, atrack.GetPc3sdz());\n    } \n    h1_part_pt[cbin]->Fill(trk_pt);\n    h1_part_pt_tot->Fill(trk_pt); \n    h2_ptvscent_part->Fill(trk_pt, centrality);   \n    if(DiagFlag){      \n      h2_EoverPvspt->Fill(trk_pt, atrack.GetEcore()/trk_pt);\n    }\n    trk_vector.push_back(atrack.clone());\n    if( data_set != Run8dAu )\n      atree->SetPartnerData(atrack.Pt(),atrack.Phi(),atrack.Eta(),atrack.E(),atrack.GetPemcx(),atrack.GetPemcy(),atrack.GetPemcz(),trk_vector.size()-1);\n\n  }\n  if(verbosity > 1) cout<<\"NEW: trk_vector size: \"<<trk_vector.size()<<endl;\n   \n  for(unsigned int itrk=0; itrk<trk_vector_05sig.size(); itrk++) h1_part_pt_05sig->Fill(trk_vector_05sig[itrk]->Pt());\n  for(unsigned int itrk=0; itrk<trk_vector_1sig.size(); itrk++) h1_part_pt_1sig->Fill(trk_vector_1sig[itrk]->Pt());\n  for(unsigned int itrk=0; itrk<trk_vector_15sig.size(); itrk++) h1_part_pt_15sig->Fill(trk_vector_15sig[itrk]->Pt());\n  for(unsigned int itrk=0; itrk<trk_vector_2sig.size(); itrk++) h1_part_pt_2sig->Fill(trk_vector_2sig[itrk]->Pt());\n  for(unsigned int itrk=0; itrk<trk_vector_3sig.size(); itrk++) h1_part_pt_3sig->Fill(trk_vector_3sig[itrk]->Pt());\n\n  //***********************************************\n  //*   Make inclusive photon-h foreground pairs  *\n  //***********************************************\n\n  //inclusive photon-hadron delta phi dists.\n  MakePairs(clus_vector,trk_vector,REAL,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi_fold[cbin],h3_dphi_iso_fold[cbin]);\n  \n  //checking background effect on pair dphi distribution.\n  //pc3 matching cut at 1 sigma.\n  MakePairs(clus_vector,trk_vector_1sig,DIAGNOSTIC,h3_dphi_1sig[cbin],h3_dphi_fold_1sig[cbin]);\n  //pc3 matching cut at 2 sigma. \n  MakePairs(clus_vector,trk_vector_2sig,DIAGNOSTIC,h3_dphi_2sig[cbin],h3_dphi_fold_2sig[cbin]);\n\n  //****************************************\n  //*   Make pi0-h foreground pairs        *\n  //****************************************  \n  MakePairs(pi0_vector,trk_vector,REALPI,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0_fold[cbin],h3_dphi_pi0_iso_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec_fold[cbin],h2_dphi_dec_iso_fold[cbin]);\n  \n  atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());\n  if( data_set == Run8dAu ) {\n    AddMBEvent(data_set);\n  }\n\n  if(clus_vector.size() > 0 || pi0_vector.size() > 0) atree->_ttrig->Fill();\n  atree->_tpart->Fill();\n\n  Clear();\n  event++;\n  return EVENT_OK;\n}\n\nvoid Correlation::AddMBEvent(DataSet data_set)\n{\n  Fun4AllServer* se = Fun4AllServer::instance();\n  PHCompositeNode* pwg_mixNode = se->topNode(\"MIXPWG\");\n  PHCompositeNode* cnt_mixNode = se->topNode(\"MIXCNT\");\n  float bbcz_mix;\n  PHGlobal* mix_global = findNode::getClass<PHGlobal>(pwg_mixNode,\"PHGlobal\");\n  if(!mix_global)\n  {\n    cout << PHWHERE << \"findNode::GetClass: PHGlobal not in Node Tree\" << endl;\n    return;\n  }\n  bbcz_mix = mix_global->getBbcZVertex();\n  // cout<<\"bbczvertex = \"<<z<<endl;\n  float c = mix_global->getCentrality();\n  if (c == -9999) {\n    if(verbosity > 1) cout<<\"Invalid Mixing Centrality!\"<<endl;\n    return;\n  }\n  if (bbcz_mix < -1*zVertexCut || bbcz_mix > zVertexCut) {\n    if(verbosity > 1) cout<<\"Outside vertex range: z = \"<<event_z<<endl;\n    return;\n  }\n  AEvent aevent;\n  MakeEventObject(mix_global,&aevent);\n  PHCentralTrack* mix_tracks = findNode::getClass<PHCentralTrack>(cnt_mixNode, \"PHCentralTrack\");\n  if( !mix_tracks ) {\n    cout << PHWHERE << \"PHCentralTrack not in mixing Node Tree!\" << endl;\n    return;\n  }\n  emcClusterContainer* mix_clusters = findNode::getClass<emcClusterContainer>(pwg_mixNode, \"emcClusterContainer\");\n  if(!mix_clusters)\n  {\n    cout << PHWHERE << \"emcclustercontainter not in mixing Node Tree!\" << endl;\n    return;\n  }\n\n  int nclust = 0;\n  int nclus = mix_clusters->size();\n  for(int iclus = 0; iclus < nclus; iclus++){\n    emcClusterContent* clus = mix_clusters->getCluster(iclus);\n    ACluster acluster;\n    MakeClusterObject(clus, &acluster);\n    double ecore = acluster.GetEcore();\n    if( ecore < 0.1 ) continue;\n    if( !IsGoodTower(&acluster) ) continue;\n    if( !IsGoodCluster(&acluster,data_set) ) continue;\n    \n    atree->SetPhotonData(acluster.Pt(),acluster.Phi(),acluster.Eta(),acluster.E(),nclust);\n    nclust++;\n  }\n\n  int ntrack = 0;\n  int npart = mix_tracks->get_npart();\n  for(int ipart = 0; ipart < npart; ipart++){\n    ATrack atrack;\n    MakeTrackObject(mix_tracks, ipart, &atrack);\n    double trk_pt = atrack.Pt();\n    if(trk_pt < hadron_pt_min || trk_pt > hadron_pt_max) continue;\n    if((atrack.GetZed() < -75.0) || (atrack.GetZed() > 75.0)) continue;\n    if((atrack.GetQuality()!=31) && (atrack.GetQuality()!=63)) continue;\n    if(trk_pt < 5.0 && atrack.GetN0() > 0) continue;\n    if(!IsGoodTrack(&atrack,data_set)) continue;\n    atree->SetPartnerData(atrack.Pt(),atrack.Phi(),atrack.Eta(),atrack.E(),atrack.GetPemcx(),atrack.GetPemcy(),atrack.GetPemcz(),ntrack);\n    ntrack++;\n  }\n  atree->SetMBEventData(evt,aevent.GetVertex(),aevent.GetCentrality(),nclust,ntrack);\n}\n\nvoid Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvertex, DataSet dataset)\n{\n  //  for( unsigned int iclus = 0; iclus < clusters.size()-1; iclus++ ){\n  for( unsigned int iclus = 0; iclus < all_clusters.size(); iclus++ ){\n    emcClusterContent* photon1 = all_clusters[iclus]->GetemcClusterContent(); \n    float ecore1 = all_clusters[iclus]->GetEcore();\n\n    if( !IsGoodCluster(all_clusters[iclus],dataset) ) continue;\n    if(ecore1 < photon_ecore_min) continue;\n    if (!Chi2Cut(photon1,zvertex)) continue;\n\n    // For ERT data leading photon must have fired the trigger! (bool set to true by default for MB data)\n    if( !all_clusters[iclus]->IsTrigger() ) continue;\n    \n    float mindist = 99.;\n    float ptofvetotrack = -1.0;\n    VetoTracks(all_clusters[iclus],lessqualtrk_vector,mindist,ptofvetotrack);\n    \n    if(mindist<8.0) continue;\n    \n    //for( unsigned int jclus = iclus+1; jclus < clusters.size(); jclus++ ){\n    for( unsigned int jclus = 0; jclus < all_clusters.size(); jclus++ ){\n      if(jclus == iclus) continue;     \n      float ecore2 = all_clusters[jclus]->GetEcore();\n      if(ecore2<1.0 || ecore1<ecore2 || ecore1==ecore2) continue;\n      \n      float sume12 = ecore1 + ecore2;\n      if(sume12 < 4.0) continue;\n            \n      //use asymmetry cut for low pT pi0s. only in 0-40% centralities\n      float asym12 = (ecore1 - ecore2)/sume12;      \n      if(cbin<2 && sume12<5.25 && asym12 > (minAsym + (1.0-minAsym)*((sume12-4.0)*(sume12-4.0)/1.25/1.25))) continue;\n      \n      int as = all_clusters[jclus]->GetArmSect();\n      // if( as != all_clusters[iclus]->GetArmSect()) continue;\n      int arm = all_clusters[jclus]->GetArm();\n      if( arm != all_clusters[iclus]->GetArm()) continue;\n      \n      if( !IsGoodCluster(all_clusters[jclus],dataset) ) continue;\n\n      APiZero api0(all_clusters[iclus], all_clusters[jclus]);\n      api0.SetCent(event_c);\n      api0.SetZvtx(event_z);\n      \n      h2_pi0mass[cbin]->Fill(api0.Pt(), api0.M());\n      h2_pi0mass_as[as]->Fill(api0.Pt(), api0.M());\n      if (as==4 || as==5) h2_pi0mass_PbGl->Fill(api0.Pt(), api0.M());\n      else h2_pi0mass_PbSc->Fill(api0.Pt(), api0.M());\n      \n      if(api0.M() < 0.12 || api0.M() > 0.16) continue;\n      all_clusters[iclus]->SetTag(true);\n\n      if(api0.Pt() < pi0_pt_min || api0.Pt() > pi0_pt_max) continue;\n\n      SetIso(&api0,lessqualtrk_vector,all_clusters,Rcut);\n      if( verbosity > 1 )\n        cout << \"Event \" << evt << \" - Found pi0 with isolation = \" << api0.IsIso() << endl;\n      \n      //dec weighting\n      vector<float> mwweight;\n      for(int i=0; i<5; i++) mwweight.push_back(0.0);\n      EvalDecWeights(&api0,event_z,cbin,mwweight);\n      api0.SetDecayWeights(mwweight);\n\n      pi0_vector.push_back(api0.clone());\n\n      //cout<<\"setting pi0 trigger data: pt = \"<<api0.Pt()<<\"; phi = \"<<api0.Phi()<<\"; eta = \"<<api0.Eta()<<\"; e = \"<<api0.E()<<\"; x = \"<<((ACluster*)api0.Daughter1())->GetX()<<\"; y = \"<<((ACluster*)api0.Daughter1())->GetY()<<\"; z = \"<<((ACluster*)api0.Daughter1())->GetZ()<<endl;\n      atree->SetTriggerData(api0.Pt(),api0.Phi(),api0.Eta(),api0.E(),((ACluster*)api0.Daughter1())->GetX(),((ACluster*)api0.Daughter1())->GetY(),((ACluster*)api0.Daughter1())->GetZ(),api0.IsIso(),pi0_vector.size()-1);\n\n      if( verbosity > 1 ) cout << \"Event \" << evt << \" - Added pi0 with isolation = \" << pi0_vector.at(pi0_vector.size()-1)->IsIso() << endl;\n\n      h1_trig_pt_pi0[cbin]->Fill(api0.Pt());\n\n      if( api0.IsIso() )\n        h1_trig_pt_pi0_iso[cbin]->Fill(api0.Pt());\n      h1_trig_pt_pi0_tot->Fill(api0.Pt());\n      h2_ptvscent_trig_pi0->Fill(api0.Pt(),cent);\n\n      //dec trigger counting\n      for(int ipw=0; ipw<5; ipw++){\n        h1_trig_pt_dec[cbin]->Fill(ipw,mwweight[ipw]);\n        if( api0.IsIso() )\n          h1_trig_pt_dec_iso[cbin]->Fill(ipw,mwweight[ipw]);\n        h1_trig_pt_dec_tot->Fill(ipw,mwweight[ipw]);\n      }\n    }\n  }\n}\n\n\nvoid Correlation::MakeEventObject(PHGlobal* glob, AEvent* aevt)\n{\n  aevt->SetVertex(NZVTX, 60.0, glob->getBbcZVertex());\n  aevt->SetCentrality(NCENT, 100.0, glob->getCentrality());\n}\n\nvoid Correlation::MakeClusterObject(emcClusterContent* clus, ACluster* aclus)\n{\n  aclus->SetCent(event_c);\n  aclus->SetZvtx(event_z);\n  aclus->SetemcClusterContent(clus);\n  aclus->SetWarnDead(clus->warnmap(),clus->deadmap());\n  aclus->SetEcore(clus->ecore());\n  aclus->SetTheta(clus->theta());\n  aclus->SetProb(clus->prob_photon());\n  aclus->SetArm(clus->arm());\n  aclus->SetSec(clus->sector());\n  aclus->SetIypos(clus->iypos());\n  aclus->SetIzpos(clus->izpos());\n  aclus->SetEmcX(clus->x());\n  aclus->SetEmcY(clus->y());\n  aclus->SetEmcZ(clus->z());\n  aclus->SetEmctrkdphi(clus->emctrkdphi());\n  aclus->SetEmctrkdz(clus->emctrkdz());\n  aclus->SetEmcpc3dphi(clus->emcpc3dphi());\n  aclus->SetEmcpc3dz(clus->emcpc3dz());\n  aclus->SetPtEtaPhiE(clus->ecore()*sin(clus->theta()),\n                      -1*log(tan(clus->theta()/2)),\n                      clus->phi(),clus->ecore());\n  aclus->SetFiducial(CheckPhiFiducial(clus->phi()));\n  \n  if(verbosity > 3){\n    cout<<\"clus ecore = \"<<aclus->GetEcore()<<endl;\n    cout<<\"clus theta = \"<<aclus->Theta()<<endl;\n    cout<<\"clus phi = \"<<aclus->Phi()<<endl;\n    cout<<\"clus prob = \"<<aclus->GetProb()<<endl;\n    cout<<\"clus sector = \"<<aclus->GetArmSect()<<endl;\n    cout<<\"clus ypos = \"<<aclus->GetIypos()<<endl;\n    cout<<\"clus zpos = \"<<aclus->GetIzpos()<<endl;\n    cout<<\"clus pt = \"<<aclus->Pt()<<endl;\n    cout<<\"clus emcpc3dphi = \"<<aclus->GetEmcpc3dphi()<<endl;\n    cout<<\"clus emcpc3dz = \"<<aclus->GetEmcpc3dz()<<endl;\n    cout<<\"clus emctrkdphi = \"<<aclus->GetEmctrkdphi()<<endl;\n    cout<<\"clus emctrkdz = \"<<aclus->GetEmctrkdz()<<endl;\n  }\n}\n\nvoid Correlation::MakeTrackObject(PHCentralTrack* trk, int itrk, ATrack* atrk)\n{\n  atrk->SetZvtx(event_z);\n  if(RecalFlag) {\n    atrk->SetPc3Match(trk->get_pc3sdphi(itrk), trk->get_pc3sdz(itrk));\n    atrk->SetEmcMatch(trk->get_emcsdphi(itrk), trk->get_emcsdz(itrk));\n  }\n  else {\n    atrk->SetPc3Match(trk->get_pc3dphi(itrk), trk->get_pc3dz(itrk));\n    atrk->SetEmcMatch(trk->get_emcdphi(itrk), trk->get_emcdz (itrk));\n  }\n  atrk->SetPHCentralTrack(trk);\n  atrk->SetPxPyPz(trk->get_px(itrk), trk->get_py(itrk), trk->get_pz(itrk));\n  atrk->SetPc3dz(trk->get_pc3dz(itrk));\n  atrk->SetPc3dphi(trk->get_pc3dphi(itrk));\n  atrk->SetPpc3(trk->get_ppc3x(itrk), trk->get_ppc3y(itrk), trk->get_ppc3z(itrk));\n  atrk->SetPpc1(trk->get_ppc1x(itrk), trk->get_ppc1y(itrk), trk->get_ppc1z(itrk));\n  atrk->SetPemc(trk->get_pemcx(itrk), trk->get_pemcy(itrk), trk->get_pemcz(itrk));\n  atrk->SetN0(trk->get_n0(itrk));\n  atrk->SetQuality(trk->get_quality(itrk));\n  atrk->SetAlpha(trk->get_alpha(itrk));\n  atrk->SetCharge(trk->get_charge(itrk));\n  atrk->SetTheta(trk->get_the0(itrk));\n  atrk->SetPhiD(trk->get_phi(itrk));\n  atrk->SetPhi(trk->get_phi0(itrk));\n  atrk->SetZed(trk->get_zed(itrk));\n  atrk->SetDCArm(trk->get_dcarm(itrk));\n  atrk->SetBoard(trk->get_phi(itrk), trk->get_dcarm(itrk));\n  atrk->SetPtEtaPhiE(sqrt(trk->get_px(itrk)*trk->get_px(itrk) + trk->get_py(itrk)*trk->get_py(itrk)),-1*log(tan(trk->get_the0(itrk)/2)),trk->get_phi0(itrk),trk->get_ecore(itrk));\n  atrk->SetEcore(trk->get_ecore(itrk));\n  if(verbosity > 3){\n    cout<<\"trk ppc3x = \"<<atrk->GetPpc3x()<<endl;\n    cout<<\"trk ppc3y = \"<<atrk->GetPpc3y()<<endl;\n    cout<<\"trk ppc3z = \"<<atrk->GetPpc3z()<<endl;\n    cout<<\"trk pc3sdz = \"<<atrk->GetPc3sdz()<<endl;\n    cout<<\"trk pc3sdphi = \"<<atrk->GetPc3sdphi()<<endl;\n    cout<<\"trk n0 = \"<<atrk->GetN0()<<endl;\n    cout<<\"trk qual = \"<<atrk->GetQuality()<<endl;\n    cout<<\"trk alpha = \"<<atrk->GetAlpha()<<endl;\n    cout<<\"trk phi = \"<<atrk->Phi()<<endl;\n    cout<<\"trk phid = \"<<atrk->GetPhiD()<<endl;\n    cout<<\"trk zed = \"<<atrk->GetZed()<<endl;\n    cout<<\"trk pt = \"<<atrk->Pt()<<endl;\n  }\n}\n\nbool Correlation::CheckPhiFiducial(float phi)\n{\n  float phphi = PHAngle(phi);\n  if((phphi>(WEST_LOW_EDGE+Rcut*0.25)&&phphi<(WEST_HIGH_EDGE-Rcut*0.25))||(phphi>(EAST_LOW_EDGE+Rcut*0.25)&&phphi<(EAST_HIGH_EDGE-Rcut*0.25)))\n    return true;\n  else\n    return false;\n}\n\nvoid Correlation::MakeClusterObject(ACluster* aclus, float pt, float phi, float eta, float e, float x, float y, float z, float zvtx)\n{\n  aclus->SetPtEtaPhiE(pt, eta, phi, e);\n  aclus->SetEcore(e);\n  aclus->SetEmcX(x);\n  aclus->SetEmcY(y);\n  aclus->SetEmcZ(z);\n  aclus->SetZvtx(zvtx);\n  aclus->SetFiducial(CheckPhiFiducial(aclus->Phi()));\n}\n\nvoid Correlation::MakePi0Object(APiZero* api0, float pt, float phi, float eta, float e, float x, float y, float z, float zvtx)\n{\n  api0->SetPtEtaPhiE(pt, eta, phi, e);\n  api0->Daughter1()->SetPtEtaPhiE(pt, eta, phi, e);\n  api0->Daughter2()->SetPxPyPzE(0,0,0,0);\n  api0->Daughter1()->SetEmcX(x);\n  api0->Daughter1()->SetEmcY(y);\n  api0->Daughter1()->SetEmcZ(z);\n  api0->Daughter1()->SetZvtx(zvtx);\n}\n\nvoid Correlation::MakeTrackObject(ATrack* atrk, float pt, float phi, float eta, float e, float pemcx, float pemcy, float pemcz, float zvtx)\n{\n  atrk->SetPtEtaPhiE(pt, eta, phi, e);\n  atrk->SetPemc(pemcx, pemcy, pemcz);\n  atrk->SetZvtx(zvtx);\n}\n\n// function Chi2Cut, CalcPbglDisp, IncidentAngle are directly adapted from CombineSimple code -031015\nbool Correlation::Chi2Cut(emcClusterContent* sngl_emc, float zvertex, TH1F* h1_chi2, TH3F* h3_disp)\n{\n  int arm = sngl_emc->arm();\n  int sector = sngl_emc->sector();\n  int iypos = sngl_emc->iypos();\n  int izpos = sngl_emc->izpos();\n  \n  int index = arm * 100000 + sector * 10000 + iypos * 100 + izpos;\n  \n  if (index < 100000 || index >=120000) // pbsc\n    {\n      if(h1_chi2) h1_chi2->Fill(sngl_emc->chi2());\n      if(sngl_emc->chi2()<3.0) return true;\n    }      \n  else // pbgl...dispersion cut\n    {\n      \n      float yz_cg[2], disp[2], pbgl_disp_z_y[2];\n      \n      yz_cg[0] = sngl_emc->zcg();\n      yz_cg[1] = sngl_emc->ycg();\n      disp[0] = sngl_emc->dispz(); \n      disp[1] = sngl_emc->dispy(); \n      \n      CalcPbglDisp(yz_cg[0], // /cg_z\n                   yz_cg[1], //cg_y,\n                   disp[0],\n                   disp[1],\n                   pbgl_disp_z_y);\n      \n      float fDispYCor = pbgl_disp_z_y[1];\n      float fDispZCor = pbgl_disp_z_y[0];\n      \n      double fX = sngl_emc->x();\n      double fY = sngl_emc->y();\n      double fZ = sngl_emc->z();\n      double fBbcZEvt = zvertex;\n      \n      // taken straight from offline/ana/PbGl/gampi0 \n      // ---> Flag 3 : dispersion cut\n      // angle dependent dispersion cuts\n      // the cut values are taken from PbGl and are not tuned for PbSc\n      static const double p1 =  0.270;\n      static const double p2 = -0.0145;\n      static const double p3 =  0.00218;\n      \n      int arm = sngl_emc->arm();\n      \n      // Incident Angle in degrees (0 = perpendicular to sector surface)\n      double theta = IncidentAngle(arm, (index % 100000 / 10000), fX,fY,fZ,fBbcZEvt);\n      \n      // angle dependent dispersion cut\n      double dispCut = p1 + p2*theta + p3*theta*theta;\n      \n      // maximal dispersion\n      double dispMax = fDispZCor;\n      if (dispMax < fDispYCor) dispMax = fDispYCor;\n      int pass = 1;\n      if (dispMax >= dispCut) {\n        pass = 0;\n        if(h3_disp) h3_disp->Fill(dispMax,dispCut,pass);\n      }\n      else {// apply dispersion cut\n        if(h3_disp) h3_disp->Fill(dispMax,dispCut,pass);\n        return true;\n      }\n      // cout<< \"dispMax \"<<dispMax<< \" dispCut \"<<dispCut<<endl;\n    } //if PbGl\n     \n  return false;  \n}\n\nvoid Correlation::CalcPbglDisp(const float& m1z, const float& m1y,\n                                      const float& m2z, const float& m2y,\n                                            float* returnVals_z_y\n                                      ) \n{\n\n  double zModSize, yModSize;\n\n  // modules sizes extracted from CVS\n  // offline/packages/emc/mEmcGeometryModule.C (revision 2.8)\n  // -> mEmcGeometryModule::BuildGeometry()\n\n  //   if ((iSecId == idSecE0) || (iSecId == idSecE1)) {\n  zModSize = 4.09168;\n  yModSize = 4.10615;\n  //   }\n  //   else {\n  //     zModSize = 5.58003;\n  //     yModSize = 5.57091;\n  //   }\n\n  //=====> dispersion stuff\n  // correct simple periodic structure of the dispersion\n float fPosZ  = m1z / zModSize;\n float fPosY  = m1y / yModSize;\n \n float fDispZ = m2z / (zModSize * zModSize);\n float fDispY = m2y / (yModSize * yModSize);\n \n  double zPosMod = fPosZ - floor(fPosZ);\n  double yPosMod = fPosY - floor(fPosY);\n  \n  float fDispZCor = fDispZ - (zPosMod - zPosMod*zPosMod);\n  float fDispYCor = fDispY - (yPosMod - yPosMod*yPosMod);\n\n  returnVals_z_y[0] = fDispZCor;\n  returnVals_z_y[1] = fDispYCor;\n\n}\n\ndouble Correlation::IncidentAngle(const int arm,\n                                  const int sect,\n                                  const double& fX, \n                                  const double& fY,\n                                  const double& fZ,\n                                  const double& fBbcZEvt)\n{\n  \n  double CosPhiNum =   vnx[arm][sect] * fX \n    + vny[arm][sect] * fY \n    + vnz[arm][sect] * (fZ-fBbcZEvt); \n  \n  double CosPhiDen = sqrt(fX*fX + fY*fY + (fZ-fBbcZEvt)*(fZ-fBbcZEvt));\n  \n  double Phi;\n  if (CosPhiDen != 0) Phi = 180./3.14159 * acos(CosPhiNum / CosPhiDen);\n  else                Phi = -999.;\n  \n  return Phi;  // in degrees \n\n}\n\nvoid Correlation::Init1DHisto(TH1F* &h1, string name, string xtitle, int nxbin, double xmin, double xmax)\n{\n  manager->registerHisto(name.c_str(),h1 = new TH1F(name.c_str(), name.c_str(), nxbin, xmin, xmax));\n  h1->Sumw2();\n  h1->GetXaxis()->SetTitle(xtitle.c_str());\n}\n\nvoid Correlation::Init2DHisto(TH2F* &h2, string name, string xtitle, int nxbin, double xmin, double xmax, string ytitle, int nybin, double ymin, double ymax)\n{\n  manager->registerHisto(name.c_str(), h2 = new TH2F(name.c_str(), name.c_str(), nxbin, xmin, xmax, nybin, ymin, ymax));\n  h2->Sumw2();\n  h2->GetXaxis()->SetTitle(xtitle.c_str());\n  h2->GetYaxis()->SetTitle(ytitle.c_str());\n}\n\nvoid Correlation::Init3DHisto(TH3F* &h3, string name, string xtitle, int nxbin, double xmin, double xmax, string ytitle, int nybin, double ymin, double ymax, string ztitle, int nzbin, double zmin, double zmax)\n{\n  manager->registerHisto(name.c_str(), h3 = new TH3F(name.c_str(), name.c_str(), nxbin, xmin, xmax, nybin, ymin, ymax, nzbin, zmin, zmax));\n  h3->Sumw2();\n  h3->GetXaxis()->SetTitle(xtitle.c_str());\n  h3->GetYaxis()->SetTitle(ytitle.c_str());\n  h3->GetZaxis()->SetTitle(ztitle.c_str());\n}\n\nvoid Correlation::Init3DHisto(TH3D*& h3, string name, string xtitle, int nxbins, double* xbins, string ytitle, int nybins, double* ybins, string ztitle, int nzbins, double* zbins)\n{\n  manager->registerHisto(name.c_str(), h3 = new TH3D(name.c_str(), name.c_str(), nxbins, xbins, nybins, ybins, nzbins, zbins));\n  h3->GetXaxis()->SetTitle(xtitle.c_str());\n  h3->GetYaxis()->SetTitle(ytitle.c_str());\n  h3->GetZaxis()->SetTitle(ztitle.c_str());\n}\n\nvoid Correlation::InitPhotonCutChecker(string name, THmulf*& histo)\n{\n  manager->registerHisto(name.c_str(), histo = new THmulf(name.c_str(),name.c_str()));\n  histo->AddAxis(\"pt\", \"p_{T}\", 20, photon_pt_min, photon_pt_max);\n  histo->AddAxis(\"prob\", \"photon_prob_cut\", 2, 0, 2);\n  // histo->AddAxis(\"emctrkdphi\", \"emctrkdphi\", 30, -0.2, 0.2);\n  // histo->AddAxis(\"emctrkdz\", \"emctrkdz\", 35, -70., 70.);\n  // histo->AddAxis(\"emcpc3dphi\", \"emcpc3dphi\", 20, -0.2, 0.2);\n  // histo->AddAxis(\"emcpc3dz\", \"emcpc3dz\", 35, -70., 70.);\n  histo->AddAxis(\"emctrk\", \"emctrk_cut\", 2, 0, 2);\n  histo->AddAxis(\"emcpc3\", \"emcpc3_cut\", 2, 0, 2);\n  histo->Sumw2();\n}\n\nvoid Correlation::InitHadronCutChecker(string name, THmulf*& histo)\n{\n  manager->registerHisto(name.c_str(), histo = new THmulf(name.c_str(),name.c_str()));\n  histo->AddAxis(\"pt\", \"p_{T}\", 10, hadron_pt_min, hadron_pt_max);\n  histo->AddAxis(\"qual\", \"quality\", 2, 0, 2);\n  histo->AddAxis(\"n0\", \"n0\", 2, 0, 2);\n  histo->AddAxis(\"pc3sdphi\", \"pc3sdphi\", 40, -10., 10.);\n  histo->AddAxis(\"pc3sdz\", \"pc3sdz\", 40, -10., 10.);\n  histo->Sumw2();\n}\n\nint Correlation::VetoTracks(ACluster* aclus, vector<ATrack*> lessqualtrk_vec)\n{\n  float mindist = 99.0;\n  for(unsigned int it=0; it<lessqualtrk_vec.size(); it++){\n    float dist = FindTrackDistance(aclus, lessqualtrk_vec[it]);\n    if(dist < mindist && lessqualtrk_vec[it]->Pt() > vetoPtCut) mindist = dist;\n  }\n  if (mindist < 8.0) return 1;\n  \n  return 0;\n}\n\nint Correlation::VetoTracks(ACluster* aclus, vector<ATrack*> lessqualtrk_vec, float& mindist, float& vetopt)\n{\n  for(unsigned int it=0; it<lessqualtrk_vec.size(); it++){\n    float dist = FindTrackDistance(aclus, lessqualtrk_vec[it]);\n    if(dist < mindist && lessqualtrk_vec[it]->Pt() > vetoPtCut) {\n      mindist = dist;\n      vetopt = lessqualtrk_vec[it]->Pt();\n    }\n  }\n  if (mindist < 8.0) return 1;\n  \n  return 0;\n}\n\nvoid Correlation::FillClusterQAHistos(int isafter, float pt, float emctrkdphi, float emctrkdz, float emcpc3dphi, float emcpc3dz)\n{\n  if(!isafter){\n    h2_emctrkdphi_bf->Fill(pt,emctrkdphi);\n    h2_emctrkdz_bf->Fill(pt,emctrkdz);\n    h2_emcpc3dphi_bf->Fill(pt,emcpc3dphi);\n    h2_emcpc3dz_bf->Fill(pt,emcpc3dz);\n  }\n  else {\n    h2_emctrkdphi_aft->Fill(pt,emctrkdphi);\n    h2_emctrkdz_aft->Fill(pt,emctrkdz);\n    h2_emcpc3dphi_aft->Fill(pt,emcpc3dphi);\n    h2_emcpc3dz_aft->Fill(pt,emcpc3dz);\n  }\n}\n\nvoid Correlation::FillTrackQAHistos(int isafter, float ppc3x, float ppc3z, float ppc3y, float ppc1z, float ppc1y, float zed, float phid, float pt, float quality, int n0, float pc3sdphi, float pc3sdz)\n{\n  if(!isafter){\n    if(ppc3x > 0) {\n      h2_ppc3_west_bf->Fill(ppc3z, ppc3y);\n      h2_ppc1_west_bf->Fill(ppc1z, ppc1y);\n    }\n    if(ppc3x < 0) {\n      h2_ppc3_east_bf->Fill(ppc3z, ppc3y);\n      h2_ppc1_east_bf->Fill(ppc1z, ppc1y);\n    }\n    h2_phi_zed_bf->Fill(zed, phid);\n    hadron_cut_check->Fill(1, pt, (quality==63||quality==31), n0<=0, pc3sdphi, pc3sdz);\n  }\n  else{\n    if(ppc3x > 0) {\n      h2_ppc3_west_aft->Fill(ppc3z, ppc3y);\n      h2_ppc1_west_aft->Fill(ppc1z, ppc1y);\n    }\n    if(ppc3x < 0) {\n      h2_ppc3_east_aft->Fill(ppc3z, ppc3y);\n      h2_ppc1_east_aft->Fill(ppc1z, ppc1y);\n    }\n    h2_phi_zed_aft->Fill(zed, phid);\n    if(pc3sdphi>-9000 && pc3sdz > -9000){\n      h2_pc3sdphi_bf->Fill(pt, pc3sdphi);\n      h2_pc3sdz_bf->Fill(pt, pc3sdz);\n    }\n  }\n}\n\nbool Correlation::IsGoodTower(ACluster* aclus)\n{\n  bool good_tower = true;\n\n  double ecore = aclus->GetEcore();\n  int armsect = aclus->GetArmSect();\n  int ypos = aclus->GetIypos();\n  int zpos = aclus->GetIzpos();\n\n  if(warnmap->IsBad(armsect, ypos, zpos, ecore)){\n    if(verbosity > 1) cout<<\"Cluster falls in a bad tower! Sect: \"<< armsect << \", ypos: \"<< ypos << \", zpos: \"<< zpos << endl;\n    good_tower = false;\n  }\n  return good_tower;\n}\n\nbool Correlation::IsGoodCluster(ACluster* aclus, DataSet dataset)\n{\n  bool good_clus = true;\n  \n  //if(((aclus->GetWarnStat() & Cut3x3Map)!= 0) || (aclus->GetProb() < 0.02) || (aclus->GetEcore() < 0.04)) good_clus = false;\n  if(dataset == Run10AuAu) Cut3x3Map = 0x7de1ce70;\n  else Cut3x3Map = 0x1ce70;\n  if(((aclus->GetWarnStat() & Cut3x3Map)!= 0) || ((aclus->GetDeadStat() & Cut3x3Map)!= 0) || (aclus->GetEcore() < 0.04)) good_clus = false;\n  return good_clus;\n}\n\nbool Correlation::IsGoodTrack(ATrack* atrk, DataSet dataset)\n{\n  bool good_trk = true;  \n  //check and cut on pc3 matching\n  if(RecalFlag == 0){ \n    if (((atrk->GetPc3sdphi() < -0.014) || (atrk->GetPc3sdphi() > 0.015)) ||\n        ((atrk->GetPc3sdz() < -5.0) || (atrk->GetPc3sdz() > 7.0))){\n      if(verbosity > 3) cout<<\"bad track! pc3dphi = \"<<atrk->GetPc3sdphi()<<\"; pc3dz = \"<<atrk->GetPc3sdz()<<endl;\n      good_trk = false;\n    }\n  }\n  if(RecalFlag == 1){  \n    if(dataset == Run11AuAu){\n      if(!PassMatchingCut(atrk,PC3_NSIGMA,EMC_NSIGMA)) good_trk = false; \n    }\n    else {\n      if(!PassMatchingCut(atrk,PC3_NSIGMA)) good_trk = false;\n      //if (!(sqrt(atrk->GetPc3sdz*atrk->GetPc3sdz+atrk->GetPc3sdphi*atrk->GetPc3sdphi)<2.0) ) continue;\n    } \n  }\n  if(dataset==Run8dAu){\n    if( atrk->Phi() > 0.25 && atrk->Phi() < 0.4 ) good_trk = false;\n  }\n  return good_trk;\n}\n\nbool Correlation::PassMatchingCut(ATrack* atrk, float pc3nsig)\n{\n  bool pass = true;\n  double circular_pc3cut = sqrt(atrk->GetPc3sdphi()*atrk->GetPc3sdphi()+atrk->GetPc3sdz()*atrk->GetPc3sdz());\n  \n  if((circular_pc3cut >= pc3nsig) || isnan(circular_pc3cut)) pass = false;\n  //if(circular_pc3cut >= pc3nsig) pass = false;\n  return pass;\n}\n\nbool Correlation::PassMatchingCut(ATrack* atrk, float pc3nsig, float emcnsig)\n{\n  bool pass = true;\n  double circular_pc3cut = sqrt(atrk->GetPc3sdphi()*atrk->GetPc3sdphi()+atrk->GetPc3sdz()*atrk->GetPc3sdz());\n  double circular_emccut = sqrt(atrk->GetEmcsdphi()*atrk->GetEmcsdphi()+atrk->GetEmcsdz()*atrk->GetEmcsdz());\n  \n  if(fabs(atrk->GetPc3dz())<9999 && fabs(atrk->GetPc3dphi())<9999){\n    if((circular_pc3cut >= pc3nsig) || isnan(circular_pc3cut)) pass = false;\n  }\n  else{\n    if ((circular_emccut >= emcnsig) || isnan(circular_emccut)) pass = false;\n  }\n  return pass;\n}\n\nint Correlation::GetPtBin(float pt, int istrig)\n{\n  int ipt = 0;\n  if(istrig){\n    if(pt>=5.0 && pt<7.0) ipt = 0;\n    if(pt>=7.0 && pt<9.0) ipt = 1;\n    if(pt>=9.0 && pt<12.0) ipt = 2;\n    if(pt>=12.0 && pt<15.0) ipt = 3;\n  }\n  else {\n    if(pt>=0.5 && pt<1.0) ipt = 0;\n    if(pt>=1.0 && pt<2.0) ipt = 1;\n    if(pt>=2.0 && pt<3.0) ipt = 2;\n    if(pt>=3.0 && pt<5.0) ipt = 3;\n    if(pt>=5.0 && pt<7.0) ipt = 4;\n  }\n  return ipt;\n}\n\nint Correlation::GetCentBin(int cent)\n{\n  int cbin = -1;\n  if(cent > 0 && cent <= 20) cbin = 0;\n  else if(cent > 20 && cent <= 40) cbin = 1;\n  else if(cent > 40 && cent <= 60) cbin = 2;\n  else if(cent > 60 ) cbin = 3;\n  return cbin;\n}\n\nfloat Correlation::FindTrackDistance(ACluster* clus, ATrack* trk)\n{\n  float x1 = clus->GetX();\n  float y1 = clus->GetY();\n  float z1 = clus->GetZ();\n  float zvtx1 = clus->GetZvtx();\n  TVector3 vCluster(x1, y1, z1-zvtx1);\n  \n  float x2 = trk->GetPemcx();\n  float y2 = trk->GetPemcy();\n  float z2 = trk->GetPemcz();\n  float zvtx2 = trk->GetZvtx();\n  \n  double trackdist = 99.;\n  if(x2>-9999 && y2>-9999 && z2>-9999){\n    TVector3 vTrack(x2, y2, z2-zvtx2);\n    TVector3 v3 = vCluster - vTrack;\n    trackdist = v3.Mag();\n  }\n  return trackdist;\n}\n\nvoid Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, vector<float>& mwweight)\n{\n  float pi0trigpt = pi0trigger->Pt();\n  float pi0trigpz = pi0trigger->Pz();\n  \n  float pi0trigeff = 0.;\n  if(cbin == 0) pi0trigeff = grpi0eff_0->Eval(pi0trigpt); \n  if(cbin == 1) pi0trigeff = grpi0eff_1->Eval(pi0trigpt);\n  if(cbin == 2) pi0trigeff = grpi0eff_2->Eval(pi0trigpt);\n  if(cbin == 3) pi0trigeff = grpi0eff_3->Eval(pi0trigpt);\n  \n  int trigptbin = hshark_large[0][0]->FindBin(pi0trigpt);\n  if(trigptbin>400) trigptbin=400;\n  \n  float pi0zemc = 510.0*pi0trigpz/pi0trigpt+zvertex;\n  int ipi0zemc = (int)TMath::Floor((pi0zemc+165.0)/10.);\n  if(ipi0zemc<0||ipi0zemc>32){\n    if(verbosity > 2) cout<<\" zemc out of range \"<<pi0zemc<<\" bin = \"<<ipi0zemc<<endl;\n  }\n  if(ipi0zemc<0)ipi0zemc=0;\n  if(ipi0zemc>32)ipi0zemc=32; \n  \n  for(int idecl=0;idecl<5;idecl++){\n    \n    float mattshark=hshark_large[idecl][ipi0zemc]->GetBinContent(trigptbin);\n    if(mattshark>0) mwweight[idecl]=mattshark*pi0trigeff;\n  }\n}\n\nvoid Correlation::MakeDecays(float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight, std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt_fold, std::vector<TH2F*> hdphi_iso)\n{\n  float zt = partpt/trigpt;\n  float xi = log(1.0/zt);\n  for(unsigned int ipw=0;ipw<hdphi.size();ipw++){\n    if(weight[ipw]>0) {\n      hdphi[ipw]->Fill(dphi,partpt,weight[ipw]);\n      if( hdphi_fold.size()>ipw )\n        hdphi_fold[ipw]->Fill(dphifold,partpt,weight[ipw]);\n      if( hdphixi_fold.size()>ipw )\n	hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]);\n      if( hdphizt_fold.size()>ipw )\n	hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]);\n      if( hdphi_iso.size()>ipw )\n        hdphi_iso[ipw]->Fill(dphifold,partpt,weight[ipw]);\n    }\n  }\n}\n\nvoid Correlation::SetHadronEfficiency(const char* filename)\n{\n  fhadeff = new TFile(filename);\n  cout<<PHWHERE<<\"loading hadron efficiency\"<<fhadeff->GetName()<<endl;\n  fhadeff->GetObject(\"feff\",fhadroneff);\n}\n\nvoid Correlation::SetTriggerEfficiency(const char* filename_0, const char* filename_1, const char* filename_2, const char* filename_3)\n{\n  fpi0eff_0=new TFile(filename_0);\n  fpi0eff_1=new TFile(filename_1);\n  fpi0eff_2=new TFile(filename_2);\n  fpi0eff_3=new TFile(filename_3);\n  \n  char grname[100];\n  sprintf(grname,\"ratio_graph_AA_0\");\n  fpi0eff_0->GetObject(grname,grpi0eff_0);\n  sprintf(grname,\"ratio_graph_AA_1\");\n  fpi0eff_1->GetObject(grname,grpi0eff_1);\n  sprintf(grname,\"ratio_graph_AA_2\");\n  fpi0eff_2->GetObject(grname,grpi0eff_2);\n  sprintf(grname,\"ratio_graph_AA_3\");\n  fpi0eff_3->GetObject(grname,grpi0eff_3);\n}\n\nvoid Correlation::SetSharkFin(const char* filename)\n{\n  TFile *fshark_exodus=NULL;\n  fshark_exodus = new TFile(filename);\n  \n  //now take 10 cm projections out to 165 cm\n  //right now use bins out to 170 since we have two cm bins instead of 1.\n  cout<<PHWHERE<<\" loading sharkfins \"<< fshark_exodus->GetName() <<endl;\n  \n  for(int izemc=0;izemc<33;izemc++){\n    char sharkname[100];\n    \n    for(int idecl=0;idecl<5;idecl++){\n      sprintf(sharkname,\"hshark_large_%d_%d\",idecl,izemc);\n      hshark_large[idecl][izemc]=(TH1D*)fshark_exodus->Get(sharkname);\n    }\n  }\n  \n  cout << \"applying pisacorr \" << endl;\n  TF1 * pisacorr_large[5];\n  pisacorr_large[0]=new TF1(\"pisacorr_large0\",\"-7.85e-2*x+1.85\",4,20);\n  pisacorr_large[1]=new TF1(\"pisacorr_large1\",\"-8.7e-2*x+2.0\",4,20);\n  pisacorr_large[2]=new TF1(\"pisacorr_large2\",\"-9.65e-2*x+2.2\",4,20);\n  pisacorr_large[3]=new TF1(\"pisacorr_large3\",\"-12.5e-2*x+2.8\",4,20);\n  pisacorr_large[4]=new TF1(\"pisacorr_large4\",\"-12.5e-2*x+2.8\",4,20);\n  \n  for (int ipzemc = 0; ipzemc < 33; ipzemc++){\n    for (int ipdecs = 0; ipdecs < 5; ipdecs++){\n      for (int ipbin = 1; ipbin < hshark_large[ipdecs][ipzemc]->GetNbinsX()+1; ipbin++){\n        double mattshark = hshark_large[ipdecs][ipzemc]->GetBinContent(ipbin);\n        double pi0pt =  hshark_large[ipdecs][ipzemc]->GetBinCenter(ipbin);\n        double pisacorr=pisacorr_large[ipdecs]->Eval(pi0pt);\n        if(pisacorr>1.0) pisacorr=1.0;\n        double mwweightfine=mattshark*pisacorr;\n        //cout<<\"ipzemc: \"<<ipzemc<<\"; ipdecs: \"<<ipdecs<<\"; mwweightfine: \"<<mwweightfine<<endl;\n        hshark_large[ipdecs][ipzemc]->SetBinContent(ipbin,mwweightfine);\n      }\n    }\n  }\n  for(int ij=0; ij<5; ij++)\n    delete pisacorr_large[ij];\n}\n\nCorrelation::DataSet Correlation::GetDataSet(int RunNumber)\n{\n  DataSet dataset = INVALID;\n  if(RunNumber>=246000 && RunNumber<=254000)\n    dataset = Run8dAu;\n  if(RunNumber>=300475 && RunNumber<=310454)\n    dataset = Run10AuAu;\n  if(RunNumber>=343031 && RunNumber<=349680)\n    dataset = Run11AuAu;\n\n  return dataset;\n}\n\nvoid Correlation::Clear()\n{\n  \nfor (unsigned int i = 0; i < clus_everything.size(); i++){\n    delete clus_everything[i];\n  }\n  clus_everything.clear();\n  //   for (unsigned int i = 0; i < clus_vector_novetotracks.size(); i++){\n  //     delete clus_vector_novetotracks[i];\n  //   }\n  //   clus_vector_novetotracks.clear();\n  for (unsigned int i = 0; i < clus_vector.size(); i++){\n    delete clus_vector[i];\n  }\n  clus_vector.clear();\n  for(unsigned int i = 0; i < trk_vector.size(); i++){\n    delete trk_vector[i];\n  }\n  trk_vector.clear();\n  for(unsigned int i = 0; i < trk_vector_05sig.size(); i++){\n    delete trk_vector_05sig[i];\n  }\n  trk_vector_05sig.clear();\n  for(unsigned int i = 0; i < trk_vector_1sig.size(); i++){\n    delete trk_vector_1sig[i];\n  }\n  trk_vector_1sig.clear();\n  for(unsigned int i = 0; i < trk_vector_15sig.size(); i++){\n    delete trk_vector_15sig[i];\n  }\n  trk_vector_15sig.clear();\n  for(unsigned int i = 0; i < trk_vector_2sig.size(); i++){\n    delete trk_vector_2sig[i];\n  }\n  trk_vector_2sig.clear();\n  for(unsigned int i = 0; i < trk_vector_3sig.size(); i++){\n    delete trk_vector_3sig[i];\n  }\n  trk_vector_3sig.clear();\n  for(unsigned int i = 0; i < pi0_vector.size(); i++){\n    delete pi0_vector[i];\n  }\n  pi0_vector.clear();\n  for(unsigned int i = 0; i < bgpi0_vector.size(); i++){\n    delete bgpi0_vector[i];\n  }\n  bgpi0_vector.clear();\n  for(unsigned int i = 0; i < bgclus_vector.size(); i++){\n    delete bgclus_vector[i];\n  }\n  bgclus_vector.clear();\n  for(unsigned int i = 0; i < all_clus_vector.size(); i++){\n    delete all_clus_vector[i];\n  }\n  all_clus_vector.clear();\n  for(unsigned int i = 0; i < lessqualtrk_vector.size(); i++){\n    delete lessqualtrk_vector[i];\n  }\n  lessqualtrk_vector.clear();\n}\n\nint Correlation::End(PHCompositeNode* topNode)\n{\n  cout<<\"End.\"<<endl;\n  DoMixing(atree->_ttrig, atree->_tpart, NMIX);\n  cout<<\"finish mixing.\"<<endl;\n  manager->dumpHistos(output.c_str());\n  cout<<\"total # of events: \"<<evt<<endl;\n  cout<<\"total # of events processed: \"<<event<<endl;\n  return 0;\n}\n\nvoid Correlation::InitHistos()\n{\n  \n  h2_pi0mass_PbGl = NULL;\n  h2_pi0mass_PbSc = NULL;\n\n  h2_pi0_bg = NULL;\n  h2_pi0_bg_PbGl = NULL;\n  h2_pi0_bg_PbSc = NULL;\n\n  for(int ias=0; ias<N_ARMSECT; ias++){\n    h2_pi0mass_as[ias] = NULL;\n    h2_pi0_bg_as[ias] = NULL;\n    h3_nhit[ias] = NULL;\n    h3_nhit_mywarn[ias] = NULL;\n    h1_chi2[ias] = NULL;\n    h3_disp[ias] = NULL;\n  }\n\n  h2_emctrkdphi_bf = NULL;\n  h2_emctrkdz_bf = NULL;\n  h2_emcpc3dphi_bf = NULL;\n  h2_emcpc3dz_bf = NULL;\n  h2_emctrkdphi_aft = NULL;\n  h2_emctrkdz_aft = NULL;\n  h2_emcpc3dphi_aft = NULL;\n  h2_emcpc3dz_aft = NULL;\n  h2_pc3sdphi_bf = NULL;\n  h2_pc3sdz_bf = NULL;\n  h2_pc3sdphi_aft = NULL;\n  h2_pc3sdz_aft = NULL;\n  h2_phi_zed_bf = NULL;\n  h2_phi_zed_aft = NULL;\n  h2_ppc3_west_bf = NULL;\n  h2_ppc3_east_bf = NULL;\n  h2_ppc3_west_aft = NULL;\n  h2_ppc3_east_aft = NULL;\n  h2_ppc1_west_bf = NULL;\n  h2_ppc1_east_bf = NULL;\n  h2_ppc1_west_aft = NULL;\n  h2_ppc1_east_aft = NULL;\n  h2_EoverPvspt = NULL;\n  h1_zvertex = NULL;\n  // h1_centrality = NULL;\n  h1_trig_pt_inc_tot = NULL;\n  h1_trig_pt_pi0_tot = NULL;\n  h1_trig_pt_dec_tot = NULL;\n  h1_trig_pt_inc_mix_tot = NULL;\n  h1_trig_pt_pi0_mix_tot = NULL;\n  h1_trig_pt_dec_mix_tot = NULL;\n  h1_part_pt_tot = NULL;\n  h1_part_pt_05sig = NULL;\n  h1_part_pt_1sig = NULL;\n  h1_part_pt_15sig = NULL;\n  h1_part_pt_2sig = NULL;\n  h1_part_pt_3sig = NULL;\n  h2_ptvscent_trig_inc = NULL;\n  h2_ptvscent_part = NULL;\n  h2_ptvscent_trig_pi0 = NULL;\n  h3_mintrackdist_fg_allcent = NULL;\n  h3_mintrackdist_bg_allcent = NULL;\n  h2_bfpaircut_inc = NULL;\n  h2_aftpaircut_inc = NULL;\n  h2_bfpaircut_pi0 = NULL;\n  h2_aftpaircut_pi0 = NULL;\n\n}\n\nvoid Correlation::DoMixing(TTree* trig, TTree* assoc, int size)\n{\n  int pooldepth = 0;\n  int nloop = 0;\n\n  int evt_trig;\n  float zvtx_trig;\n  float cent_trig;\n  int ntrig_photons;\n  int ntrig_pi0s;\n  int ntrig = DIM;\n  float trigpt[ntrig];\n  float trigphi[ntrig];\n  float trigeta[ntrig];\n  float trige[ntrig];\n  float x[ntrig];\n  float y[ntrig];\n  float z[ntrig];\n  int iso[ntrig];\n\n  int evt_part;\n  float zvtx_part;\n  float cent_part;\n  int npart = DIM;\n  int nphotons;\n  float partpt[npart];\n  float partphi[npart];\n  float parteta[npart];\n  float parte[npart];\n  float pemcx[npart];\n  float pemcy[npart];\n  float pemcz[npart];\n  float cluspt[npart];\n  float clusphi[npart];\n  float cluseta[npart];\n  float cluse[npart];\n\n  trig->SetBranchAddress(\"evt\", &evt_trig);\n  trig->SetBranchAddress(\"zvtx\", &zvtx_trig);\n  trig->SetBranchAddress(\"cent\", &cent_trig);\n  trig->SetBranchAddress(\"nphotons\", &ntrig_photons);\n  trig->SetBranchAddress(\"npi0s\", &ntrig_pi0s);\n  trig->SetBranchAddress(\"ntrig\", &ntrig);\n  trig->SetBranchAddress(\"pt\", trigpt);\n  trig->SetBranchAddress(\"phi\", trigphi);\n  trig->SetBranchAddress(\"eta\", trigeta);\n  trig->SetBranchAddress(\"e\",trige);\n  trig->SetBranchAddress(\"x\",x);\n  trig->SetBranchAddress(\"y\",y);\n  trig->SetBranchAddress(\"z\",z);\n  trig->SetBranchAddress(\"iso\",iso);\n\n  assoc->SetBranchAddress(\"evt\", &evt_part);\n  assoc->SetBranchAddress(\"zvtx\", &zvtx_part);\n  assoc->SetBranchAddress(\"cent\", &cent_part);\n  assoc->SetBranchAddress(\"ntracks\", &npart);\n  assoc->SetBranchAddress(\"nphotons\", &nphotons);\n  assoc->SetBranchAddress(\"pt\", partpt);\n  assoc->SetBranchAddress(\"phi\", partphi);\n  assoc->SetBranchAddress(\"eta\", parteta);\n  assoc->SetBranchAddress(\"e\", parte);\n  assoc->SetBranchAddress(\"pemcx\", pemcx);\n  assoc->SetBranchAddress(\"pemcy\", pemcy);\n  assoc->SetBranchAddress(\"pemcz\", pemcz);\n  assoc->SetBranchAddress(\"pt_clus\", cluspt);\n  assoc->SetBranchAddress(\"phi_clus\", clusphi);\n  assoc->SetBranchAddress(\"eta_clus\", cluseta);\n  assoc->SetBranchAddress(\"e_clus\", cluse);\n\n  int nentrig = trig->GetEntries();\n  int nenpart = assoc->GetEntries();\n  //cout<<\"Mixing: nentrig = \" <<nentrig<<\"; nenpart = \"<<nenpart<<endl;\n \n  \n  for(int i=0; i<nentrig; i++){\n    //cout<<\"trigger count = \"<<i<<endl;\n    pooldepth = 0;\n    nloop = 0;\n    trig->GetEntry(i);\n    //cout <<\"evt_trig = \"<<evt_trig<<\"; zvtx_trig = \"<<zvtx_trig<<\"; cent_trig = \"<<cent_trig<<\"; ntrig_photons = \"<<ntrig_photons<<\"; ntrig_pi0s = \"<<ntrig_pi0s<<\"; ntrig = \"<<ntrig<<endl;\n    cbin = GetCentBin((int)cent_trig);\n    //cout<<\"Mixed event cbin = \"<<cbin<<endl;\n\n    vector<ACluster*> photons;\n    vector<APiZero*> pi0s; \n\n    for(int itrig=0; itrig<ntrig_pi0s; itrig++){\n      //cout<<\"pi0 itrig = \"<<itrig<<\"; trigpt[\"<<itrig<<\"] = \"<<trigpt[itrig]<<\"; trigphi[\"<<itrig<<\"] = \"<<trigphi[itrig]<<endl;\n      APiZero pi0;\n      MakePi0Object(&pi0, trigpt[itrig], trigphi[itrig], trigeta[itrig], trige[itrig], x[itrig], y[itrig], z[itrig], zvtx_trig);\n      if( verbosity ) { cout<<\"Mixing: pt = \"<<pi0.Pt()<<\"; phi = \"<<pi0.Phi()<<\"; eta = \"<<pi0.Eta()<<\"; e = \"<<pi0.E()<<\"; x = \"<<((ACluster*)pi0.Daughter1())->GetX()<<\"; y = \"<<((ACluster*)pi0.Daughter1())->GetY()<<\"; z = \"<<((ACluster*)pi0.Daughter1())->GetZ()<<endl;}\n      pi0.SetIso(iso[itrig]);\n\n      //dec weighting\n      vector<float> mwweight;\n      for(int i=0; i<5; i++) mwweight.push_back(0.0);\n      EvalDecWeights(&pi0,zvtx_trig,cbin,mwweight);\n      pi0.SetDecayWeights(mwweight);\n\n      pi0s.push_back(pi0.clone());\n      if( verbosity ) { cout<<\"Mixing: after making pi0 vector. pt = \"<<pi0.Pt()<<\"; phi = \"<<pi0.Phi()<<\"; eta = \"<<pi0.Eta()<<\"; e = \"<<pi0.E()<<\"; x = \"<<((ACluster*)pi0.Daughter1())->GetX()<<\"; y = \"<<((ACluster*)pi0.Daughter1())->GetY()<<\"; z = \"<<((ACluster*)pi0.Daughter1())->GetZ()<<endl; }\n    }\n    //cout<<\"DoMixing: made pi0s. pi0 vector size: \"<<pi0s.size()<<endl; \n\n    for(int itrig=ntrig_pi0s; itrig<ntrig; itrig++){\n      //cout<<\"photon itrig = \"<<itrig<<\"; trigpt[\"<<itrig<<\"] = \"<<trigpt[itrig]<<\"; trigphi[\"<<itrig<<\"] = \"<<trigphi[itrig]<<endl;\n      ACluster pho;\n      MakeClusterObject(&pho, trigpt[itrig], trigphi[itrig], trigeta[itrig], trige[itrig], x[itrig], y[itrig], z[itrig], zvtx_trig);\n      pho.SetIso(iso[itrig]);\n      //cout<<\"Mixing: pho.Pt() = \"<<pho.Pt()<<\"; pho.Phi() = \"<<pho.Phi()<<endl;\n      photons.push_back(pho.clone());\n    }\n    //cout<<\"DoMixing: made photons. photon vector size: \"<<photons.size()<<endl;\n\n    float nvert_fg = 0.;\n    float ncent_fg = 0.;\n    nvert_fg = TMath::Floor(zvtx_trig/5.0);\n    ncent_fg = TMath::Floor((cent_trig-1)/5);\n    //cout<<\"nvert_fg = \"<<nvert_fg<<\"; ncent_fg = \"<<ncent_fg<<endl;\n    \n    for(int j=0; j<nenpart; j++){\n      //cout<<\"partner tree entry: j = \"<<j<<endl;\n      assoc->GetEntry(j);\n      //cout <<\"evt_part = \"<<evt_part<<\"; zvtx_part = \"<<zvtx_part<<\"; cent_part = \"<<cent_part<<\"; nphotons = \"<<nphotons<<\"; npart = \"<<npart<<endl;\n\n      //cout<<\"evt_trig = \"<<evt_trig<<\"; evt_part = \"<<evt_part<<endl;\n      //check if trigger and assoc belong to the same event\n      if(evt_trig == evt_part){\n        j = CheckPool(nenpart,j,pooldepth,size,nloop);\n        //cout<<\"same event. nloop = \"<<nloop<<endl;\n        if(nloop > NMIX) break;//to prevent infinite loop in case there is no interesting hadrons available \n        continue;\n      }\n      \n      //check if trigger and partner belongs to the same event class\n      float nvert_bg = TMath::Floor(zvtx_part/5.0);\n      float ncent_bg = TMath::Floor((cent_part-1)/5);\n      //cout<<\"nvert_bg = \"<<nvert_bg<<\"; ncent_bg = \"<<ncent_bg<<endl;\n      \n      if(nvert_fg != nvert_bg) {\n        j = CheckPool(nenpart,j,pooldepth,size,nloop);\n        //cout<<\"not same vertex bin. nloop = \"<<nloop<<endl;\n        if(nloop > NMIX) break;\n        continue;\n      }\n      if(ncent_fg != ncent_bg) {\n        j = CheckPool(nenpart,j,pooldepth,size,nloop);\n        //cout<<\"not same centrality bin. nloop = \"<<nloop<<endl;\n        if(nloop > NMIX) break;\n        continue;\n      }\n\n      vector<ATrack*> hadrons;\n      for(int ipart=0; ipart<npart; ipart++){\n        ATrack trk;\n        MakeTrackObject(&trk, partpt[ipart], partphi[ipart], parteta[ipart], parte[ipart], pemcx[ipart], pemcy[ipart], pemcz[ipart], zvtx_part);\n        hadrons.push_back(trk.clone());\n      }\n      vector<ACluster*> clusters;\n      for( int iclust=0; iclust<nphotons; iclust++ )\n      {\n        ACluster pho;\n        MakeClusterObject(&pho, cluspt[iclust], clusphi[iclust], cluseta[iclust], cluse[iclust], 0, 0, 0, zvtx_part);\n        clusters.push_back(pho.clone());\n      }\n      for( unsigned int itrig = 0; itrig < photons.size(); itrig++ ) {\n        // Want to use fg isolated acceptance but apply additional isolation based on uncorrelated (mixed) particles\n        if( photons[itrig]->IsIso() )\n          SetIso(photons[itrig],hadrons,clusters,Rcut,h3_cluster_mix_dR[cbin],h3_cluster_mix_etot[cbin],h2_cluster_mix_wdR[cbin],h2_cluster_mix_etot[cbin],h3_iso_mix_acc[cbin]);\n        h1_trig_pt_inc_mix[cbin]->Fill(photons[itrig]->Pt());\n        if( photons[itrig]->IsIso() )\n          h1_trig_pt_inc_iso_mix[cbin]->Fill(photons[itrig]->Pt());\n        h1_trig_pt_inc_mix_tot->Fill(photons[itrig]->Pt()); \n      }\n      for( unsigned int itrig = 0; itrig < pi0s.size(); itrig++ ) {\n        // Want to use fg isolated acceptance but apply additional isolation based on uncorrelated (mixed) particles\n        if( pi0s[itrig]->IsIso() )\n          SetIso(pi0s[itrig],hadrons,clusters,Rcut);\n        h1_trig_pt_pi0_mix[cbin]->Fill(pi0s[itrig]->Pt());\n        if( pi0s[itrig]->IsIso() )\n          h1_trig_pt_pi0_iso_mix[cbin]->Fill(pi0s[itrig]->Pt());\n        h1_trig_pt_pi0_mix_tot->Fill(pi0s[itrig]->Pt());\n\n        //counting dec triggers\n        for(int ipw=0; ipw<5; ipw++){\n          double weight = pi0s[itrig]->GetDecayWeights()[ipw];\n          h1_trig_pt_dec_mix[cbin]->Fill(ipw,weight);\n          if( pi0s[itrig]->IsIso() ) \n            h1_trig_pt_dec_iso_mix[cbin]->Fill(ipw,weight);\n          h1_trig_pt_dec_mix_tot->Fill(ipw,weight);\n        }\n      }\n\n      if( verbosity>3 ) cout <<\"DoMixing: made hadrons. hadron vector size: \"<<hadrons.size()<<endl;\n\n      pooldepth++;\n      if( verbosity>3 ) cout<<\"pooldepth = \"<<pooldepth<<endl;\n\n      MakePairs(photons,hadrons,MIX,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix_fold[cbin],h3_dphi_mix_iso_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc);\n\n      MakePairs(pi0s,hadrons,MIXPI,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h3_dphi_pi0_mix_iso_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix_fold[cbin],h2_dphi_dec_mix_iso_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0);\n\n      //for(unsigned int i=0; i<hadrons.size(); i++) delete hadrons[i];\n      //hadrons.clear();\n      //for(unsigned int i=0; i<clusters.size(); i++) delete hadrons[i];\n      //clusters.clear();\n      ClearVector(hadrons);\n      ClearVector(clusters);\n\n      if(pooldepth == size) {/*cout<<\"Mixed enough! pooldepth = \"<<pooldepth<<\"; nvert_fg = \"<<nvert_fg<<\"; ncent_fg = \"<<ncent_fg<<endl; */break;}\n\n      //make sure making NMIX pairs\n      j = CheckPool(nenpart,j,pooldepth,size,nloop);\n    }\n    ClearVector(photons);\n    ClearVector(pi0s);\n    //for(unsigned int i=0; i<photons.size(); i++) delete photons[i];\n    //photons.clear();\n    //for(unsigned int i=0; i<pi0s.size(); i++) delete pi0s[i];\n    //pi0s.clear();\n  }\n}\n\nint Correlation::CheckPool(int nenpart, int j, int pooldepth, int size, int& nloop)\n{\n  // cout<<\"in CheckPool: before nloop = \"<<nloop<<endl;\n  if(j == nenpart-1){\n    if(pooldepth < size){\n      //cout<<\"pool not deep enough.\"<<endl;\n      j = -1;\n      nloop++;\n      //cout<<\"after nloop = \"<<nloop<<endl;\n    }\n  }\n  return j;\n}\n",
-			"file": "offline/AnalysisTrain/Correlation/Correlation.C",
-			"file_size": 86401,
-			"file_write_time": 130831011260000000,
+			"file": "/Users/alihanks/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/fit_pi0_spectra.C",
 			"settings":
 			{
-				"buffer_size": 85989,
+				"buffer_size": 968,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/alihanks/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/get_AA_pi0_trig_eff_TRIGPT.C",
+			"settings":
+			{
+				"buffer_size": 8186,
 				"line_ending": "Unix"
 			}
 		},
@@ -70,7 +103,7 @@
 			"file": "offline/AnalysisTrain/Correlation/Correlation.h",
 			"settings":
 			{
-				"buffer_size": 18901,
+				"buffer_size": 19008,
 				"line_ending": "Unix"
 			}
 		},
@@ -78,7 +111,7 @@
 			"file": "/Users/alihanks/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/make_comparison_plots.C",
 			"settings":
 			{
-				"buffer_size": 12254,
+				"buffer_size": 15165,
 				"line_ending": "Unix"
 			}
 		},
@@ -91,10 +124,67 @@
 			}
 		},
 		{
+			"file": "offline/analysis/Correlation/macros/make_cfs.C",
+			"settings":
+			{
+				"buffer_size": 1242,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "gammajet_exodus/src/ApplyEnergyResolution.cpp",
+			"settings":
+			{
+				"buffer_size": 2108,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "offline/analysis/Correlation/MakeCFs.h",
+			"settings":
+			{
+				"buffer_size": 2704,
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "offline/analysis/Correlation/MakeCFs.C",
 			"settings":
 			{
-				"buffer_size": 22771,
+				"buffer_size": 13451,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "offline/analysis/Correlation/MakeRgammaEff.C",
+			"settings":
+			{
+				"buffer_size": 3143,
+				"line_ending": "Unix",
+				"name": "void MakeRgammaEff(const char* Rgamma_input, const"
+			}
+		},
+		{
+			"file": "offline/analysis/Correlation/MakeDir.C",
+			"settings":
+			{
+				"buffer_size": 3161,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "offline/analysis/Correlation/MakeDir.h",
+			"settings":
+			{
+				"buffer_size": 1107,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "offline/analysis/Correlation/MakeJFs.h",
+			"settings":
+			{
+				"buffer_size": 2372,
 				"line_ending": "Unix"
 			}
 		},
@@ -110,7 +200,7 @@
 			"file": "offline/analysis/Correlation/MakeJFs.C",
 			"settings":
 			{
-				"buffer_size": 18733,
+				"buffer_size": 18848,
 				"line_ending": "Unix"
 			}
 		},
@@ -139,7 +229,7 @@
 	"command_palette":
 	{
 		"height": 375.0,
-		"last_filter": "inst",
+		"last_filter": "",
 		"selected_items":
 		[
 			[
@@ -212,9 +302,15 @@
 	],
 	"file_history":
 	[
+		"/Users/alihanks/phenix/offline/analysis/Correlation/Makefile.am",
+		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/AMixingTree.C",
+		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/AParticle.h",
+		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/AParticle.C",
+		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/APiZero.C",
+		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/APiZero.h",
+		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/macros/make_cfs.C",
 		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/Makefile.am",
 		"/Users/alihanks/phenix/hijing/Makefile.am",
-		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/macros/make_cfs.C",
 		"/Users/alihanks/phenix/gammajet_exodus/macros/project_fe_sharkfins.C",
 		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/CorrelationFunctions.h",
 		"/Users/alihanks/Library/Application Support/Sublime Text 3/Packages/User/SublimeLinter.sublime-settings",
@@ -224,7 +320,6 @@
 		"/Users/alihanks/phenix/offline/gammah.sublime-project",
 		"/Users/alihanks/phenix/offline/analysis/Correlation/MakeJFs.h",
 		"/Users/alihanks/phenix/offline/analysis/Correlation/MakeJFs.C",
-		"/Users/alihanks/phenix/offline/analysis/Correlation/Makefile.am",
 		"/Users/alihanks/phenix/offline/analysis/Correlation/MakeDir.h",
 		"/Users/alihanks/phenix/offline/analysis/Correlation/MakeCFs.C",
 		"/Users/alihanks/phenix/offline/analysis/Correlation/MakeDir.C",
@@ -233,12 +328,7 @@
 		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/Correlation.C",
 		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/ATrack.h",
 		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/ATrack.C",
-		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/APiZero.h",
-		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/APiZero.C",
-		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/AParticle.h",
-		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/AParticle.C",
 		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/AMixingTree.h",
-		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/AMixingTree.C",
 		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/AMixingPool.h",
 		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/AEvent.h",
 		"/Users/alihanks/phenix/offline/AnalysisTrain/Correlation/AEvent.C",
@@ -246,7 +336,7 @@
 	],
 	"find":
 	{
-		"height": 23.0
+		"height": 37.0
 	},
 	"find_in_files":
 	{
@@ -260,6 +350,45 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"ntrigbin",
+			"mwweight",
+			"h1_trig_pt_dec",
+			"settrigptbinning",
+			"getntriggers",
+			"h1_trigpt",
+			"settriggerdata",
+			"clearvector",
+			"minassocpt",
+			"maketrack",
+			"applyenergy",
+			"hshark",
+			"evaldecweights",
+			"mintrigpt",
+			"h1_trigger_iso_dir",
+			"grpi0",
+			"grpi0eff",
+			"gpi0",
+			"h1_trig_pt_inc",
+			"h1_trig_pt",
+			"h1_trig",
+			"h1_trig_pt_dec",
+			"makepi0s",
+			"makepi0",
+			"          for( HepMC::GenVertex::particles_in_const_iterator ip = (*v)->particles_in_const_begin(); ip != (*v)->particles_in_const_end(); ++ip )\n          {\n            int pid = (*ip)->pdg_id();\n            if( pid==111 || pid==221 || pid==223 ) clus.SetTag(true);\n            if( verbosity ) cout << \"Photon with E = \" << clus.E() << \" and parent id = \" << pid << endl;\n          }\n",
+			"makecluster",
+			"hmult",
+			"can_jet",
+			"evaldecwe",
+			"h1_trig_",
+			"setsharkfin",
+			"weights",
+			"makepi0s",
+			"ispertrigger",
+			"int type",
+			"h1_trigpt",
+			"h2_dphi_dec_iso",
+			"h3_dphi_dec_iso",
+			"makepairs",
 			"checkpool",
 			"getcentbin",
 			"settriggerdata",
@@ -301,7 +430,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 9,
 			"sheets":
 			[
 				{
@@ -391,7 +520,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 20,
 					"type": "text"
 				},
 				{
@@ -400,15 +529,825 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2337,
+						"buffer_size": 2509,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1029,
-								1029
+								1200,
+								1200
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 15,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "hijing/hijing_analysis.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3330,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								277,
+								277
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 13,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "hijing/hijing_analysis.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 26166,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								14560,
+								14560
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3296.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "offline/AnalysisTrain/Correlation/Correlation.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 86346,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								67970,
+								67978
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 22628.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "offline/AnalysisTrain/Correlation/CorrelationFunctions.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2970,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2030,
+								2030
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 14,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "/Users/alihanks/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/fit_pi0_spectra.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 968,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								673,
+								769
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 17,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "/Users/alihanks/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/get_AA_pi0_trig_eff_TRIGPT.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8186,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1704,
+								1704
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 735.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 16,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "offline/AnalysisTrain/Correlation/Correlation.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 19008,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								15345,
+								15345
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 18,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "/Users/alihanks/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/make_comparison_plots.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15165,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2753,
+								2753
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1043.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "gammajet_exodus/macros/project_sharkfins_extrabin.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5504,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3712,
+								3712
 							]
 						],
 						"settings":
@@ -473,7 +1412,7 @@
 								"bh_double_quote_content"
 							],
 							"colorcode": true,
-							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"syntax": "Packages/C++/C++.tmLanguage",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
@@ -481,24 +1420,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "hijing/hijing_analysis.C",
+					"buffer": 11,
+					"file": "offline/analysis/Correlation/macros/make_cfs.C",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 21143,
+						"buffer_size": 1242,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								21091,
-								21091
+								226,
+								269
 							]
 						],
 						"settings":
@@ -506,46 +1445,26 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
 								"bh_double_quote",
 								"bh_double_quote_center",
 								"bh_double_quote_open",
 								"bh_double_quote_close",
 								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
@@ -556,6 +1475,26 @@
 								"bh_unmatched_open",
 								"bh_unmatched_close",
 								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
@@ -575,20 +1514,20 @@
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "offline/AnalysisTrain/Correlation/AMixingTree.C",
+					"buffer": 12,
+					"file": "gammajet_exodus/src/ApplyEnergyResolution.cpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3924,
+						"buffer_size": 2108,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3001,
-								3001
+								308,
+								329
 							]
 						],
 						"settings":
@@ -596,46 +1535,26 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
 								"bh_double_quote",
 								"bh_double_quote_center",
 								"bh_double_quote_open",
 								"bh_double_quote_close",
 								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
@@ -646,6 +1565,474 @@
 								"bh_unmatched_open",
 								"bh_unmatched_close",
 								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 495.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "offline/analysis/Correlation/MakeCFs.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2704,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								303,
+								303
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 14,
+					"file": "offline/analysis/Correlation/MakeCFs.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 13451,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								836,
+								836
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1588.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 15,
+					"file": "offline/analysis/Correlation/MakeRgammaEff.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3143,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2533,
+								2533
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"auto_name": "void MakeRgammaEff(const char* Rgamma_input, const",
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 546.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 16,
+					"file": "offline/analysis/Correlation/MakeDir.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3161,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								567,
+								567
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"colorcode": true,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 29.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 17,
+					"file": "offline/analysis/Correlation/MakeDir.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1107,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								478,
+								478
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
@@ -665,20 +2052,20 @@
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "hijing/hijing_analysis.h",
+					"buffer": 18,
+					"file": "offline/analysis/Correlation/MakeJFs.h",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2881,
+						"buffer_size": 2372,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2095,
-								2095
+								303,
+								303
 							]
 						],
 						"settings":
@@ -686,46 +2073,26 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
 								"bh_double_quote",
 								"bh_double_quote_center",
 								"bh_double_quote_open",
 								"bh_double_quote_close",
 								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
@@ -736,6 +2103,26 @@
 								"bh_unmatched_open",
 								"bh_unmatched_close",
 								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
@@ -749,552 +2136,13 @@
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "offline/AnalysisTrain/Correlation/CorrelationFunctions.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2970,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2030,
-								2030
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content"
-							],
-							"colorcode": true,
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "offline/AnalysisTrain/Correlation/Correlation.C",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 85989,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								70772,
-								70772
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content"
-							],
-							"colorcode": true,
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 22850.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "offline/AnalysisTrain/Correlation/Correlation.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 18901,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								11954,
-								11966
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content"
-							],
-							"colorcode": true,
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2106.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 6,
 					"type": "text"
 				},
 				{
-					"buffer": 8,
-					"file": "/Users/alihanks/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/make_comparison_plots.C",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 12254,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1936,
-								1936
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content"
-							],
-							"colorcode": true,
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 11,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "gammajet_exodus/macros/project_sharkfins_extrabin.C",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5504,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3712,
-								3712
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content"
-							],
-							"colorcode": true,
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 13,
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "offline/analysis/Correlation/MakeCFs.C",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 22771,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								17669,
-								17669
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content"
-							],
-							"colorcode": true,
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 10,
-					"type": "text"
-				},
-				{
-					"buffer": 11,
+					"buffer": 19,
 					"file": "/Users/alihanks/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/fit_pi0_peaks.C",
 					"semi_transient": false,
 					"settings":
@@ -1315,61 +2163,61 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
 								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content"
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content"
 							],
 							"colorcode": true,
 							"syntax": "Packages/C++/C++.tmLanguage",
@@ -1380,24 +2228,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
+					"stack_index": 19,
 					"type": "text"
 				},
 				{
-					"buffer": 12,
+					"buffer": 20,
 					"file": "offline/analysis/Correlation/MakeJFs.C",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 18733,
+						"buffer_size": 18848,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6999,
-								6999
+								874,
+								874
 							]
 						],
 						"settings":
@@ -1405,46 +2253,26 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
 								"bh_double_quote",
 								"bh_double_quote_center",
 								"bh_double_quote_open",
 								"bh_double_quote_close",
 								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
@@ -1455,6 +2283,26 @@
 								"bh_unmatched_open",
 								"bh_unmatched_close",
 								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
@@ -1467,14 +2315,14 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 7530.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 12,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
-					"buffer": 13,
+					"buffer": 21,
 					"file": "/Users/alihanks/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/make_sector_plots.C",
 					"semi_transient": false,
 					"settings":
@@ -1495,61 +2343,61 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
 								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content"
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content"
 							],
 							"colorcode": true,
 							"syntax": "Packages/C++/C++.tmLanguage",
@@ -1560,11 +2408,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 21,
 					"type": "text"
 				},
 				{
-					"buffer": 14,
+					"buffer": 22,
 					"file": "/Users/alihanks/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/plot_functions.C",
 					"semi_transient": false,
 					"settings":
@@ -1585,61 +2433,61 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
 								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content"
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content"
 							],
 							"colorcode": true,
 							"syntax": "Packages/C++/C++.tmLanguage",
@@ -1650,7 +2498,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 14,
+					"stack_index": 22,
 					"type": "text"
 				}
 			]
@@ -1705,48 +2553,96 @@
 		"selected_items":
 		[
 			[
+				"make_comp",
+				"~/Dropbox/Phenix/Analysis/Work/photon-jet/dAu/make_comparison_plots.C"
+			],
+			[
+				"make_cf",
+				"macros/make_cfs.C"
+			],
+			[
+				"makedi",
+				"analysis/Correlation/MakeDir.C"
+			],
+			[
+				"makefile",
+				"analysis/Correlation/Makefile.am"
+			],
+			[
+				"",
+				"analysis/Correlation/MakeRgammaEff.C"
+			],
+			[
+				"makej",
+				"analysis/Correlation/MakeJFs.h"
+			],
+			[
+				"corr",
+				"AnalysisTrain/Correlation/Correlation.C"
+			],
+			[
+				"makecf",
+				"analysis/Correlation/MakeCFs.C"
+			],
+			[
+				"hij",
+				"hijing/hijing_analysis.C"
+			],
+			[
+				"apply",
+				"gammajet_exodus/src/ApplyEnergyResolution.cpp"
+			],
+			[
+				"appl",
+				"gammajet_exodus/src/ApplyEnergyResolution.cpp"
+			],
+			[
+				"apar",
+				"AnalysisTrain/Correlation/AParticle.h"
+			],
+			[
 				"makefi",
 				"AnalysisTrain/Correlation/Makefile.am"
+			],
+			[
+				"mak",
+				"analysis/Correlation/MakeJFs.C"
+			],
+			[
+				"api",
+				"AnalysisTrain/Correlation/APiZero.C"
+			],
+			[
+				"hiji",
+				"hijing/hijing_analysis.C"
+			],
+			[
+				"make_",
+				"macros/make_cfs.C"
+			],
+			[
+				"piz",
+				"AnalysisTrain/Correlation/APiZero.h"
+			],
+			[
+				"makedir",
+				"analysis/Correlation/MakeDir.h"
+			],
+			[
+				"makec",
+				"AnalysisTrain/Correlation/macros/make_cfs.C"
 			],
 			[
 				"amix",
 				"AnalysisTrain/Correlation/AMixingTree.C"
 			],
 			[
-				"makefile",
-				"AnalysisTrain/Correlation/Makefile.am"
-			],
-			[
-				"mak",
-				"hijing/Makefile.am"
-			],
-			[
-				"hij",
-				"hijing/hijing_analysis.h"
-			],
-			[
-				"corr",
-				"AnalysisTrain/Correlation/Correlation.h"
-			],
-			[
 				"correla",
 				"AnalysisTrain/Correlation/Correlation.C"
 			],
 			[
-				"",
-				"AnalysisTrain/Correlation/CorrelationFunctions.h"
-			],
-			[
 				"make_cfs",
 				"AnalysisTrain/Correlation/macros/make_cfs.C"
-			],
-			[
-				"makej",
-				"analysis/Correlation/MakeJFs.C"
-			],
-			[
-				"makecf",
-				"analysis/Correlation/MakeCFs.C"
 			],
 			[
 				"projec",

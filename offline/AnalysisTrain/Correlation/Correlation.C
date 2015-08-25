@@ -1065,21 +1065,23 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
       atree->SetTriggerData(api0.Pt(),api0.Phi(),api0.Eta(),api0.E(),((ACluster*)api0.Daughter1())->GetX(),((ACluster*)api0.Daughter1())->GetY(),((ACluster*)api0.Daughter1())->GetZ(),api0.IsIso(),pi0_vector.size()-1);
 
       if( verbosity > 1 ) cout << "Event " << evt << " - Added pi0 with isolation = " << pi0_vector.at(pi0_vector.size()-1)->IsIso() << endl;
+    }
+  }
+  for( unsigned int i = 0; i < pi0_vector.size(); i++)
+  {
+    h1_trig_pt_pi0[cbin]->Fill(pi0_vector[i]->Pt());
 
-      h1_trig_pt_pi0[cbin]->Fill(api0.Pt());
+    if( pi0_vector[i]->IsIso() )
+      h1_trig_pt_pi0_iso[cbin]->Fill(pi0_vector[i]->Pt());
+    h1_trig_pt_pi0_tot->Fill(pi0_vector[i]->Pt());
+    h2_ptvscent_trig_pi0->Fill(pi0_vector[i]->Pt(),cent);
 
-      if( api0.IsIso() )
-        h1_trig_pt_pi0_iso[cbin]->Fill(api0.Pt());
-      h1_trig_pt_pi0_tot->Fill(api0.Pt());
-      h2_ptvscent_trig_pi0->Fill(api0.Pt(),cent);
-
-      //dec trigger counting
-      for(int ipw=0; ipw<5; ipw++){
-        h1_trig_pt_dec[cbin]->Fill(ipw,mwweight[ipw]);
-        if( api0.IsIso() )
-          h1_trig_pt_dec_iso[cbin]->Fill(ipw,mwweight[ipw]);
-        h1_trig_pt_dec_tot->Fill(ipw,mwweight[ipw]);
-      }
+    //dec trigger counting
+    for(int ipw=0; ipw<5; ipw++){
+      h1_trig_pt_dec[cbin]->Fill(ipw,mwweight[ipw]);
+      if( pi0_vector[i]->IsIso() )
+        h1_trig_pt_dec_iso[cbin]->Fill(ipw,mwweight[ipw]);
+      h1_trig_pt_dec_tot->Fill(ipw,mwweight[ipw]);
     }
   }
 }
