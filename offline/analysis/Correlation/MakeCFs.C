@@ -232,7 +232,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 					SetPad(pad);
 					jet[ic][itrig][ipart]->Draw();
 					jet[ic][itrig][ipart]->Write();
-					jet[ic][itrig][ipart]->Write();
+					jet_err[ic][itrig][ipart]->Write();
 
 					legend_name.str("");
 					legend_name<<trig_pt[itrig]<<"-"<<trig_pt[itrig+1]<<" #times "<<part_pt[ipart]<<"-"<<part_pt[ipart+1]<<" GeV/c";
