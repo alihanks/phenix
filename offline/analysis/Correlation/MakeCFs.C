@@ -219,15 +219,19 @@ void MakeCFs::Run(int type, int ispertrigger)
 					if(type==0) jet[ic][itrig][ipart]->GetYaxis()->SetTitle("Y_{inc}");
 					if(type==1) jet[ic][itrig][ipart]->GetYaxis()->SetTitle("Y_{#pi^{0}}");
 					if(type==2) jet[ic][itrig][ipart]->GetYaxis()->SetTitle("Y_{dec}");
+					MakeJFs(type,ic,itrig,ipart,corr[ic][itrig][ipart],meanpart[ic][itrig][ipart],num_trigger_mix[ic][itrig],infile,"v2_inputs.root",5,3,flow[ic][itrig][ipart],jet_err[ic][itrig][ipart]);
 
 					double binwidth = jet[ic][itrig][ipart]->GetBinWidth(1);
 					cout<<"jet func binwidth: "<<binwidth<<endl;
 					jet[ic][itrig][ipart]->Scale(1/binwidth);
 					SetHisto(jet[ic][itrig][ipart],dphi_title,1);
 					jet[ic][itrig][ipart]->SetName(name.c_str());
+					name = "JFerr" + bin.str();
+					jet_err[ic][itrig][ipart]->SetName(name.c_str());
 					TVirtualPad* pad = can_jet[ic][itrig]->cd(ipart+1);
 					SetPad(pad);
 					jet[ic][itrig][ipart]->Draw();
+					jet[ic][itrig][ipart]->Write();
 					jet[ic][itrig][ipart]->Write();
 
 					legend_name.str("");
