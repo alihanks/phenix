@@ -43,6 +43,7 @@ private:
   TH1D* inc_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
   TH1D* dec_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
   TH1D* dir_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
+  TH1D* dir_jet_err[NCENTBIN][NTRIGBIN][NPARTBIN];
 };
 
 #endif

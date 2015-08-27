@@ -44,6 +44,22 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
       	dir_jet[ic][itrig][ipart]->Write();
       }
     }
+    for(int itrig=0; itrig<NTRIGBIN; itrig++){
+      for(int ipart=0; ipart<NPARTBIN; ipart++){
+        bin.str("");
+        bin << "JFerr_c"<<ic<<"_p"<<itrig<<"_h"<<ipart;
+        inc_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)fileinc->Get(bin.str().c_str()));
+        name = "INC_" + bin.str();
+        inc_jet[ic][itrig][ipart]->SetName(name.c_str());
+        dec_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)filedec->Get(bin.str().c_str()));
+        name = "DEC_" + bin.str();
+        dec_jet[ic][itrig][ipart]->SetName(name.c_str());
+        DoSubtraction(inc_jet[ic][itrig][ipart],dec_jet[ic][itrig][ipart],rgamma[ic][itrig]+rgamma_err[ic][itrig],dir_jet[ic][itrig][ipart]);
+        name = "DIRerr_" + bin.str();
+        dir_jet_err[ic][itrig][ipart]->SetName(name.c_str());
+        dir_jet_err[ic][itrig][ipart]->Write();
+      }
+    }
   }
 }
 
@@ -70,7 +86,7 @@ void MakeDir::SetRgamma(string Rgamma_input, int ic)
     if(trigpt_bin_mod==3) sep_eff = 0.900;
     rgamma[ic][ip] = 1/sep_eff*(rgamma[ic][ip] -1.0 +sep_eff);
 
-    rgamma_err[ic][ip] = rga_err[ip];
+    rgamma_err[ic][ip] = 1/sep_eff*(rga_err[ip] -1.0 +sep_eff);
   }
 
   bin.str("");
