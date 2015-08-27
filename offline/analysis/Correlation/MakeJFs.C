@@ -35,6 +35,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     inc_v2[centbin][trigbin] = 0;
     pi0_v2[centbin][trigbin] = 0;
     dec_v2[centbin][trigbin] = 0;
+    hadron_v2[centbin][partbin] = 0;
   }
   if(type==0) trigv2 = inc_v2[centbin][trigbin];
   if(type==1) trigv2 = pi0_v2[centbin][trigbin];
