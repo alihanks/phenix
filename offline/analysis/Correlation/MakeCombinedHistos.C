@@ -37,7 +37,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		TH1D* trigpt = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 
 		for(int itrig=0; itrig<NTRIGBIN; itrig++){
-			double ntriggers = GetNTriggers(trigpt,pt_range[itrig],pt_range[itrig+1]);
+			double ntriggers = GetNTrig(trigpt,pt_range[itrig],pt_range[itrig+1]);
 			ntrig_total[itrig] += ntriggers;
 			for(int ipart=0; ipart<NPARTBIN; ipart++){
 				bin.str("");
