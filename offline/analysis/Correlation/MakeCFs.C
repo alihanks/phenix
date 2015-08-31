@@ -20,7 +20,6 @@ using namespace std;
 
 MakeCFs::MakeCFs(const string fin, const string fout)
 {
-	cout<<"start"<<endl;
 	infile = new TFile(fin.c_str());
 	outfile = new TFile(fout.c_str(),"recreate");
 	SetTrigPtBinning();
