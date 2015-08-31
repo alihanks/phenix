@@ -28,7 +28,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 	string name;
 	TH1D* JFhisto[NTRIGBIN][NPARTBIN];
 	double pt_range[NTRIGBIN+1] = {5.0,7.0,9.0,12.0,15.0};
-	double ntrig_total[NTRIGBIN] = 0;
+	double ntrig_total[NTRIGBIN] = {0};
 
 	for(int ic=0; ic<NCENTBIN; ic++){
 		bin.str("");
