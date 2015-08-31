@@ -16,7 +16,7 @@ public:
   virtual ~MakeCombinedHistos(){};
 
 private:
-  double GetNTriggers(TH1D* trigpt, double trigptmin, double trigptmax);
+  double GetNTrig(TH1D* trigpt, double trigptmin, double trigptmax);
 };
 
 #endif

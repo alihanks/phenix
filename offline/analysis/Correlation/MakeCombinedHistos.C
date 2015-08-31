@@ -68,7 +68,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 	}
 }
 
-double MakeCFs::GetNTriggers(TH1D* trigpt, double trigptmin, double trigptmax)
+double MakeCFs::GetNTrig(TH1D* trigpt, double trigptmin, double trigptmax)
 {
 	double ntrig = 0;
 	for(int i = 0; i < trigpt->GetNbinsX(); i++)
