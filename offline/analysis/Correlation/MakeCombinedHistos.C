@@ -51,12 +51,12 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 					bin.str("");
 					bin << "_p" << itrig << "_h" << ipart;
 					name = "JF" + bin.str();
-					JFhisto[itrig][ipart]->SetName(name.str().c_str());
+					JFhisto[itrig][ipart]->SetName(name.c_str());
 				}
 				else {
 					JFhisto[itrig][ipart]->Add(temp);
 				}
-				if(ic==(NCENTBIN-1)) JFhisto[itrig][ipart]->Scale(1/ntrig_total);
+				if(ic==(NCENTBIN-1)) JFhisto[itrig][ipart]->Scale(1/ntrig_total[itrig]);
 			}
 		}
 	}
