@@ -13,7 +13,7 @@ class MakeCombinedHistos
 {
 public:
   MakeCombinedHistos(const std::string fin, const std::string fout);
-  virtual ~MakeCFs(){};
+  virtual ~MakeCombinedHistos(){};
 
 private:
   double GetNTriggers(TH1D* trigpt, double trigptmin, double trigptmax);

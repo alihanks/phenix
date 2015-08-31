@@ -18,7 +18,7 @@
 
 using namespace std;
 
-MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout)
+MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, const string trig_name)
 {
 	TFile* infile = new TFile(fin.c_str());
 	TFile* outfile = new TFile(fout.c_str(),"recreate");
