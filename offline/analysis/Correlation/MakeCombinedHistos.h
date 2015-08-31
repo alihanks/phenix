@@ -1,7 +1,6 @@
 #ifndef __MAKECOMBINEDHISTOS_H__
 #define __MAKECOMBINEDHISTOS_H__
 
-#include <TMath.h>
 #include <string>
 #include <sstream>
 #include <iostream>

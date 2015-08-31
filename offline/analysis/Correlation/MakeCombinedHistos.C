@@ -19,8 +19,8 @@ using namespace std;
 
 MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout)
 {
-	infile = new TFile(fin.c_str());
-	outfile = new TFile(fout.c_str(),"recreate");
+	TFile* infile = new TFile(fin.c_str());
+	TFile* outfile = new TFile(fout.c_str(),"recreate");
 
 	cout<<"start"<<endl;
 	ostringstream bin;
