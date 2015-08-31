@@ -1,5 +1,6 @@
-#include "MakeCFs.h"
-#include "MakeJFs.h"
+#include <MakeCombinedHistos.h>
+#include <MakeCFs.h>
+#include <MakeJFs.h>
 
 #include <TFile.h>
 #include <TH1.h>
