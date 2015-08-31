@@ -6,5 +6,6 @@
 
 #pragma link C++ class MakeCFs+;
 #pragma link C++ class MakeJFs+;
+#pragma link C++ class MakeCombinedHistos+;
 #pragma link C++ class MakeDir+;
 #endif /* __CINT__ */
