@@ -199,7 +199,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     fcent->Close();
   }
   else if (useMSMP==2||useMSMP==3) {
-    int lbin = CFinc->FindBin(1.0);
+    int lbin = CFinc->FindBin(1.1);
     int hbin = CFinc->FindBin(1.5);
     norm = CFinc->Integral(lbin,hbin);
     norm = norm/((double)(hbin-lbin+1));
