@@ -1,4 +1,4 @@
-void make_cfs(int type = 0, int isiso = 0, const char* fin = "dAu_merged.root", const char* fout = "test_jf.root")
+void make_combined(int type = 0, int isiso = 0, const char* fin = "dAu_merged.root", const char* fout = "test_jf.root")
 {
   gSystem->Load("libCorrelationPlots.so");
 

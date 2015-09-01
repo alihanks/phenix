@@ -77,7 +77,6 @@ void MakeCFs::Run(int type, int ispertrigger)
 			}
 		}
 		if(type == 2){
-			cout<<"1";
 			for(int ippt=0; ippt<4; ippt++){
 				bin.str("");
 				if(ippt<3) bin <<"_p"<<ippt<<"_c"<<ic;	   
@@ -88,7 +87,6 @@ void MakeCFs::Run(int type, int ispertrigger)
 
 				temp2D = new TH2D(*(TH2D*)infile->Get(name.c_str()));
 				temp2D_mix = new TH2D(*(TH2D*)infile->Get(name_mix.c_str()));
-				cout<<"2";
 				for(int ihpt=0; ihpt < NPARTBIN; ihpt++){  
 					dphi_2d[ic][ippt][ihpt] = new TH2D(*(TH2D*)temp2D);
 					dphi_2d_mix[ic][ippt][ihpt] = new TH2D(*(TH2D*)temp2D_mix);
@@ -97,7 +95,6 @@ void MakeCFs::Run(int type, int ispertrigger)
 					name = "h1_dphi_c" + bin.str();
 					name_mix = "h1_dphi_mix_c" + bin.str();
 
-					cout<<"3";
 					int ymin = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
 					int ymax = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
 					dphi_1d[ic][ippt][ihpt] = new TH1D (*(TH1D*)dphi_2d[ic][ippt][ihpt]->ProjectionX(name.c_str(),ymin,ymax));
@@ -110,13 +107,11 @@ void MakeCFs::Run(int type, int ispertrigger)
 						dphi_1d_mix[ic][ippt][ihpt]->Scale(1/100.0);
 						meanpart[ic][ippt][ihpt] = dphi_1d_mix[ic][ippt][ihpt]->Integral();
 					}
-					cout<<"4";
 				}
 			}
 		}
 	}
 
-	cout<<"5";
 	for(int ic=0; ic<NCENTBIN; ic++){
 		for(int ippt=0; ippt<NTRIGBIN; ippt++){
 			can_dphi_name.str("");
@@ -201,6 +196,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 			can_dphi[ic][ippt]->Write();
 			can_corr[ic][ippt]->Write();
 		}
+		h1_trigpt[ic]->Write();
 	}
 
 	if(ispertrigger){
