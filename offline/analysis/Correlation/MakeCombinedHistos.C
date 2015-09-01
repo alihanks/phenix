@@ -35,6 +35,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		bin << "_c" << ic;
 		name = trig_name + bin.str();
 		TH1D* trigpt = new TH1D(*(TH1D*)infile->Get(name.c_str()));
+		cout << "getting trigger histo: " << name << endl;
 
 		for(int itrig=0; itrig<NTRIGBIN; itrig++){
 			double ntriggers = GetNTrig(trigpt,pt_range[itrig],pt_range[itrig+1]);
@@ -43,6 +44,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 				bin.str("");
 				bin << "_c" << ic <<"_p"<<itrig<<"_h"<<ipart;
 				name = "JF" + bin.str();
+				cout << "merging histo: " << name << " with other centralities" << endl;
 				TH1D* temp = (TH1D*)infile->Get(name.c_str());
 				temp->Scale(ntriggers);
 
