@@ -27,6 +27,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 	ostringstream bin;
 	string name;
 	TH1D* JFhisto[NTRIGBIN][NPARTBIN];
+	TH1D* JFerr[NTRIGBIN][NPARTBIN];
 	double pt_range[NTRIGBIN+1] = {5.0,7.0,9.0,12.0,15.0};
 	double ntrig_total[NTRIGBIN] = {0};
 
@@ -44,9 +45,14 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 				bin.str("");
 				bin << "_c" << ic <<"_p"<<itrig<<"_h"<<ipart;
 				name = "JF" + bin.str();
-				cout << "merging histo: " << name << " with other centralities" << endl;
 				TH1D* temp = (TH1D*)infile->Get(name.c_str());
 				temp->Scale(ntriggers);
+
+				bin.str("");
+				bin << "_c" << ic <<"_p"<<itrig<<"_h"<<ipart;
+				name = "JFerr" + bin.str();
+				TH1D* tempe = (TH1D*)infile->Get(name.c_str());
+				tempe->Scale(ntriggers);
 
 				if(ic==0) {
 					JFhisto[itrig][ipart] = new TH1D(*temp);
@@ -54,11 +60,19 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 					bin << "_p" << itrig << "_h" << ipart;
 					name = "JF" + bin.str();
 					JFhisto[itrig][ipart]->SetName(name.c_str());
+
+					JFerr[itrig][ipart] = new TH1D(*tempe);
+					bin.str("");
+					bin << "_p" << itrig << "_h" << ipart;
+					name = "JFerr" + bin.str();
+					JFerr[itrig][ipart]->SetName(name.c_str());
 				}
 				else {
 					JFhisto[itrig][ipart]->Add(temp);
+					JFerr[itrig][ipart]->Add(tempe);
 				}
 				if(ic==(NCENTBIN-1)) JFhisto[itrig][ipart]->Scale(1/ntrig_total[itrig]);
+				if(ic==(NCENTBIN-1)) JFerr[itrig][ipart]->Scale(1/ntrig_total[itrig]);
 			}
 		}
 	}
@@ -66,6 +80,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 	for(int itrig=0; itrig<NTRIGBIN; itrig++) {
 		for(int ipart=0; ipart<NPARTBIN; ipart++) {
 			JFhisto[itrig][ipart]->Write();
+			JFerr[itrig][ipart]->Write();
 		}
 	}
 }
