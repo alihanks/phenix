@@ -19,46 +19,54 @@
 
 using namespace std;
 
-MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec, const string fout)
+MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec, const string fout, int ic)
 {
   fileinc = new TFile (finc.c_str());
   filedec = new TFile (fdec.c_str());
   fileout = new TFile (fout.c_str(),"recreate");
 
-  for(int ic=0; ic<NCENTBIN; ic++){
-    SetRgamma(Rgamma_input,ic);
-    fileout->cd();
-    for(int itrig=0; itrig<NTRIGBIN; itrig++){
-      for(int ipart=0; ipart<NPARTBIN; ipart++){
-      	bin.str("");
-      	bin << "JF_c"<<ic<<"_p"<<itrig<<"_h"<<ipart;
-      	inc_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)fileinc->Get(bin.str().c_str()));
-      	name = "INC_" + bin.str();
-      	inc_jet[ic][itrig][ipart]->SetName(name.c_str());
-      	dec_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)filedec->Get(bin.str().c_str()));
-      	name = "DEC_" + bin.str();
-      	dec_jet[ic][itrig][ipart]->SetName(name.c_str());
-      	DoSubtraction(inc_jet[ic][itrig][ipart],dec_jet[ic][itrig][ipart],rgamma[ic][itrig],dir_jet[ic][itrig][ipart]);
-      	name = "DIR_" + bin.str();
-      	dir_jet[ic][itrig][ipart]->SetName(name.c_str());
-      	dir_jet[ic][itrig][ipart]->Write();
-      }
+  ostringstream prefix, prefix_err;
+  if( ic < 0 ) {
+    prefix << "JF";
+    prefix_err << "JFerr";
+    ic = 0;
+  }
+  else {
+    prefix << "JF_c" << ic;
+    prefix_err << "JFerr_c" << ic;
+  }
+  SetRgamma(Rgamma_input,ic);
+  fileout->cd();
+  for(int itrig=0; itrig<NTRIGBIN; itrig++){
+    for(int ipart=0; ipart<NPARTBIN; ipart++){
+    	bin.str("");
+    	bin << prefix.str()<<"_p"<<itrig<<"_h"<<ipart;
+    	inc_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)fileinc->Get(bin.str().c_str()));
+    	name = "INC_" + bin.str();
+    	inc_jet[ic][itrig][ipart]->SetName(name.c_str());
+    	dec_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)filedec->Get(bin.str().c_str()));
+    	name = "DEC_" + bin.str();
+    	dec_jet[ic][itrig][ipart]->SetName(name.c_str());
+    	DoSubtraction(inc_jet[ic][itrig][ipart],dec_jet[ic][itrig][ipart],rgamma[ic][itrig],dir_jet[ic][itrig][ipart]);
+    	name = "DIR_" + bin.str();
+    	dir_jet[ic][itrig][ipart]->SetName(name.c_str());
+    	dir_jet[ic][itrig][ipart]->Write();
     }
-    for(int itrig=0; itrig<NTRIGBIN; itrig++){
-      for(int ipart=0; ipart<NPARTBIN; ipart++){
-        bin.str("");
-        bin << "JFerr_c"<<ic<<"_p"<<itrig<<"_h"<<ipart;
-        inc_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)fileinc->Get(bin.str().c_str()));
-        name = "INC_" + bin.str();
-        inc_jet[ic][itrig][ipart]->SetName(name.c_str());
-        dec_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)filedec->Get(bin.str().c_str()));
-        name = "DEC_" + bin.str();
-        dec_jet[ic][itrig][ipart]->SetName(name.c_str());
-        DoSubtraction(inc_jet[ic][itrig][ipart],dec_jet[ic][itrig][ipart],rgamma[ic][itrig]+rgamma_err[ic][itrig],dir_jet_err[ic][itrig][ipart]);
-        name = "DIRerr_" + bin.str();
-        dir_jet_err[ic][itrig][ipart]->SetName(name.c_str());
-        dir_jet_err[ic][itrig][ipart]->Write();
-      }
+  }
+  for(int itrig=0; itrig<NTRIGBIN; itrig++){
+    for(int ipart=0; ipart<NPARTBIN; ipart++){
+      bin.str("");
+      bin << prefix.str()<<"_p"<<itrig<<"_h"<<ipart;
+      inc_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)fileinc->Get(bin.str().c_str()));
+      name = "INC_" + bin.str();
+      inc_jet[ic][itrig][ipart]->SetName(name.c_str());
+      dec_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)filedec->Get(bin.str().c_str()));
+      name = "DEC_" + bin.str();
+      dec_jet[ic][itrig][ipart]->SetName(name.c_str());
+      DoSubtraction(inc_jet[ic][itrig][ipart],dec_jet[ic][itrig][ipart],rgamma[ic][itrig]+rgamma_err[ic][itrig],dir_jet_err[ic][itrig][ipart]);
+      name = "DIRerr_" + bin.str();
+      dir_jet_err[ic][itrig][ipart]->SetName(name.c_str());
+      dir_jet_err[ic][itrig][ipart]->Write();
     }
   }
 }

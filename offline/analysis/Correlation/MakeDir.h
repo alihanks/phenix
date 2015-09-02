@@ -19,7 +19,7 @@ class TLatex;
 class MakeDir
 {
 public:
-  MakeDir(const std::string Rgamma_input, const std::string finc, const std::string fdec, const std::string fout);
+  MakeDir(const std::string Rgamma_input, const std::string finc, const std::string fdec, const std::string fout, int ic);
   virtual ~MakeDir(){};
 
   void SetRgamma(const std::string Rgamma_input, int ic);
