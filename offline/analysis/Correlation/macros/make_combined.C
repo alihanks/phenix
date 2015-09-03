@@ -17,6 +17,6 @@ void make_combined(int type = 0, int isiso = 0, const char* fin = "dAu_merged.ro
   	trig_name << "_iso";
   }
 
-  MakeCombinedHistos* combine = new MakeCombinedHistos(fin,fout,trig_name.str());
+  MakeCombinedHistos* combine = new MakeCombinedHistos(fin,fout,trig_name.str(),type);
   cout<<"finished combining JFs for type "<<type<<endl;
 }
