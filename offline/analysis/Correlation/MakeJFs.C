@@ -217,7 +217,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     norm_err = sqrt(norm_err);
     cout << "ZYAM norm err = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin << ") = " << norm_err << endl;
     for( int ib=1; ib<=CFflowZYAM->GetNbinsX(); ib++){
-      CFflowZYAM->SetBinError(ib,norm_err);
+      CFflowZYAM->SetBinContent(ib,CFflowZYAM->GetBinContent(ib)+norm_err);
     }
   }
 
