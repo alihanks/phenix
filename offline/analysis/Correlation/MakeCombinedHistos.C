@@ -91,12 +91,16 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		for(int ipart=0; ipart<NPARTBIN; ipart++) {
 			ostringstream cname;
 			cname << "JF_comb_p" << i << "_h" << ipart;
-			CombinePtBins(JFhisto[i][ipart],JFhisto[i+1][ipart],JFhisto_combined[i][ipart],cname.str());
+			JFhisto_combined[i][ipart] = new TH1D(*JFhisto[i][ipart]);
+			JFhisto_combined[i][ipart]->SetName(cname.str().c_str());
+			CombinePtBins(JFhisto[i][ipart],JFhisto[i+1][ipart],JFhisto_combined[i][ipart]);
 			JFhisto_combined[i][ipart]->Write();
 			cname.str("");
 			cname << "JFerr_comb_p" << i << "_h" << ipart;
-			CombinePtBins(JFerr[i][ipart],JFerr[i+1][ipart],JFerr_combined[i][ipart],cname.str());
-			JFhisto_combined[i][ipart]->Write();
+			JFerr_combined[i][ipart] = new TH1D(*JFhisto[i][ipart]);
+			JFerr_combined[i][ipart]->SetName(cname.str().c_str());
+			CombinePtBins(JFerr[i][ipart],JFerr[i+1][ipart],JFerr_combined[i][ipart]);
+			JFerr_combined[i][ipart]->Write();
 		}
 	}
 	for(int itrig=0; itrig<NTRIGBIN; itrig++) {
@@ -107,10 +111,8 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 	}
 }
 
-void MakeCombinedHistos::CombinePtBins(TH1D* h1, TH1D* h2, TH1D* combined, string name)
+void MakeCombinedHistos::CombinePtBins(TH1D* h1, TH1D* h2, TH1D* combined)
 {
-	combined = new TH1D(*h1);
-	combined->SetName(name.c_str());
 	for( int ib = 1; ib <= h1->GetNbinsX(); ib++ ) {
 		double yield1 = h1->GetBinContent(ib);
 		double err1 = h1->GetBinError(ib);
