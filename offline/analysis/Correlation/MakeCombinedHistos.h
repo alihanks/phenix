@@ -17,6 +17,7 @@ public:
 
 private:
   double GetNTrig(TH1D* trigpt, double trigptmin, double trigptmax);
+  void CombinePtBins(TH1D* h1, TH1D* h2, TH1D* combined, std::string name);
 };
 
 #endif

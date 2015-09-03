@@ -28,6 +28,8 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 	string name;
 	TH1D* JFhisto[NTRIGBIN][NPARTBIN];
 	TH1D* JFerr[NTRIGBIN][NPARTBIN];
+	TH1D* JFhisto_combined[2][NPARTBIN];
+	TH1D* JFerr_combined[2][NPARTBIN];
 	double pt_range[NTRIGBIN+1] = {5.0,7.0,9.0,12.0,15.0};
 	double ntrig_total[NTRIGBIN] = {0};
 
@@ -85,11 +87,41 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		}
 	}
 	outfile->cd();
+	for( int i=0; i<2; i++) {
+		for(int ipart=0; ipart<NPARTBIN; ipart++) {
+			ostringstream cname;
+			cname << "JF_comb_p" << i << "_h" << ipart;
+			CombinePtBins(JFhisto[i][ipart],JFhisto[i+1][ipart],JFhisto_combined[i][ipart],cname.str());
+			JFhisto_combined[i][ipart]->Write();
+			cname.str("");
+			cname << "JFerr_comb_p" << i << "_h" << ipart;
+			CombinePtBins(JFerr[i][ipart],JFerr[i+1][ipart],JFerr_combined[i][ipart],cname.str());
+			JFhisto_combined[i][ipart]->Write();
+		}
+	}
 	for(int itrig=0; itrig<NTRIGBIN; itrig++) {
 		for(int ipart=0; ipart<NPARTBIN; ipart++) {
 			JFhisto[itrig][ipart]->Write();
 			JFerr[itrig][ipart]->Write();
 		}
+	}
+}
+
+void MakeCombinedHistos::CombinePtBins(TH1D* h1, TH1D* h2, TH1D* combined, string name)
+{
+	combined = new TH1D(*h1);
+	combined->SetName(name.c_str());
+	for( int ib = 1; ib <= h1->GetNbinsX(); ib++ ) {
+		double yield1 = h1->GetBinContent(ib);
+		double err1 = h1->GetBinError(ib);
+		double yield2 = h2->GetBinContent(ib);
+		double err2 = h2->GetBinError(ib);
+
+		double err = sqrt(err1*err1 + err2*err2);
+		double yield = (yield1/(err1*err1) + yield2/(err2*err2))*err*err; // weighted sum to account for pT dependent statistical uncertainties
+
+		combined->SetBinContent(ib,yield);
+		combined->SetBinError(ib,err);
 	}
 }
 
