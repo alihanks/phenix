@@ -208,7 +208,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   CFflowZYAM->Scale(norm);
 
   if(useMSMP==3) {
-    int lbin = CFinc->FindBin(1.0);
+    int lbin = CFinc->FindBin(1.1);
     int hbin = CFinc->FindBin(1.5);
     double norm_err = 0;
     for( int ib = lbin; ib <= hbin; ib++){
