@@ -12,7 +12,7 @@ class TFile;
 class MakeCombinedHistos
 {
 public:
-  MakeCombinedHistos(const std::string fin, const std::string fout, const std::string trig_name);
+  MakeCombinedHistos(const std::string fin, const std::string fout, const std::string trig_name, int type);
   virtual ~MakeCombinedHistos(){};
 
 private:

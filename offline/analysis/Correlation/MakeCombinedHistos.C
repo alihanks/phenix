@@ -18,7 +18,7 @@
 
 using namespace std;
 
-MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, const string trig_name)
+MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, const string trig_name, int type)
 {
 	TFile* infile = new TFile(fin.c_str());
 	TFile* outfile = new TFile(fout.c_str(),"recreate");
@@ -40,6 +40,14 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 
 		for(int itrig=0; itrig<NTRIGBIN; itrig++){
 			double ntriggers = GetNTrig(trigpt,pt_range[itrig],pt_range[itrig+1]);
+			if(type == 2) {
+				if(itrig<3){
+					ntriggers = trigpt->GetBinContent(itrig+1);
+				}
+				else{
+					ntriggers = trigpt->GetBinContent(itrig+2);
+				}
+			}
 			ntrig_total[itrig] += ntriggers;
 			for(int ipart=0; ipart<NPARTBIN; ipart++){
 				bin.str("");
