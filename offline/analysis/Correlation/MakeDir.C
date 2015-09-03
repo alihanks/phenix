@@ -73,6 +73,44 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
       dir_jet_err[ic][itrig][ipart]->Write();
     }
   }
+  for( int i=0; i<2; i++) {
+    for(int ipart=0; ipart<NPARTBIN; ipart++) {
+      ostringstream cname;
+      cname << "DIR_JF_comb_p" << i << "_h" << ipart;
+      TH1D* temp = new TH1D(*dir_jet[ic][i][ipart]);
+      temp->SetName(cname.str().c_str());
+      CombinePtBins(dir_jet[ic][i][ipart],dir_jet[ic][i+1][ipart],temp);
+      temp->Write();
+      cname.str("");
+      cname << "DIR_JFerr_comb_p" << i << "_h" << ipart;
+      temp = new TH1D(*dir_jet_err[ic][i][ipart]);
+      temp->SetName(cname.str().c_str());
+      CombinePtBins(dir_jet_err[ic][i][ipart],dir_jet_err[ic][i+1][ipart],temp);
+      temp->Write();
+      cname.str("");
+      cname << "DIRerr_JF_comb_p" << i << "_h" << ipart;
+      temp = new TH1D(*dir_sub_err[ic][i][ipart]);
+      temp->SetName(cname.str().c_str());
+      CombinePtBins(dir_sub_err[ic][i][ipart],dir_sub_err[ic][i+1][ipart],temp);
+      temp->Write();
+    }
+  }
+}
+
+void MakeDir::CombinePtBins(TH1D* h1, TH1D* h2, TH1D* combined)
+{
+  for( int ib = 1; ib <= h1->GetNbinsX(); ib++ ) {
+    double yield1 = h1->GetBinContent(ib);
+    double err1 = h1->GetBinError(ib);
+    double yield2 = h2->GetBinContent(ib);
+    double err2 = h2->GetBinError(ib);
+
+    double err = sqrt(err1*err1 + err2*err2);
+    double yield = (yield1/(err1*err1) + yield2/(err2*err2))*err*err; // weighted sum to account for pT dependent statistical uncertainties
+
+    combined->SetBinContent(ib,yield);
+    combined->SetBinError(ib,err);
+  }
 }
 
 void MakeDir::SetRgamma(string Rgamma_input, int ic)

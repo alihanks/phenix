@@ -24,6 +24,7 @@ public:
 
   void SetRgamma(const std::string Rgamma_input, int ic);
   void DoSubtraction(TH1D* incjet, TH1D* decjet, double Rgamma, TH1D*& dirjet);
+  void CombinePtBins(TH1D* h1, TH1D* h2, TH1D* combined);
 
 private:
   std::ostringstream bin;
