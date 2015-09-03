@@ -106,20 +106,20 @@ void MakeDir::CombinePtBins(TH1D* h1, TH1D* h2, TH1D* combined)
     double yield2 = h2->GetBinContent(ib);
 
     if( err1 > 0 ) 
-      yield1 = yield1/(err1*err1);
+      yield1 = yield1*(err1*err1);
     else {
       yield1 = 0;
-      cout << "no content in first of bin" << ib << "!" << endl;
     }
     if( err2 > 0 )
-      yield2 = yield2/(err2*err2);
+      yield2 = yield2*(err2*err2);
     else {
       yield2 = 0;
-      cout << "no content in second of bin" << ib << "!" << endl;
     }
 
     double err = sqrt(err1*err1 + err2*err2);
-    double yield = (yield1 + yield2)*err*err; // weighted sum to account for pT dependent statistical uncertainties
+    double yield = (yield1 + yield2);
+    if( err > 0 ) yield = yield/(err*err); // weighted sum to account for pT dependent statistical uncertainties
+    else yield = 0;
 
     combined->SetBinContent(ib,yield);
     combined->SetBinError(ib,err);
