@@ -56,7 +56,7 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
   for(int itrig=0; itrig<NTRIGBIN; itrig++){
     for(int ipart=0; ipart<NPARTBIN; ipart++){
       bin.str("");
-      bin << prefix.str()<<"_p"<<itrig<<"_h"<<ipart;
+      bin << prefix_err.str()<<"_p"<<itrig<<"_h"<<ipart;
       inc_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)fileinc->Get(bin.str().c_str()));
       name = "INC_" + bin.str();
       inc_jet[ic][itrig][ipart]->SetName(name.c_str());
