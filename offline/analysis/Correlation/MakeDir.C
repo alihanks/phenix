@@ -51,6 +51,10 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
     	name = "DIR_" + bin.str();
     	dir_jet[ic][itrig][ipart]->SetName(name.c_str());
     	dir_jet[ic][itrig][ipart]->Write();
+      DoSubtraction(inc_jet[ic][itrig][ipart],dec_jet[ic][itrig][ipart],rgamma[ic][itrig]+rgamma_err[ic][itrig],dir_jet_err[ic][itrig][ipart]);
+      name = "DIRerr_" + bin.str();
+      dir_sub_err[ic][itrig][ipart]->SetName(name.c_str());
+      dir_sub_err[ic][itrig][ipart]->Write();
     }
   }
   for(int itrig=0; itrig<NTRIGBIN; itrig++){
@@ -63,8 +67,8 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
       dec_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)filedec->Get(bin.str().c_str()));
       name = "DEC_" + bin.str();
       dec_jet[ic][itrig][ipart]->SetName(name.c_str());
-      DoSubtraction(inc_jet[ic][itrig][ipart],dec_jet[ic][itrig][ipart],rgamma[ic][itrig]+rgamma_err[ic][itrig],dir_jet_err[ic][itrig][ipart]);
-      name = "DIRerr_" + bin.str();
+      DoSubtraction(inc_jet[ic][itrig][ipart],dec_jet[ic][itrig][ipart],rgamma[ic][itrig],dir_jet_err[ic][itrig][ipart]);
+      name = "DIR_" + bin.str();
       dir_jet_err[ic][itrig][ipart]->SetName(name.c_str());
       dir_jet_err[ic][itrig][ipart]->Write();
     }
