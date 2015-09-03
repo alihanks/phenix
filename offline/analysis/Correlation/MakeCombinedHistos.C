@@ -114,13 +114,26 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 void MakeCombinedHistos::CombinePtBins(TH1D* h1, TH1D* h2, TH1D* combined)
 {
 	for( int ib = 1; ib <= h1->GetNbinsX(); ib++ ) {
-		double yield1 = h1->GetBinContent(ib);
 		double err1 = h1->GetBinError(ib);
-		double yield2 = h2->GetBinContent(ib);
 		double err2 = h2->GetBinError(ib);
+		double yield1 = h1->GetBinContent(ib);
+		double yield2 = h2->GetBinContent(ib);
+
+		if( err1 > 0 ) 
+			yield1 = yield1/(err1*err1);
+		else {
+			yield1 = 0;
+			cout << "no content in first of bin" << ib << "!" << endl;
+		}
+		if( err2 > 0 )
+			yield2 = yield2/(err2*err2);
+		else {
+			yield2 = 0;
+			cout << "no content in second of bin" << ib << "!" << endl;
+		}
 
 		double err = sqrt(err1*err1 + err2*err2);
-		double yield = (yield1/(err1*err1) + yield2/(err2*err2))*err*err; // weighted sum to account for pT dependent statistical uncertainties
+		double yield = (yield1 + yield2)*err*err; // weighted sum to account for pT dependent statistical uncertainties
 
 		combined->SetBinContent(ib,yield);
 		combined->SetBinError(ib,err);
