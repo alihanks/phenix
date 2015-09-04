@@ -28,7 +28,6 @@ MakeCFs::MakeCFs(const string fin, const string fout)
 void MakeCFs::Run(int type, int ispertrigger)
 {
 	cout<<"start"<<endl;
-	outfile->cd();
 	TH1D* h1_trigpt[NCENTBIN];
 	TH1D* h1_partpt[NCENTBIN];
 	double hadron_eff[NCENTBIN][NPARTBIN];
@@ -51,6 +50,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 		}
 	}
 
+	outfile->cd();
 	string dphi_title = ";#Delta#phi[rad]      ";
 	cout<<"using folded histos."<<endl;
 	for(int ic=0; ic < NCENTBIN; ic++){
