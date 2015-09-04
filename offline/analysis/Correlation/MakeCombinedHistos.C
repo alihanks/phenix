@@ -41,7 +41,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		name = trig_name + bin.str();
 		TH1D* trigpt = (TH1D*)infile->Get(name.c_str());
 		cout << "getting trigger histo: " << name << endl;
-		name = "h1_partpt" + bin.str();
+		name = "h1_part_pt" + bin.str();
 		TH1D* partpt = (TH1D*)infile->Get(name.c_str());
 		if(ic==0) {
 			hTrigPt = new TH1D(*trigpt);
@@ -105,7 +105,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		hTrigPt->Write();
 		hPartPt->Write();
 	}
-	
+
 	for( int i=0; i<2; i++) {
 		for(int ipart=0; ipart<NPARTBIN; ipart++) {
 			ostringstream cname;
