@@ -17,7 +17,6 @@
 
 using namespace std;
 
-
 MakeCFs::MakeCFs(const string fin, const string fout)
 {
 	infile = new TFile(fin.c_str());
@@ -31,6 +30,8 @@ void MakeCFs::Run(int type, int ispertrigger)
 	cout<<"start"<<endl;
 	outfile->cd();
 	TH1D* h1_trigpt[NCENTBIN];
+	TH1D* h1_partpt[NCENTBIN];
+	double hadron_eff[NCENTBIN][NPARTBIN];
 
 	for(int ic=0; ic<NCENTBIN; ic++){
 		bin.str("");
@@ -38,6 +39,14 @@ void MakeCFs::Run(int type, int ispertrigger)
 		name = trig_name + bin.str();
 		cout << "getting trig histo: " << name << endl;
 		h1_trigpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
+		name = "h1_part_pt" + bin.str();
+		h1_partpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
+		name = "/phenix/u/workarea/ahanks/gitrepo/offline/analysis/Correlation/macros/hadron_eff/chhadron_eff_dAu_C" + to_string(0) + ".root";
+		TFile* feff = new TFile(name.c_str());
+		TH1D* heff = (TH1D*)feff->Get("heff2");
+		for( int i = 0; i < NPARTBIN; i++ ) {
+			hadron_eff[ic][i] = heff->GetBinContent(i+1);
+		}
 	}
 
 	string dphi_title = ";#Delta#phi[rad]      ";
@@ -197,13 +206,14 @@ void MakeCFs::Run(int type, int ispertrigger)
 			can_corr[ic][ippt]->Write();
 		}
 		h1_trigpt[ic]->Write();
+		h1_partpt[ic]->Write();
 	}
 
 	if(ispertrigger){
 	    //make JFs.
 		for(int ic=0; ic<NCENTBIN; ic++){
-			for(int itrig=0; itrig<4; itrig++){
-				for(int ipart=0; ipart<5; ipart++){
+			for(int itrig=0; itrig<NTRIGBIN; itrig++){
+				for(int ipart=0; ipart<NPARTBIN; ipart++){
 					MakeJFs(type,ic,itrig,ipart,corr[ic][itrig][ipart],meanpart[ic][itrig][ipart],num_trigger_mix[ic][itrig],infile,"v2_inputs.root",5,ispertrigger,flow[ic][itrig][ipart],jet[ic][itrig][ipart]);
 					bin.str("");
 					bin << "_c" << ic <<"_p"<<itrig<<"_h"<<ipart;
@@ -219,6 +229,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 					double binwidth = jet[ic][itrig][ipart]->GetBinWidth(1);
 					cout<<"jet func binwidth: "<<binwidth<<endl;
 					jet[ic][itrig][ipart]->Scale(1/binwidth);
+					jet[ic][itrig][ipart]->Scale(1/hadron_eff[ic][ipart]);
 					SetHisto(jet[ic][itrig][ipart],dphi_title,1);
 					jet[ic][itrig][ipart]->SetName(name.c_str());
 					name = "JFerr" + bin.str();

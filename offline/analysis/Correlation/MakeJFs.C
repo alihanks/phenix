@@ -212,9 +212,9 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     int hbin = CFinc->FindBin(1.5);
     double norm_err = 0;
     for( int ib = lbin; ib <= hbin; ib++){
-      norm_err = CFinc->GetBinError(ib)*CFinc->GetBinError(ib);
+      norm_err += CFinc->GetBinError(ib)*CFinc->GetBinError(ib);
     }
-    norm_err = sqrt(norm_err);
+    norm_err = sqrt(norm_err)/((double)hbin-lbin+1);
     cout << "ZYAM norm err = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin << ") = " << norm_err << endl;
     for( int ib=1; ib<=CFflowZYAM->GetNbinsX(); ib++){
       CFflowZYAM->SetBinContent(ib,CFflowZYAM->GetBinContent(ib)+norm_err);
