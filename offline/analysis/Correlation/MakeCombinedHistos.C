@@ -43,6 +43,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		cout << "getting trigger histo: " << name << endl;
 		name = "h1_part_pt" + bin.str();
 		TH1D* partpt = (TH1D*)infile->Get(name.c_str());
+		cout << "getting partner histo: " << name << endl;
 		if(ic==0) {
 			hTrigPt = new TH1D(*trigpt);
 			hTrigPt->SetName("h1_trigpt");
@@ -55,7 +56,8 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		}
 
 		for(int itrig=0; itrig<NTRIGBIN; itrig++){
-			double ntriggers = GetNTrig(trigpt,pt_range[itrig],pt_range[itrig+1]);
+			double ntriggers = 0;
+			if( type != 2 ) GetNTrig(trigpt,pt_range[itrig],pt_range[itrig+1]);
 			if(type == 2) {
 				if(itrig<3){
 					ntriggers = trigpt->GetBinContent(itrig+1);
