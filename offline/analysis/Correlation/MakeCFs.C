@@ -42,7 +42,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 		name = "h1_part_pt" + bin.str();
 		h1_partpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 		bin.str("");
-		bin << "_C" << ic:
+		bin << "_C" << ic;
 		name = "/phenix/u/workarea/ahanks/gitrepo/offline/analysis/Correlation/macros/hadron_eff/chhadron_eff_dAu_C" + bin.str() + ".root";
 		TFile* feff = new TFile(name.c_str());
 		TH1D* heff = (TH1D*)feff->Get("heff2");
