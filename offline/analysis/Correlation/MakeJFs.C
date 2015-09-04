@@ -205,19 +205,16 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     norm = norm/((double)(hbin-lbin+1));
     cout << "ZYAM norm = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin << ") = " << norm << endl;
   }
-  else if(useMSMP==3) {
+  else if (useMSMP==3) {
     int lbin = CFinc->FindBin(1.1);
     int hbin = CFinc->FindBin(1.5);
-    norm = CFinc->Integral(lbin,hbin);
-    norm = norm/((double)(hbin-lbin+1));
     double norm_err = 0;
-    for( int ib = lbin; ib <= hbin; ib++){
-      norm_err += CFinc->GetBinError(ib)*CFinc->GetBinError(ib);
-    }
-    norm_err = sqrt(norm_err)/((double)hbin-lbin+1);
+    norm = CFinc->IntegralAndError(lbin,hbin,norm_err);
+    norm = norm/((double)(hbin-lbin+1));
     norm = norm + norm_err;
-    cout << "ZYAM norm err = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin << ") = " << norm_err << endl;
+    cout << "ZYAM norm+err = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin << ") = " << norm << endl;
   }
+
   CFflowZYAM->Scale(norm);
 
   CFjetZYAM = new TH1D(*(TH1D*)CFinc);
