@@ -41,7 +41,9 @@ void MakeCFs::Run(int type, int ispertrigger)
 		h1_trigpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 		name = "h1_part_pt" + bin.str();
 		h1_partpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
-		name = "/phenix/u/workarea/ahanks/gitrepo/offline/analysis/Correlation/macros/hadron_eff/chhadron_eff_dAu_C" + to_string(0) + ".root";
+		bin.str("");
+		bin << "_C" << ic:
+		name = "/phenix/u/workarea/ahanks/gitrepo/offline/analysis/Correlation/macros/hadron_eff/chhadron_eff_dAu_C" + bin.str() + ".root";
 		TFile* feff = new TFile(name.c_str());
 		TH1D* heff = (TH1D*)feff->Get("heff2");
 		for( int i = 0; i < NPARTBIN; i++ ) {
