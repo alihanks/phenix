@@ -30,8 +30,8 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 	TH1D* JFerr[NTRIGBIN][NPARTBIN];
 	TH1D* JFhisto_combined[2][NPARTBIN];
 	TH1D* JFerr_combined[2][NPARTBIN];
-	TH1D* hTrigPt;
-	TH1D* hPartPt;
+	TH1D* hTrigPt = NULL;
+	TH1D* hPartPt = NULL;
 	double pt_range[NTRIGBIN+1] = {5.0,7.0,9.0,12.0,15.0};
 	double ntrig_total[NTRIGBIN] = {0};
 
@@ -41,18 +41,18 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		name = trig_name + bin.str();
 		TH1D* trigpt = (TH1D*)infile->Get(name.c_str());
 		cout << "getting trigger histo: " << name << endl;
-		if(ic==0) {
-			hTrigPt = new TH1D(*trigpt);
-			hTrigPt->SetName("h1_trigpt");
-		}
-		else hTrigPt->Add(trigpt);
 		name = "h1_partpt" + bin.str();
 		TH1D* partpt = (TH1D*)infile->Get(name.c_str());
 		if(ic==0) {
+			hTrigPt = new TH1D(*trigpt);
+			hTrigPt->SetName("h1_trigpt");
 			hPartPt = new TH1D(*partpt);
 			hPartPt->SetName("h1_partpt");
 		}
-		else hPartPt->Add(partpt);
+		else {
+			hPartPt->Add(partpt);
+			hTrigPt->Add(trigpt);
+		}
 
 		for(int itrig=0; itrig<NTRIGBIN; itrig++){
 			double ntriggers = GetNTrig(trigpt,pt_range[itrig],pt_range[itrig+1]);
@@ -101,8 +101,11 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		}
 	}
 	outfile->cd();
-	hTrigPt->Write();
-	hPartPt->Write();
+	if(hTrigPt) {
+		hTrigPt->Write();
+		hPartPt->Write();
+	}
+	
 	for( int i=0; i<2; i++) {
 		for(int ipart=0; ipart<NPARTBIN; ipart++) {
 			ostringstream cname;
