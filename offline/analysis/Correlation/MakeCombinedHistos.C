@@ -39,7 +39,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		bin.str("");
 		bin << "_c" << ic;
 		name = trig_name + bin.str();
-		TH1D* trigpt = (TH1D*)infile->Get(name.c_str());
+		TH1D* trigpt = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 		name = "h1_part_pt" + bin.str();
 		TH1D* partpt = (TH1D*)infile->Get(name.c_str());
 		if(ic==0) {
@@ -55,7 +55,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 
 		for(int itrig=0; itrig<NTRIGBIN; itrig++){
 			double ntriggers = 0;
-			if( type != 2 ) GetNTrig(trigpt,pt_range[itrig],pt_range[itrig+1]);
+			if( type != 2 ) ntriggers = GetNTrig(trigpt,pt_range[itrig],pt_range[itrig+1]);
 			if(type == 2) {
 				if(itrig<3){
 					ntriggers = trigpt->GetBinContent(itrig+1);
