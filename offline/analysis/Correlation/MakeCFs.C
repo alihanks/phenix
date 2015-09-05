@@ -232,6 +232,8 @@ void MakeCFs::Run(int type, int ispertrigger)
 					cout<<"jet func binwidth: "<<binwidth<<endl;
 					jet[ic][itrig][ipart]->Scale(1/binwidth);
 					jet[ic][itrig][ipart]->Scale(1/hadron_eff[ic][ipart]);
+					jet_err[ic][itrig][ipart]->Scale(1/binwidth);
+					jet_err[ic][itrig][ipart]->Scale(1/hadron_eff[ic][ipart]);
 					SetHisto(jet[ic][itrig][ipart],dphi_title,1);
 					jet[ic][itrig][ipart]->SetName(name.c_str());
 					name = "JFerr" + bin.str();
