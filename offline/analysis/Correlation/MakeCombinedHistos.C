@@ -39,11 +39,9 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		bin.str("");
 		bin << "_c" << ic;
 		name = trig_name + bin.str();
-		TH1D* trigpt = new TH1D(*(TH1D*)infile->Get(name.c_str()));
-		cout << "getting trigger histo: " << name << endl;
+		TH1D* trigpt = (TH1D*)infile->Get(name.c_str());
 		name = "h1_part_pt" + bin.str();
 		TH1D* partpt = (TH1D*)infile->Get(name.c_str());
-		cout << "getting partner histo: " << name << endl;
 		if(ic==0) {
 			hTrigPt = new TH1D(*trigpt);
 			hTrigPt->SetName("h1_trigpt");
@@ -67,6 +65,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 				}
 			}
 			ntrig_total[itrig] += ntriggers;
+			cout << "testing trigger scaling: Ntrig = " << ntriggers << endl;
 			for(int ipart=0; ipart<NPARTBIN; ipart++){
 				bin.str("");
 				bin << "_c" << ic <<"_p"<<itrig<<"_h"<<ipart;
