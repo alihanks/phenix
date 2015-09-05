@@ -511,7 +511,6 @@ int Correlation::Init(PHCompositeNode* topNode)
   }
 
   Init1DHisto(h1_zvertex, "h1_zvertex","z [cm]",60,-30,30);
-  //Init1DHisto(h1_centrality, "h1_centrality","centrality [%]",50,0,100);
   Init1DHisto(h1_trig_pt_inc_tot, "h1_trig_pt_inc_tot","p_{T} [GeV/c]",200,0.,20.);
   Init1DHisto(h1_trig_pt_pi0_tot, "h1_trig_pt_pi0_tot","p_{T} [GeV/c]",200,0.,20.);
   Init1DHisto(h1_trig_pt_dec_tot, "h1_trig_pt_dec_tot","p_{T} bin",5,-0.5,4.5);

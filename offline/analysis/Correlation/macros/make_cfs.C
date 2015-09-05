@@ -5,7 +5,6 @@ void make_cfs(int type = 0, int isiso = 0, const char* fin = "dAu_merged.root", 
   gSystem->Load("libCorrelationPlots.so");
 
   int isfold = 2;
-  string rgamma_file = "/phenix/u/workarea/ahanks/devel/offline/AnalysisTrain/combinesimple/wrk/run10/Rgamma/Rgamma_final_test.root";
   ostringstream trig_name, dphi_name, dphi_mix_name;
   if( type==0 ) {
   	trig_name << "h1_trig_pt_inc";
