@@ -39,7 +39,7 @@ MakeCombinedHistos::MakeCombinedHistos(const string fin, const string fout, cons
 		bin.str("");
 		bin << "_c" << ic;
 		name = trig_name + bin.str();
-		TH1D* trigpt = (TH1D*)infile->Get(name.c_str());
+		TH1D* trigpt = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 		cout << "getting trigger histo: " << name << endl;
 		name = "h1_part_pt" + bin.str();
 		TH1D* partpt = (TH1D*)infile->Get(name.c_str());
