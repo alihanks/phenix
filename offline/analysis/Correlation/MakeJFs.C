@@ -203,7 +203,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     int hbin = CFinc->FindBin(1.5);
     norm = CFinc->Integral(lbin,hbin);
     norm = norm/((double)(hbin-lbin+1));
-    cout << "ZYAM norm = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin << ") = " << norm << endl;
+    cout << "ZYAM norm = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin-1 << ") = " << norm << endl;
   }
   else if (useMSMP==3) {
     int lbin = CFinc->FindBin(1.1);
@@ -211,7 +211,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     double norm_err = 0;
     norm = CFinc->IntegralAndError(lbin,hbin,norm_err);
     norm = (norm+norm_err)/((double)(hbin-lbin+1));
-    cout << "ZYAM norm+err = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin << ") = " << norm << endl;
+    cout << "ZYAM norm+err = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin-1 << ") = " << norm << endl;
   }
 
   CFflowZYAM->Scale(norm);
@@ -219,6 +219,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   CFjetZYAM = new TH1D(*(TH1D*)CFinc);
   CFjetZYAM->Sumw2();
   CFjetZYAM->Add(CFflowZYAM, -1.0);
+  cout << "testing yield: " << CFjetZYAM->GetBinContent(5) << endl;
 }
 
 void MakeJFs::InitHistos(TH1D* CFflow, string name)
