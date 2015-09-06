@@ -47,7 +47,9 @@ gammajet_exodus/logfiles/*
 
 offline/CVS/Entries.Log
 offline/analysis/CVS/
-
+offline/AnalysisTrain/Correlation/inputs/
+offline/AnalysisTrain/combinesimple/inputs/
+offline/AnalysisTrain/combinesimple/hpwrk/
 *.sublime-project
 
 *.sublime-workspace
