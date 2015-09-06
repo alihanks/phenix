@@ -90,30 +90,29 @@ public:
   
   template<class T, class A> void MakePairs(std::vector<T*> triggers,
                                             std::vector<A*> associated,
-                                            PairType type,
+                                            PairType type, DataSet dataset,
                                             TH3F* h3dphi,
                                             TH3F* h3dphi_fold,
                           			     		    TH3F* h3ptxidphi_fold = NULL,
                               					    TH3F* h3ptztdphi_fold = NULL,
-                                            TH3F* h3dphi_iso = NULL,
                                             std::vector<TH2F*> h2dphi_dec = std::vector<TH2F*>(),
                                             std::vector<TH2F*> h2dphi_dec_fold = std::vector<TH2F*>(),
                               					    std::vector<TH2F*> h2dphixi_dec_fold = std::vector<TH2F*>(),
                               					    std::vector<TH2F*> h2dphizt_dec_fold = std::vector<TH2F*>(),
-                                            std::vector<TH2F*> h2dphi_dec_iso = std::vector<TH2F*>(),
                                             TH2F* h2paircut_bf = NULL,
                                             TH2F* h2paircut_af = NULL
                                            )
   {
     for(unsigned int it = 0; it < triggers.size(); it++){
+      if( dataset==Run8dAu && !triggers[it]->IsIso() ) continue;
       float trig_pt = triggers[it]->Pt();
       float trig_phi = PHAngle(triggers[it]->Phi());
 
       int itrigpt = GetPtBin(trig_pt,1);
       float mindist = 99.;
       float ptofvetotrack = 0.;
-      if( verbosity > 1 && triggers[it]->IsIso() )
-        std::cout << "Correlation::MakePairs Event " << evt << " - found a trigger of type " << type << " with iso = " << triggers[it]->IsIso() << std::endl;
+      if( verbosity > 1 )
+        std::cout << "Correlation::MakePairs Event " << evt << " - found a trigger of type " << type << std::endl;
 
       //if( type==MIX||MIXPI ) std::cout << "Making pairs for mixed event with trigger pt = " << trig_pt << std::endl;
      
@@ -166,11 +165,6 @@ public:
       	if( h3ptxidphi_fold ) h3ptxidphi_fold->Fill(trig_pt, xi, dphifold);
       	if( h3ptztdphi_fold ) h3ptztdphi_fold->Fill(trig_pt, zt, dphifold);
        
-        //if( type==REAL||type==REALPI )
-        //std::cout << "Checking trigger iso = " << triggers[it]->IsIso() << " for data-type = " << type << " in cent bin " << cbin << std::endl;
-        if( triggers[it]->IsIso() && h3dphi_iso ) {
-          h3dphi_iso->Fill(trig_pt, assoc_pt, dphifold);
-        }
         if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
         
         //******************************************
@@ -178,7 +172,7 @@ public:
         //******************************************
         if(type==REALPI||type==MIXPI) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making decay pairs" << std::endl;
-          MakeDecays(deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec_fold,h2dphizt_dec_fold,h2dphi_dec_iso,triggers[it]->IsIso());
+          MakeDecays(deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec_fold,h2dphizt_dec_fold);
         }
       }
       if( type==MIX && DiagFlag ) {
@@ -216,7 +210,7 @@ private:
   void EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, std::vector<float>& mwweight);
   void MakeDecays(float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight,
                   std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi_fold,
-                  std::vector<TH2F*> hdphizt_fold, std::vector<TH2F*> hdphi_iso, bool isiso);
+                  std::vector<TH2F*> hdphizt_fold);
   
   void AddMBEvent(DataSet data_set);
 
@@ -316,7 +310,6 @@ private:
   std::vector<TH3F*> h3_dphi_fold;
   std::vector<TH3F*> h3_ptxidphi_fold;
   std::vector<TH3F*> h3_ptztdphi_fold;
-  std::vector<TH3F*> h3_dphi_iso_fold;
   std::vector<TH3F*> h3_dphi_fold_1sig;
   std::vector<TH3F*> h3_dphi_fold_2sig;
   std::vector<TH3F*> h3_dphi_mix_fold;
@@ -326,11 +319,9 @@ private:
   std::vector<TH3F*> h3_dphi_pi0_fold;
   std::vector<TH3F*> h3_ptxidphi_pi0_fold;
   std::vector<TH3F*> h3_ptztdphi_pi0_fold;
-  std::vector<TH3F*> h3_dphi_pi0_iso_fold;
   std::vector<TH3F*> h3_dphi_pi0_mix_fold;
   std::vector<TH3F*> h3_ptxidphi_pi0_mix_fold;
   std::vector<TH3F*> h3_ptztdphi_pi0_mix_fold;
-  std::vector<TH3F*> h3_dphi_pi0_mix_iso_fold;
 
   TH3D* h3_nhit[N_ARMSECT];
   TH3D* h3_nhit_mywarn[N_ARMSECT];

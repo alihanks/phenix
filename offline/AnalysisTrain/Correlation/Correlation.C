@@ -899,7 +899,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
   //***********************************************
 
   //inclusive photon-hadron delta phi dists.
-  MakePairs(clus_vector,trk_vector,REAL,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi_fold[cbin],h3_dphi_iso_fold[cbin]);
+  MakePairs(clus_vector,trk_vector,REAL,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi_fold[cbin]);
   
   //checking background effect on pair dphi distribution.
   //pc3 matching cut at 1 sigma.
@@ -910,7 +910,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
   //****************************************
   //*   Make pi0-h foreground pairs        *
   //****************************************  
-  MakePairs(pi0_vector,trk_vector,REALPI,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0_fold[cbin],h3_dphi_pi0_iso_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec_fold[cbin],h2_dphi_dec_iso_fold[cbin]);
+  MakePairs(pi0_vector,trk_vector,REALPI,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec_fold[cbin]);
   
   atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());
   if( data_set == Run8dAu ) {
@@ -1642,7 +1642,7 @@ void Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, v
 
 void Correlation::MakeDecays(float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight,
                              std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi_fold,
-                             std::vector<TH2F*> hdphizt_fold, std::vector<TH2F*> hdphi_iso, bool isiso)
+                             std::vector<TH2F*> hdphizt_fold)
 {
   float zt = partpt/trigpt;
   float xi = log(1.0/zt);
@@ -1655,8 +1655,6 @@ void Correlation::MakeDecays(float dphi, float dphifold, float partpt, float tri
 	      hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]);
       if( hdphizt_fold.size()>ipw )
       	hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]);
-      if( hdphi_iso.size()>ipw )
-        if( isiso ) hdphi_iso[ipw]->Fill(dphifold,partpt,weight[ipw]);
     }
   }
 }
@@ -2080,9 +2078,9 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
       pooldepth++;
       if( verbosity>3 ) cout<<"pooldepth = "<<pooldepth<<endl;
 
-      MakePairs(photons,hadrons,MIX,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix_fold[cbin],h3_dphi_mix_iso_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc);
+      MakePairs(photons,hadrons,MIX,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc);
 
-      MakePairs(pi0s,hadrons,MIXPI,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h3_dphi_pi0_mix_iso_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix_fold[cbin],h2_dphi_dec_mix_iso_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0);
+      MakePairs(pi0s,hadrons,MIXPI,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0);
 
       //for(unsigned int i=0; i<hadrons.size(); i++) delete hadrons[i];
       //hadrons.clear();
