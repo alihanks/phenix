@@ -55,6 +55,7 @@ Correlation::Correlation(const char* outfile)
   NCBINS = 1;
   NMIX = 100;
   Rcut = 0.3;
+  data_set = INVALID;
   zVertexCut = 20.0;
   fieldPolarity = 1.0;
   nsvxpart = 0;
@@ -226,10 +227,6 @@ int Correlation::Init(PHCompositeNode* topNode)
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_ptztdphi_fold.push_back(temp3);
     
-    name = "h3_dphi_iso_fold_c" + bin.str();
-    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
-    h3_dphi_iso_fold.push_back(temp3);
-    
     name = "h3_dphi_fold_1sig_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_dphi_fold_1sig.push_back(temp3);
@@ -250,10 +247,6 @@ int Correlation::Init(PHCompositeNode* topNode)
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_ptztdphi_mix_fold.push_back(temp3);
     
-    name = "h3_dphi_mix_iso_fold_c" + bin.str();
-    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
-    h3_dphi_mix_iso_fold.push_back(temp3);
-    
     name = "h3_dphi_pi0_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_dphi_pi0_fold.push_back(temp3);
@@ -266,10 +259,6 @@ int Correlation::Init(PHCompositeNode* topNode)
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_ptztdphi_pi0_fold.push_back(temp3);
     
-    name = "h3_dphi_pi0_iso_fold_c" + bin.str();
-    Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
-    h3_dphi_pi0_iso_fold.push_back(temp3);
-    
     name = "h3_dphi_pi0_mix_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_dphi_pi0_mix_fold.push_back(temp3);
@@ -281,10 +270,6 @@ int Correlation::Init(PHCompositeNode* topNode)
     name = "h3_ptztdphi_pi0_mix_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_ptztdphi_pi0_mix_fold.push_back(temp3);
-    
-    name = "h3_dphi_pi0_mix_iso_fold_c" + bin.str();
-    Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
-    h3_dphi_pi0_mix_iso_fold.push_back(temp3);
     
     name = "h1_trig_pt_all_c" + bin.str();
     Init1DHisto(temp, name.c_str(),"p_{T} [GeV/c]",200,0.,20.);
@@ -631,7 +616,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
   }
 
   int RunNumber = runheader->get_RunNumber();
-  DataSet data_set = GetDataSet(RunNumber);
+  data_set = GetDataSet(RunNumber);
   if( data_set == INVALID ) {
     cout << PHWHERE << "Warning: run# outside valid range! Add this Run to DataSet options" << endl;
     return EVENT_OK;
@@ -899,18 +884,18 @@ int Correlation::process_event(PHCompositeNode* topNode)
   //***********************************************
 
   //inclusive photon-hadron delta phi dists.
-  MakePairs(clus_vector,trk_vector,REAL,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi_fold[cbin]);
+  MakePairs(clus_vector,trk_vector,REAL,data_set,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi_fold[cbin]);
   
   //checking background effect on pair dphi distribution.
   //pc3 matching cut at 1 sigma.
-  MakePairs(clus_vector,trk_vector_1sig,DIAGNOSTIC,h3_dphi_1sig[cbin],h3_dphi_fold_1sig[cbin]);
+  MakePairs(clus_vector,trk_vector_1sig,DIAGNOSTIC,data_set,h3_dphi_1sig[cbin],h3_dphi_fold_1sig[cbin]);
   //pc3 matching cut at 2 sigma. 
-  MakePairs(clus_vector,trk_vector_2sig,DIAGNOSTIC,h3_dphi_2sig[cbin],h3_dphi_fold_2sig[cbin]);
+  MakePairs(clus_vector,trk_vector_2sig,DIAGNOSTIC,data_set,h3_dphi_2sig[cbin],h3_dphi_fold_2sig[cbin]);
 
   //****************************************
   //*   Make pi0-h foreground pairs        *
   //****************************************  
-  MakePairs(pi0_vector,trk_vector,REALPI,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec_fold[cbin]);
+  MakePairs(pi0_vector,trk_vector,REALPI,data_set,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec_fold[cbin]);
   
   atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());
   if( data_set == Run8dAu ) {
@@ -2078,9 +2063,9 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
       pooldepth++;
       if( verbosity>3 ) cout<<"pooldepth = "<<pooldepth<<endl;
 
-      MakePairs(photons,hadrons,MIX,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc);
+      MakePairs(photons,hadrons,MIX,data_set,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc);
 
-      MakePairs(pi0s,hadrons,MIXPI,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0);
+      MakePairs(pi0s,hadrons,MIXPI,data_set,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0);
 
       //for(unsigned int i=0; i<hadrons.size(); i++) delete hadrons[i];
       //hadrons.clear();

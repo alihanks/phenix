@@ -245,6 +245,7 @@ private:
   std::vector<std::string> warnmap_filenames;
   std::vector<double> warnmap_cuts;
 
+  DataSet data_set;
   unsigned int Cut3x3Map;
   int NZVTX;
   int NCENT;
