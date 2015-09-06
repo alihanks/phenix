@@ -38,8 +38,6 @@ void MakeCFs::Run(int type, int ispertrigger)
 		name = trig_name + bin.str();
 		cout << "getting trig histo: " << name << endl;
 		h1_trigpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
-		name = "h1_part_pt" + bin.str();
-		h1_partpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 		bin.str("");
 		bin << "_C" << ic;
 		name = "/phenix/u/workarea/ahanks/gitrepo/offline/analysis/Correlation/macros/hadron_eff/chhadron_eff_dAu" + bin.str() + ".root";
@@ -62,6 +60,8 @@ void MakeCFs::Run(int type, int ispertrigger)
 
 		if(type == 0 || type == 1){
 			temp3D = new TH3D(*(TH3D*)infile->Get(name.c_str()));
+			name = "h1_part_pt" + bin.str();
+			h1_partpt[ic] = new TH1D(*(TH1D*)temp3D->ProjectionY(name.c_str()));
 			temp3D_mix = new TH3D(*(TH3D*)infile->Get(name_mix.c_str()));
 			//cout<<"get temp3D: "<<name.c_str()<<endl;
 			for(int ippt = 0; ippt < NTRIGBIN; ippt++){
@@ -287,12 +287,14 @@ void MakeCFs::SetTrigPtBinning()
 
 void MakeCFs::SetPartPtBinning()
 {
-	part_pt[0]=0.5;
-	part_pt[1]=1.;
-	part_pt[2]=2.;
-	part_pt[3]=3.;
-	part_pt[4]=5.;
-	part_pt[5]=7.;
+	part_pt[0]=0.;
+	part_pt[1]=0.4;
+	part_pt[2]=0.8;
+	part_pt[3]=1.2;
+	part_pt[4]=1.6;
+	part_pt[5]=2.0;
+	part_pt[6]=2.4;
+	part_pt[7]=2.8;
 }
 
 void MakeCFs::MakeDphiProjection(TH3D* h3, TH1D*& h1,string hname)
