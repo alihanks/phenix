@@ -97,6 +97,8 @@ void MakeCFs::Run(int type, int ispertrigger)
 				name_mix = dphi_mix_name + bin.str();
 
 				temp2D = new TH2D(*(TH2D*)infile->Get(name.c_str()));
+				name = "h1_part_pt" + bin.str();
+				h1_partpt[ic] = new TH1D(*(TH1D*)temp2D->ProjectionY(name.c_str()));
 				temp2D_mix = new TH2D(*(TH2D*)infile->Get(name_mix.c_str()));
 				for(int ihpt=0; ihpt < NPARTBIN; ihpt++){  
 					dphi_2d[ic][ippt][ihpt] = new TH2D(*(TH2D*)temp2D);
