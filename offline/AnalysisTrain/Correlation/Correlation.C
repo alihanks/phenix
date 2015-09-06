@@ -2063,7 +2063,7 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
       pooldepth++;
       if( verbosity>3 ) cout<<"pooldepth = "<<pooldepth<<endl;
 
-      MakePairs(photons,hadrons,MIX,data_set,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc);
+      MakePairs(photons,hadrons,MIX,data_set,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc);
 
       MakePairs(pi0s,hadrons,MIXPI,data_set,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0);
 
