@@ -335,7 +335,7 @@ void MakeCFs::MakeDphiProjection(TH3D* h3, TH1D*& h1,double xmin, double xmax, d
 	//h1 = new TH1D(*(TH1D*)h3->Project3D("z"));
 	string pz = hname + "_pz";
 	h1 = new TH1D(*(TH1D*)h3->ProjectionZ(pz.c_str(),xbinlo,xbinhi-1,ybinlo,ybinhi-1));
-	cout << "checking projection: phi=0 -> " << h1->GetBinContent(1);
+	cout << "checking projection: phi=0 -> " << h1->GetBinContent(1) << endl;
 }
 
 void MakeCFs::FoldDphiDist(TH1D* h1, TH1D*& h1_fold, string hname_fold)
