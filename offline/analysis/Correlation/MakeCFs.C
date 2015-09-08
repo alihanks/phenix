@@ -47,8 +47,8 @@ void MakeCFs::Run(int type, int ispertrigger)
 		TH1D* heff = (TH1D*)feff->Get("heff2");
 		for( int t = 0; t < NTRIGBIN; t++ ) {
 			for( int i = 1; i <= heff->GetNbinsX(); i++ ) {
-				double xi_low = -1*log(part_pt_range[i+1]/trig_pt_range[t]);
-				double xi_high = -1*log(part_pt_range[i]/trig_pt_range[t+1]);
+				double xi_low = -1*log((heff->GetBinLowEdge(i)+heff->GetBinWidth(i))/trig_pt_range[t]);
+				double xi_high = -1*log(heff->GetBinLowEdge(i)/trig_pt_range[t+1]);
 				cout << "setting hadron efficiency for " << xi_low << " < xi < " << xi_high << endl;
 				for( int p = 0; p < NPARTBIN; p++ ) {
 					if( (xi_low > part_pt_range[p] && xi_low < part_pt_range[p+1]) || (xi_high > part_pt_range[p] && xi_high < part_pt_range[p+1]) )
