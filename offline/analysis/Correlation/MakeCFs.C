@@ -53,8 +53,9 @@ void MakeCFs::Run(int type, int ispertrigger)
 						hadron_eff[ic][t][p] = heff->GetBinContent(i+1);
 				}
 			}
-		for( int p = 0; p < NPARTBIN; p++ ) {
-			cout << "Setting hadron efficiency (" << ic << ", " << t << ", " << p << ") = " << hadron_eff[ic][t][p] << endl;
+			for( int p = 0; p < NPARTBIN; p++ ) {
+				cout << "Setting hadron efficiency (" << ic << ", " << t << ", " << p << ") = " << hadron_eff[ic][t][p] << endl;
+			}
 		}
 	}
 
