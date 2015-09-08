@@ -30,7 +30,9 @@ void MakeCFs::Run(int type, int ispertrigger)
 	cout<<"start"<<endl;
 	TH1D* h1_trigpt[NCENTBIN];
 	TH1D* h1_partpt[NCENTBIN];
-	double hadron_eff[NCENTBIN][NPARTBIN];
+	double hadron_eff[NCENTBIN][NTRIGBIN][NPARTBIN] = {0};
+	double trig_pt_mean[NTRIGBIN] = {6.0,8.0,10.5,13.5};
+	double part_pt_range[NPARTBIN+1] = {0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.8};
 
 	for(int ic=0; ic<NCENTBIN; ic++){
 		bin.str("");
@@ -43,8 +45,14 @@ void MakeCFs::Run(int type, int ispertrigger)
 		name = "/phenix/u/workarea/ahanks/gitrepo/offline/analysis/Correlation/macros/hadron_eff/chhadron_eff_dAu" + bin.str() + ".root";
 		TFile* feff = new TFile(name.c_str());
 		TH1D* heff = (TH1D*)feff->Get("heff2");
-		for( int i = 0; i < NPARTBIN; i++ ) {
-			hadron_eff[ic][i] = heff->GetBinContent(i+1);
+		for( int t = 0; t < NTRIGBIN; t++ ) {
+			for( int i = 1; i <= heff->GetNbinsX(); i++ ) {
+				double xi_mean = heff->GetBinCenter(i+1)/trig_pt_mean[t];
+				for( int p = 0; p < NPARTBIN; p++ ) {
+					if( xi_mean > part_pt_range[p] && xi_mean < part_pt_range[p+1])
+						hadron_eff[ic][t][p] = heff->GetBinContent(i+1);
+				}
+			}
 		}
 	}
 
@@ -235,9 +243,9 @@ void MakeCFs::Run(int type, int ispertrigger)
 					double binwidth = jet[ic][itrig][ipart]->GetBinWidth(1);
 					cout<<"jet func binwidth: "<<binwidth<<endl;
 					jet[ic][itrig][ipart]->Scale(1/binwidth);
-					jet[ic][itrig][ipart]->Scale(1/hadron_eff[ic][ipart]);
+					jet[ic][itrig][ipart]->Scale(1/hadron_eff[ic][itrig][ipart]);
 					jet_err[ic][itrig][ipart]->Scale(1/binwidth);
-					jet_err[ic][itrig][ipart]->Scale(1/hadron_eff[ic][ipart]);
+					jet_err[ic][itrig][ipart]->Scale(1/hadron_eff[ic][itrig][ipart]);
 					SetHisto(jet[ic][itrig][ipart],dphi_title,1);
 					jet[ic][itrig][ipart]->SetName(name.c_str());
 					name = "JFerr" + bin.str();
