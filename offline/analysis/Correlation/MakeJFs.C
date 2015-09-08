@@ -219,7 +219,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   CFjetZYAM = new TH1D(*(TH1D*)CFinc);
   CFjetZYAM->Sumw2();
   CFjetZYAM->Add(CFflowZYAM, -1.0);
-  cout << "testing yield: " << CFjetZYAM->GetBinContent(5) << endl;
+  //cout << "testing yield: " << CFjetZYAM->GetBinContent(5) << endl;
 }
 
 void MakeJFs::InitHistos(TH1D* CFflow, string name)
