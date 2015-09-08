@@ -52,7 +52,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 				cout << "setting hadron efficiency for " << xi_low << " < xi < " << xi_high << endl;
 				for( int p = 0; p < NPARTBIN; p++ ) {
 					if( (xi_low > part_pt_range[p] && xi_low < part_pt_range[p+1]) || (xi_high > part_pt_range[p] && xi_high < part_pt_range[p+1]) ) {
-						hadron_eff[ic][t][p] = heff->GetBinContent(i+1);
+						hadron_eff[ic][t][p] = heff->GetBinContent(i);
 						cout << "Setting hadron efficiency (" << ic << ", " << t << ", " << p << ") = " << hadron_eff[ic][t][p] << endl;
 					}
 				}
