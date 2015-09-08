@@ -173,6 +173,8 @@ int Correlation::Init(PHCompositeNode* topNode)
   SetTriggerEfficiency(feff_0_location.c_str(), feff_1_location.c_str(), feff_2_location.c_str(), feff_3_location.c_str());
   cout << "pi0 trigger efficiency loaded" << endl;
   
+  string acc_filename = toad_loader->location(_accfilename.c_str());
+  GetAcceptanceWeights(acc_filename);
   string sharkfin_file = toad_loader->location(_sharkfinname.c_str());
   SetSharkFin(sharkfin_file.c_str());
   cout << "sharkfin input loaded" << endl;
@@ -1070,6 +1072,52 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
   }
 }
 
+void Correlation::GetAcceptanceWeights(string filename)
+{
+  TFile* fin = new TFile(filename);
+  for( int ic = 0; ic < 4; ic++ )
+  {
+    ostringstream name;
+    name << "h3_dphi_fold_c" << ic;
+    TH3D* inc = fin->Get(name.str().c_str());
+    name << "h3_dphi_pi0_fold_c" << ic;
+    TH3D* pi0 = fin->Get(name.str().c_str());
+    for( int it = 0; it < NTRIGBINS; it++ )
+    {
+      if( it < 3 ) name << "h2_dphi_dec_fold_p" << it << "c" << ic;
+      else name << "h2_dphi_dec_fold_p" << it+1 << "c" << ic;
+      TH2D* dec = fin->Get(name.str().c_str());
+      for( int ip = 0; ip < NPARTBINS; ip++ )
+      {
+        name.str("");
+        name << "h1_acc_c" << ic << "_p" << it << "_h" << ip;
+        MakeDphiProjection(inc,IncAcc[ic][it][ip],trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.str())
+        name.str("");
+        name << "h1_pi0_acc_c" << ic << "_p" << it << "_h" << ip;
+        MakeDphiProjection(pi0,Pi0Acc[ic][it][ip],trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.str())
+        name.str("");
+        name << "h1_dec_acc_c" << ic << "_p" << it << "_h" << ip;
+        int ymin = dec->GetYaxis()->FindBin(part_pt_range[ip-]);
+        int ymax = dec->GetYaxis()->FindBin(part_pt_range[ip+1]);
+        DecAcc[ic][it][ip] = new TH1D(*(TH1D*)dec->ProjectionX(name.c_str(),ymin,ymax));
+      }
+    }
+  }
+  // getting normalization level
+
+}
+
+void Correlation::MakeDphiProjection(TH3D* h3, TH1D*& h1,double xmin, double xmax, double ymin, double ymax, string hname)
+{
+  TH1D* proj_x = (TH1D*)h3->ProjectionX("px");
+  TH1D* proj_y = (TH1D*)h3->ProjectionY("py");
+  int xbinlo = proj_x->FindBin(xmin);
+  int xbinhi = proj_x->FindBin(xmax);
+  int ybinlo = proj_y->FindBin(ymin);
+  int ybinhi = proj_y->FindBin(ymax);
+  string pz = hname + "_pz";
+  h1 = new TH1D(*(TH1D*)h3->ProjectionZ(pz.c_str(),xbinlo,xbinhi-1,ybinlo,ybinhi-1));
+}
 
 void Correlation::MakeEventObject(PHGlobal* glob, AEvent* aevt)
 {
@@ -1728,7 +1776,7 @@ Correlation::DataSet Correlation::GetDataSet(int RunNumber)
 void Correlation::Clear()
 {
   
-for (unsigned int i = 0; i < clus_everything.size(); i++){
+  for (unsigned int i = 0; i < clus_everything.size(); i++){
     delete clus_everything[i];
   }
   clus_everything.clear();

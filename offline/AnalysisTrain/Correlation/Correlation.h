@@ -52,6 +52,8 @@ const int N_YPOS_PBGL = 48;
 const int N_YPOS_PBSC = 36;
 const int N_ZPOS_PBGL = 96;
 const int N_ZPOS_PBSC = 72;
+const int NTRIGBINS = 4;
+const int NPARTBINS = 5;
 
 //const unsigned int Cut3x3Map = 0x1ce70;
 //const unsigned int Cut3x3Map = 0x7de1ce70;
@@ -79,6 +81,7 @@ public:
 
   void SetHadronEffFileName(std::string fn) { _hadeffFilename = fn; }
   void SetPi0EffFileName(std::string fn0, std::string fn1, std::string fn2, std::string fn3) { _pi0effFilename_0 = fn0; _pi0effFilename_1 = fn1; _pi0effFilename_2 = fn2; _pi0effFilename_3 = fn3;}
+  void SetAccWeigtFileNames(std::string fn, std::string fxi, std::string fflow) { _accfilename = fn; _xifilename = fxi; _flowfilename = fflow; }
   void SetSharkFinFileName(std::string fn) { _sharkfinname = fn;}
   void SetDiagFlag(int flag) { DiagFlag = flag; }
   void Clear();
@@ -183,6 +186,8 @@ public:
   }
   
 private:
+  void GetAcceptanceWeights(std::string filename);
+  void MakeDphiProjection(TH3D* h3, TH1D*& h1,double xmin, double xmax, double ymin, double ymax, string hname);
   int IsPbGl(int armsect){ return ((armsect==4||armsect==5)? 1 : 0); }
   int VetoTracks(ACluster* aclus, std::vector<ATrack*> lessqualtrk_vector);
   int VetoTracks(ACluster* aclus, std::vector<ATrack*> lessqualtrk_vector, float& mindist, float& vetopt);
@@ -244,6 +249,10 @@ private:
   std::string output;
   std::vector<std::string> warnmap_filenames;
   std::vector<double> warnmap_cuts;
+
+  TH1D* IncAcc[4][NPARTBINS][NTRIGBINS];
+  TH1D* Pi0Acc[4][NPARTBINS][NTRIGBINS];
+  TH1D* DecAcc[4][NPARTBINS][NTRIGBINS];
 
   DataSet data_set;
   unsigned int Cut3x3Map;
@@ -455,6 +464,9 @@ private:
   std::vector<std::vector<TH2F*> > h2_dphizt_dec_mix_fold;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_mix_iso_fold;
 
+  std::string _accfilename;
+  std::string _xifilename;
+  std::string _flowfilename;
   std::string _hadeffFilename;
   std::string _pi0effFilename_0;
   std::string _pi0effFilename_1;
