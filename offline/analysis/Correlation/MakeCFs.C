@@ -30,7 +30,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 	cout<<"start"<<endl;
 	TH1D* h1_trigpt[NCENTBIN];
 	TH1D* h1_partpt[NCENTBIN];
-	double hadron_eff[NCENTBIN][NTRIGBIN][NPARTBIN] = {0};
+	double hadron_eff[NCENTBIN][NTRIGBIN][NPARTBIN] = {{{0}}};
 	double trig_pt_mean[NTRIGBIN] = {6.0,8.0,10.5,13.5};
 	double part_pt_range[NPARTBIN+1] = {0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.8};
 
