@@ -1099,9 +1099,9 @@ void Correlation::GetAcceptanceWeights(string filename)
         MakeDphiProjection(pi0,Pi0Acc[ic][it][ip],trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.str());
         name.str("");
         name << "h1_dec_acc_c" << ic << "_p" << it << "_h" << ip;
-        int ymin = dec->GetYaxis()->FindBin(part_pt_range[ip-]);
+        int ymin = dec->GetYaxis()->FindBin(part_pt_range[ip]);
         int ymax = dec->GetYaxis()->FindBin(part_pt_range[ip+1]);
-        DecAcc[ic][it][ip] = new TH1D(*(TH1D*)dec->ProjectionX(name.c_str(),ymin,ymax));
+        DecAcc[ic][it][ip] = new TH1D(*(TH1D*)dec->ProjectionX(name.str().c_str(),ymin,ymax));
       }
     }
   }
