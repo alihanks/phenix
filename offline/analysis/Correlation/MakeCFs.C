@@ -47,7 +47,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 		TH1D* heff = (TH1D*)feff->Get("heff2");
 		for( int t = 0; t < NTRIGBIN; t++ ) {
 			for( int i = 1; i <= heff->GetNbinsX(); i++ ) {
-				double xi_mean = heff->GetBinCenter(i+1)/trig_pt_mean[t];
+				double xi_mean = -1*log(heff->GetBinCenter(i+1)/trig_pt_mean[t]);
 				for( int p = 0; p < NPARTBIN; p++ ) {
 					if( xi_mean > part_pt_range[p] && xi_mean < part_pt_range[p+1])
 						hadron_eff[ic][t][p] = heff->GetBinContent(i+1);
