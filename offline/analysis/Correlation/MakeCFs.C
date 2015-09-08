@@ -232,6 +232,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 		for(int ic=0; ic<NCENTBIN; ic++){
 			for(int itrig=0; itrig<NTRIGBIN; itrig++){
 				for(int ipart=0; ipart<NPARTBIN; ipart++){
+					cout << "Making JFs for (c,t,p) bin (" << ic << ", " << itrig << ", " << ipart << ")" << endl;
 					MakeJFs(type,ic,itrig,ipart,corr[ic][itrig][ipart],meanpart[ic][itrig][ipart],num_trigger_mix[ic][itrig],infile,"v2_inputs.root",5,ispertrigger,flow[ic][itrig][ipart],jet[ic][itrig][ipart]);
 					bin.str("");
 					bin << "_c" << ic <<"_p"<<itrig<<"_h"<<ipart;

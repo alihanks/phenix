@@ -45,7 +45,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   cout << "set flow constant c2 = " << c2 << endl;
 
   int nbins = CFinc->GetNbinsX();
-  cout<<"# of bins in CFinc: "<<nbins<<endl;
+  //cout<<"# of bins in CFinc: "<<nbins<<endl;
 
   //flowFunc = new TF1("flowFunc","[0]*(1.0+2.0*[1]*cos(2*x))",-0.5*PI,1.5*PI);
   flowFunc = new TF1("flowFunc","[0]*(1.0+2.0*[1]*cos(2*x))",0.0,PI);
@@ -70,7 +70,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     }
   }
   //CFflowZYAM->Sumw2();
-  cout<<"about to subtract bg..."<<endl;
+  //cout<<"about to subtract bg..."<<endl;
   if(useMSMP==0){
     cout<<"using ZYAM method.........."<<endl;
     //********************************************
