@@ -266,7 +266,8 @@ void MakeCFs::Run(int type, int ispertrigger)
 					la->SetNDC();
 					la->Draw("same");
 
-					name = "flow_c" + bin.str();
+					name = "flow" + bin.str();
+					flow[ic][itrig][ipart]->SetName(name.c_str());
 					pad = can_abs[ic][itrig]->cd(ipart+1);
 					SetPad(pad);
 					corr[ic][itrig][ipart]->Draw();
