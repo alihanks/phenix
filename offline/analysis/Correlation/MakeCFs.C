@@ -330,11 +330,12 @@ void MakeCFs::MakeDphiProjection(TH3D* h3, TH1D*& h1,double xmin, double xmax, d
 	int xbinhi = proj_x->FindBin(xmax);
 	int ybinlo = proj_y->FindBin(ymin);
 	int ybinhi = proj_y->FindBin(ymax);
-  // cout<<"xbinlo = "<<xbinlo<<"; xbinhi = "<<xbinhi<<endl;
-  // cout<<"ybinlo = "<<ybinlo<<"; ybinhi = "<<ybinhi<<endl;
-	h1 = new TH1D(*(TH1D*)h3->Project3D("z"));
+  	//cout<<"xbinlo = "<<xbinlo<<"; xbinhi = "<<xbinhi<<endl;
+  	//cout<<"ybinlo = "<<ybinlo<<"; ybinhi = "<<ybinhi<<endl;
+	//h1 = new TH1D(*(TH1D*)h3->Project3D("z"));
 	string pz = hname + "_pz";
 	h1 = new TH1D(*(TH1D*)h3->ProjectionZ(pz.c_str(),xbinlo,xbinhi-1,ybinlo,ybinhi-1));
+	cout << "checking projection: phi=0 -> " << h1->GetBinContent(1);
 }
 
 void MakeCFs::FoldDphiDist(TH1D* h1, TH1D*& h1_fold, string hname_fold)
