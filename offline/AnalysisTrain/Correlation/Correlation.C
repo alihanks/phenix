@@ -1074,27 +1074,29 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
 
 void Correlation::GetAcceptanceWeights(string filename)
 {
-  TFile* fin = new TFile(filename);
+  double trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
+  double part_pt_range[NPARTBINS+1] = {0.5,1.0,2.0,3.0,5.0,7.0};
+  TFile* fin = new TFile(filename.c_str());
   for( int ic = 0; ic < 4; ic++ )
   {
     ostringstream name;
     name << "h3_dphi_fold_c" << ic;
-    TH3D* inc = fin->Get(name.str().c_str());
+    TH3D* inc = (TH3D*)fin->Get(name.str().c_str());
     name << "h3_dphi_pi0_fold_c" << ic;
-    TH3D* pi0 = fin->Get(name.str().c_str());
+    TH3D* pi0 = (TH3D*)fin->Get(name.str().c_str());
     for( int it = 0; it < NTRIGBINS; it++ )
     {
       if( it < 3 ) name << "h2_dphi_dec_fold_p" << it << "c" << ic;
       else name << "h2_dphi_dec_fold_p" << it+1 << "c" << ic;
-      TH2D* dec = fin->Get(name.str().c_str());
+      TH2D* dec = (TH2D*)fin->Get(name.str().c_str());
       for( int ip = 0; ip < NPARTBINS; ip++ )
       {
         name.str("");
         name << "h1_acc_c" << ic << "_p" << it << "_h" << ip;
-        MakeDphiProjection(inc,IncAcc[ic][it][ip],trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.str())
+        MakeDphiProjection(inc,IncAcc[ic][it][ip],trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.str());
         name.str("");
         name << "h1_pi0_acc_c" << ic << "_p" << it << "_h" << ip;
-        MakeDphiProjection(pi0,Pi0Acc[ic][it][ip],trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.str())
+        MakeDphiProjection(pi0,Pi0Acc[ic][it][ip],trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.str());
         name.str("");
         name << "h1_dec_acc_c" << ic << "_p" << it << "_h" << ip;
         int ymin = dec->GetYaxis()->FindBin(part_pt_range[ip-]);
@@ -1105,6 +1107,9 @@ void Correlation::GetAcceptanceWeights(string filename)
   }
   // getting normalization level
 
+
+  fin->Close();
+  delete fin;
 }
 
 void Correlation::MakeDphiProjection(TH3D* h3, TH1D*& h1,double xmin, double xmax, double ymin, double ymax, string hname)

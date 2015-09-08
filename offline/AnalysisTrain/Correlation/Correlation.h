@@ -187,7 +187,7 @@ public:
   
 private:
   void GetAcceptanceWeights(std::string filename);
-  void MakeDphiProjection(TH3D* h3, TH1D*& h1,double xmin, double xmax, double ymin, double ymax, string hname);
+  void MakeDphiProjection(TH3D* h3, TH1D*& h1,double xmin, double xmax, double ymin, double ymax, std::string hname);
   int IsPbGl(int armsect){ return ((armsect==4||armsect==5)? 1 : 0); }
   int VetoTracks(ACluster* aclus, std::vector<ATrack*> lessqualtrk_vector);
   int VetoTracks(ACluster* aclus, std::vector<ATrack*> lessqualtrk_vector, float& mindist, float& vetopt);
