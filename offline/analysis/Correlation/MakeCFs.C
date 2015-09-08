@@ -31,8 +31,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 	TH1D* h1_trigpt[NCENTBIN];
 	TH1D* h1_partpt[NCENTBIN];
 	double hadron_eff[NCENTBIN][NTRIGBIN][NPARTBIN] = {{{0}}};
-	double trig_pt_mean[NTRIGBIN] = {5.9,7.9,10.2,13.2};
-	double part_pt_mean[5] = {0.6,1.3,2.4,3.75,5.8};
+	double trig_pt_range[NTRIGBIN+1] = {5.0,7.0,9.0,12.0,15.0};
 	double part_pt_range[NPARTBIN+1] = {0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.8};
 
 	for(int ic=0; ic<NCENTBIN; ic++){
@@ -48,10 +47,11 @@ void MakeCFs::Run(int type, int ispertrigger)
 		TH1D* heff = (TH1D*)feff->Get("heff2");
 		for( int t = 0; t < NTRIGBIN; t++ ) {
 			for( int i = 1; i <= heff->GetNbinsX(); i++ ) {
-				double xi_mean = -1*log(part_pt_mean[i]/trig_pt_mean[t]);
+				double xi_low = -1*log(part_pt_range[i+1]/trig_pt_range[t]);
+				double xi_high = -1*log(part_pt_range[i]/trig_pt_range[t+1]);
 				cout << "setting hadron efficiency for xi = " << xi_mean << endl;
 				for( int p = 0; p < NPARTBIN; p++ ) {
-					if( xi_mean > part_pt_range[p] && xi_mean < part_pt_range[p+1])
+					if( (xi_low > part_pt_range[p] && xi_low < part_pt_range[p+1]) || (xi_high > part_pt_range[p] && xi_high < part_pt_range[p+1]) )
 						hadron_eff[ic][t][p] = heff->GetBinContent(i+1);
 				}
 			}
