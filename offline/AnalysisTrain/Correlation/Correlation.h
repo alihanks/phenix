@@ -9,6 +9,7 @@
 #include <TMath.h>
 #include <TH3.h>
 #include <TH2.h>
+#include <TF1.h>
 #include <PHAngle.h>
 #include <CorrelationFunctions.h>
 
@@ -25,14 +26,13 @@ class PHGlobal;
 class emcClusterContainer;
 class emcClusterContent;
 class PHCentralTrack;
-class SvxCentralTrackList;
-class SvxCentralTrack;
-class SvxClusterList;
-class SvxCluster;
+// class SvxCentralTrackList;
+// class SvxCentralTrack;
+// class SvxClusterList;
+// class SvxCluster;
 class TOAD;
 
 class TFile;
-class TF1;
 class TH1;
 class THmulf;
 class TGraphErrors;
@@ -45,7 +45,7 @@ class ATrack;
 class AEvent;
 class AMixingPool;
 class AMixingTree;
-class ConversionVeto;
+//class ConversionVeto;
 
 const int N_ARMSECT = 8;
 const int N_YPOS_PBGL = 48;
@@ -55,8 +55,6 @@ const int N_ZPOS_PBSC = 72;
 const int NTRIGBINS = 4;
 const int NPARTBINS = 5;
 
-//const unsigned int Cut3x3Map = 0x1ce70;
-//const unsigned int Cut3x3Map = 0x7de1ce70;
 const int DIM = 500;
 
 class Correlation: public SubsysReco 
@@ -72,6 +70,7 @@ public:
 
   void SetHadronEfficiency(const char* filename);
   void SetTriggerEfficiency(const char* filename_0, const char* filename_1, const char* filename_2, const char* filename_3);
+  void SetV2(const char* v2_inputs);
   void SetSharkFin(const char* filename);
   void SetWarnmaps(std::vector<std::string> filenames, std::vector<double> ptcuts);
   void SetZVertexCut(float cut) { zVertexCut = cut; }
@@ -81,13 +80,14 @@ public:
 
   void SetHadronEffFileName(std::string fn) { _hadeffFilename = fn; }
   void SetPi0EffFileName(std::string fn0, std::string fn1, std::string fn2, std::string fn3) { _pi0effFilename_0 = fn0; _pi0effFilename_1 = fn1; _pi0effFilename_2 = fn2; _pi0effFilename_3 = fn3;}
-  void SetAccWeigtFileNames(std::string fn, std::string fxi, std::string fflow) { _accfilename = fn; _xifilename = fxi; _flowfilename = fflow; }
+  void SetWeightFileNames(std::string fn, std::string fflow) { _accfilename = fn; _flowfilename = fflow; }
+  //void SetFlowFileName(std::string fflow) { _flowfilename = fflow; }
   void SetSharkFinFileName(std::string fn) { _sharkfinname = fn;}
   void SetDiagFlag(int flag) { DiagFlag = flag; }
   void Clear();
 
   enum DataSet { Run8dAu, Run10AuAu, Run11AuAu, Run14AuAu, INVALID };
-  enum PairType { REAL, MIX, REALPI, MIXPI, DIAGNOSTIC };
+  enum PairType { REAL, MIX, REALPI, MIXPI, DEC, MIXDEC, DIAGNOSTIC };
   DataSet GetDataSet(int RunNumber);
   float Rcut;
   
@@ -96,13 +96,13 @@ public:
                                             PairType type, DataSet dataset,
                                             TH3F* h3dphi,
                                             TH3F* h3dphi_fold,
-                          			     		    TH3F* h3ptxidphi_fold = NULL,
-                              					    TH3F* h3ptztdphi_fold = NULL,
-                                            std::vector<TH2F*> h2dphi_dec = std::vector<TH2F*>(),
+                          		    TH3F* h3ptxidphi_fold = NULL,
+					    TH3F* h3ptztdphi_fold = NULL,
+					    std::vector<TH2F*> h2dphi_dec = std::vector<TH2F*>(),
                                             std::vector<TH2F*> h2dphi_dec_fold = std::vector<TH2F*>(),
-                              					    std::vector<TH2F*> h2dphixi_dec_fold = std::vector<TH2F*>(),
-                              					    std::vector<TH2F*> h2dphizt_dec_fold = std::vector<TH2F*>(),
-                                            TH2F* h2paircut_bf = NULL,
+					    std::vector<TH2F*> h2dphixi_dec_fold = std::vector<TH2F*>(),
+					    std::vector<TH2F*> h2dphizt_dec_fold = std::vector<TH2F*>(),
+					    TH2F* h2paircut_bf = NULL,
                                             TH2F* h2paircut_af = NULL
                                            )
   {
@@ -121,20 +121,21 @@ public:
      
       //if( (type==MIX||type==MIXPI) ) std::cout << "Correlation::MakePairs combining " << associated.size() << " associated tracks" << std::endl;
       for(unsigned int ia = 0; ia < associated.size(); ia++){
+	//if(type == MIXPI) std::cout<<"ia = "<<ia<<std::endl;
       	float assoc_pt = associated[ia]->Pt();
         float assoc_phi = associated[ia]->Phi();
         
         if(associated[ia]->Theta()<-99) continue;
         
         //adopted from loopthrutrack in old code -032215 this might not have any effect as the pair cut was implemented when selecting the triggers already
-        float dist = 99.;
+	float dist = 99.;
         if(assoc_pt>vetoPtCut){
           if(type==REAL) dist=FindTrackDistance((ACluster*)triggers[it], associated[ia]);
           if(type==REALPI) dist=FindTrackDistance((ACluster*)triggers[it]->Daughter1(), associated[ia]);
         }
         if(dist<8) continue;
-        
-        int ipartpt = GetPtBin(assoc_pt,0);
+
+	int ipartpt = GetPtBin(assoc_pt,0);
 
         // Apply pair cut for mixed pairs
         if( type==MIX||type==MIXPI ) {
@@ -149,6 +150,7 @@ public:
           if( dist < 8.0 && assoc_pt > vetoPtCut ) continue;
           if( h2paircut_af ) h2paircut_af->Fill(itrigpt,ipartpt);
         }
+
         //std::cout<<"MakePairs: pass pair cut"<<std::endl;
         //double deltaphi = CorrectDelPhi(trig_phi-assoc_phi);
         float deltaphi = PHAngle(trig_phi-assoc_phi);//-050815
@@ -162,32 +164,75 @@ public:
         h3dphi->Fill(trig_pt, assoc_pt, deltaphi);
 
         if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold);
+	
+	//fill xi plots with filltime weights
+	float seffcorr = GetHadronEfficiency(assoc_pt);
+       
+	//std::cout << "hadron efficiency at pt = " << assoc_pt << " is " << seffcorr << std::endl;
+
+	float filltimeweight = 1.;
+	float filltimeflow = 1.;
+	
+	float accw = GetAcceptance(type, cbin, trig_pt, assoc_pt, dphifold);
+	//std::cout << "get accw for type: " << type << ": " << accw << std::endl;
+	if( accw > 0 ) filltimeweight = 1/(seffcorr*accw);
+	//std::cout<<"filltimeweight = "<<filltimeweight<<std::endl;
+
       	float zt = assoc_pt/trig_pt;
       	float xi = log(1.0/zt);
       	
-      	if( h3ptxidphi_fold ) h3ptxidphi_fold->Fill(trig_pt, xi, dphifold);
-      	if( h3ptztdphi_fold ) h3ptztdphi_fold->Fill(trig_pt, zt, dphifold);
-       
-        if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
-        
-        //******************************************
-        //*  Make decay photon-h pairs             *
-        //******************************************
-        if(type==REALPI||type==MIXPI) {
-          if (verbosity > 1) std::cout<<"Correlation::MakePairs - making decay pairs" << std::endl;
-          MakeDecays(deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec_fold,h2dphizt_dec_fold);
-        }
+	if( h3ptxidphi_fold ) {
+	  if(type == REAL || type == REALPI)
+	    h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeweight);
+	  if(type == MIX || type == MIXPI){
+	    filltimeflow = GetFlowWeights(type,cbin,trig_pt,assoc_pt,dphifold);
+	    //std::cout<<"filltimeflow = "<<filltimeflow<<std::endl;
+	    filltimeflow*=filltimeweight;
+	    //std::cout<<"filltimeflow*=filltimeweight = "<<filltimeflow<<std::endl;
+	    h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeflow);
+	    //std::cout<<"h3ptxidphi_fold filled."<<std::endl;
+	  }
+	}
+	if( h3ptztdphi_fold ) {
+	  if(type == REAL || type == REALPI)
+	    h3ptztdphi_fold->Fill(trig_pt, zt, dphifold, filltimeweight);
+	  if(type == MIX || type == MIXPI){
+	    filltimeflow = GetFlowWeights(type,cbin,trig_pt,assoc_pt,dphifold);
+	    //std::cout<<"filltimeflow = "<<filltimeflow<<std::endl;
+	    filltimeflow*=filltimeweight;
+	    h3ptztdphi_fold->Fill(trig_pt, zt, dphifold, filltimeflow);
+	    //std::cout<<"h3ptztdphi_fold filled."<<std::endl;
+	  }
+	}
+
+	if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
+	
+	//******************************************
+	//*  Make decay photon-h pairs             *
+	//******************************************
+	if(type==REALPI || type==MIXPI) {
+	  if (verbosity > 1) std::cout<<"Correlation::MakePairs - making decay pairs" << std::endl;
+	  MakeDecays(type,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec_fold,h2dphizt_dec_fold);
+	}
       }
+      
       if( type==MIX && DiagFlag ) {
-        h3_mintrackdist_bg_allcent->Fill(mindist,trig_pt, ptofvetotrack);
-        h3_mintrackdist_bg[cbin]->Fill(mindist,trig_pt, ptofvetotrack);
+	h3_mintrackdist_bg_allcent->Fill(mindist,trig_pt, ptofvetotrack);
+	h3_mintrackdist_bg[cbin]->Fill(mindist,trig_pt, ptofvetotrack);
       }
     }
   }
   
+
 private:
+  float GetHadronEfficiency(float pt);
   void GetAcceptanceWeights(std::string filename);
-  void MakeDphiProjection(TH3D* h3, TH1D*& h1,double xmin, double xmax, double ymin, double ymax, std::string hname);
+  double GetAcceptance(PairType type, int cbin, float trigpt, float partpt, float dphi);
+  float GetFlowWeights(PairType type, int cbin, float trigpt, float partpt, float dphifold);
+  //void GetXi(int decayflag, int trigptbin, int partptbin, int centbin, float& xi, float& xierr);
+  TH1F* MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, std::string hname);
+  //void MakeDphiProjection(TH3F* h3, TH1F*& h1, float xmin, float xmax, float ymin, float ymax, std::string hname);
+  void MakeAccHistos(TH1F* h1in, TH1F* h1out);
   int IsPbGl(int armsect){ return ((armsect==4||armsect==5)? 1 : 0); }
   int VetoTracks(ACluster* aclus, std::vector<ATrack*> lessqualtrk_vector);
   int VetoTracks(ACluster* aclus, std::vector<ATrack*> lessqualtrk_vector, float& mindist, float& vetopt);
@@ -201,7 +246,7 @@ private:
   bool CheckPhiFiducial(float phi);
   void CalcPbglDisp(const float& m1z, const float& m1y, const float& m2z, const float& m2y, float* returnVals_z_y);
   double IncidentAngle(const int arm, const int sect, const double& fX, const double& fY, const double& fZ, const double& fBbcZEvt);
-
+  
   void MakeEventObject(PHGlobal* glob, AEvent* aevt);
   void MakeClusterObject(emcClusterContent* clus, ACluster* aclus);
   void MakeClusterObject(ACluster* aclus, float pt, float phi, float eta, float e, float x, float y, float z, float zvtx);
@@ -209,25 +254,25 @@ private:
   void MakeTrackObject(ATrack* atrk, float pt, float phi, float eta, float e, float pemcx, float pemcy, float pemcz, float zvtx);
   void MakePi0s(std::vector<ACluster*> all_clusters, int cbin, float zvertex, DataSet dataset);
   void MakePi0Object(APiZero* api0, float pt, float phi, float eta, float e, float x, float y, float z, float zvtx);
+  float GetNTriggers(TH1F* trigpt, float trigptmin, float trigptmax);
   int GetPtBin(float pt, int istrig);
   int GetCentBin(int centbin);
   float FindTrackDistance(ACluster* clus, ATrack* trk);
   void EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, std::vector<float>& mwweight);
-  void MakeDecays(float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight,
-                  std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi_fold,
-                  std::vector<TH2F*> hdphizt_fold);
+  
+  void MakeDecays(PairType type, float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight, std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt_fold);
   
   void AddMBEvent(DataSet data_set);
-
+  
   void InitHistos();
   void Init1DHisto(TH1F*& h1, std::string name, std::string xtitle, int nxbin, double xmin, double xmax);
   void Init2DHisto(TH2F*& h2, std::string name, std::string xtitle, int nxbin, double xmin, double xmax, std::string ytitle, int nybin, double ymin, double ymax);
   void Init3DHisto(TH3F*& h3, std::string name, std::string xtitle, int nxbin, double xmin, double xmax, std::string ytitle, int nybin, double ymin, double ymax, std::string ztitle, int nzbin, double zmin, double zmax);
   void Init3DHisto(TH3D*& h3, std::string name, std::string xtitle, int nxbins, double* xbins, std::string ytitle, int nybins, double* ybins, std::string ztitle, int nzbins, double* zbins);
-
+  
   void InitPhotonCutChecker(std::string name, THmulf*& histo);
   void InitHadronCutChecker(std::string name, THmulf*& histo);
-
+  
   void FillClusterQAHistos(int isafter, float pt, float emctrkdphi, float emctrkdz, float emcpc3dphi, float emcpc3dz);
   void FillTrackQAHistos(int isafter, float ppc3x, float ppc3y, float ppc3z, float ppc1z, float ppc1y, float zed, float phid, float pt, float quality, int n0, float pc3sdphi, float pc3sdz);
   void DoMixing(TTree* trig, TTree* assoc, int size);
@@ -237,23 +282,23 @@ private:
   PHGlobal* global;
   emcClusterContainer* emcclustercontainer;
   PHCentralTrack* particle;
-  SvxCentralTrackList* svxcntlist;
-  SvxClusterList* svxcluslist;
-  SvxCentralTrack* svxcnttrk;
+  // SvxCentralTrackList* svxcntlist;
+  // SvxClusterList* svxcluslist;
+  // SvxCentralTrack* svxcnttrk;
   TOAD* toad_loader;
-
+  
   Warnmap* warnmap;
-
+  
   AMixingTree* atree;
-
+  
   std::string output;
   std::vector<std::string> warnmap_filenames;
   std::vector<double> warnmap_cuts;
-
-  TH1D* IncAcc[4][NPARTBINS][NTRIGBINS];
-  TH1D* Pi0Acc[4][NPARTBINS][NTRIGBINS];
-  TH1D* DecAcc[4][NPARTBINS][NTRIGBINS];
-
+  
+  TH1F* IncAcc[4][NTRIGBINS][NPARTBINS];//[cent][ntrig][npart]
+  TH1F* Pi0Acc[4][NTRIGBINS][NPARTBINS];
+  TH1F* DecAcc[4][NTRIGBINS][NPARTBINS];
+  
   DataSet data_set;
   unsigned int Cut3x3Map;
   int NZVTX;
@@ -262,7 +307,7 @@ private:
   int NMIX;
   int evt;
   int event;
-  int useVtx;
+  //int useVtx;
   int DiagFlag;
   int RecalFlag;
   float event_z;
@@ -274,8 +319,8 @@ private:
   float minAsym;
   float zVertexCut;
   float fieldPolarity;
-  int nsvxpart;
-
+  //int nsvxpart;
+  
   // float cluster_pt;
   // float pi0pt;
   float photon_pt_min;
@@ -286,7 +331,28 @@ private:
   float pi0_pt_min;
   float pi0_pt_max;
   // double mwweight[5];
-
+  // TGraphErrors* gr_inc_v2[4];
+  // TGraphErrors* gr_dec_v2[4];
+  // TGraphErrors* gr_pi0_v2[4];
+  // TGraphErrors* gr_had_v2[4];
+  // TGraphErrors* gr_inc_v2sys[4];
+  // TGraphErrors* gr_dec_v2sys[4];
+  // TGraphErrors* gr_pi0_v2sys[4];
+  // TGraphErrors* gr_had_v2sys[4];
+  
+  
+  double trig_v2[3][4][NTRIGBINS]; //[type][cent][trig]
+  double trig_v2_err[3][4][NTRIGBINS];
+  double trig_v2_sys[3][4][NTRIGBINS];
+  double part_v2[4][NPARTBINS]; //[cent][trig]
+  double part_v2_err[4][NPARTBINS]; 
+  double part_v2_sys[4][NPARTBINS];
+  
+  //float xi[3][4][NTRIGBINS][NPARTBINS];//[type][cent][trig][part]
+  //float xierr[3][4][NTRIGBINS][NPARTBINS];
+  float num_bgtrig[3][4][NTRIGBINS];
+  double meanpart[3][4][NTRIGBINS][NPARTBINS];
+  
   std::vector<ACluster*> clus_everything;//to store every cluster for pi0 looping (same as in old code) -032215
   //std::vector<ACluster*> clus_vector_novetotracks;
   std::vector<ACluster*> clus_vector;
@@ -302,12 +368,12 @@ private:
   std::vector<ATrack*> lessqualtrk_vector;//quality>7 tracks
   std::vector<APiZero*> pi0_vector;
   std::vector<APiZero*> bgpi0_vector;
-
+  
   TH1F* h1_n0;//n0 distribution
   TH1F* h1_chi2[N_ARMSECT];//pbsc
   TH3F* h3_disp[N_ARMSECT];//pbgl
   TH1F* h1_trigger[N_ARMSECT];//ert trigger
-
+  
   std::vector<TH3F*> h3_dphi;
   std::vector<TH3F*> h3_dphi_1sig;
   std::vector<TH3F*> h3_dphi_2sig;
@@ -316,7 +382,7 @@ private:
   std::vector<TH3F*> h3_dphi_pi0_mix;
   std::vector<TH3F*> h3_dphi_pi0_bg;
   std::vector<TH3F*> h3_dphi_pi0_bg_mix;
-                   
+  
   std::vector<TH3F*> h3_dphi_fold;
   std::vector<TH3F*> h3_ptxidphi_fold;
   std::vector<TH3F*> h3_ptztdphi_fold;
@@ -332,10 +398,10 @@ private:
   std::vector<TH3F*> h3_dphi_pi0_mix_fold;
   std::vector<TH3F*> h3_ptxidphi_pi0_mix_fold;
   std::vector<TH3F*> h3_ptztdphi_pi0_mix_fold;
-
+  
   TH3D* h3_nhit[N_ARMSECT];
   TH3D* h3_nhit_mywarn[N_ARMSECT];
-
+  
   std::vector<TH2F*> h2_pi0mass;//cent
   TH2F* h2_pi0mass_as[N_ARMSECT];
   TH2F* h2_pi0mass_PbGl;
@@ -457,15 +523,13 @@ private:
   std::vector<std::vector<TH2F*> > h2_dphizt_dec_fold;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_fold;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_mix;
-  std::vector<std::vector<TH2F*> > h2_dphixi_dec_mix;
-  std::vector<std::vector<TH2F*> > h2_dphizt_dec_mix;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_mix_fold;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_mix_fold;
   std::vector<std::vector<TH2F*> > h2_dphizt_dec_mix_fold;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_mix_iso_fold;
 
   std::string _accfilename;
-  std::string _xifilename;
+  //std::string _xifilename;
   std::string _flowfilename;
   std::string _hadeffFilename;
   std::string _pi0effFilename_0;
@@ -473,9 +537,13 @@ private:
   std::string _pi0effFilename_2;
   std::string _pi0effFilename_3;
   std::string _sharkfinname;
+  
 
-  TFile* fhadeff;
+  //TFile* fhadeff;
+  TF1* fexemb;
   TF1* fhadroneff;
+  //TH1D* h1_hadroneff;//input hadron efficiency in five associate hadron pt bins
+  
   TFile* fpi0eff_0;//0-20%
   TFile* fpi0eff_1;//20-40%
   TFile* fpi0eff_2;//40-60%
@@ -484,6 +552,7 @@ private:
   TGraphErrors* grpi0eff_1;//20-40%
   TGraphErrors* grpi0eff_2;//40-60%
   TGraphErrors* grpi0eff_3;//60-100%
+
 };
 
 #endif /* __CORRELATION_H__ */
