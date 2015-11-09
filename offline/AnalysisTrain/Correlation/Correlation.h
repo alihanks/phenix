@@ -166,7 +166,7 @@ public:
         if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold);
 	
 	//fill xi plots with filltime weights
-	float seffcorr = GetHadronEfficiency(assoc_pt);
+	float seffcorr = GetHadronEfficiencyCorr(assoc_pt);
        
 	//std::cout << "hadron efficiency at pt = " << assoc_pt << " is " << seffcorr << std::endl;
 
@@ -175,7 +175,8 @@ public:
 	
 	float accw = GetAcceptance(type, cbin, trig_pt, assoc_pt, dphifold);
 	//std::cout << "get accw for type: " << type << ": " << accw << std::endl;
-	if( accw > 0 ) filltimeweight = 1/(seffcorr*accw);
+	//if( accw > 0 ) filltimeweight = 1/(seffcorr*accw);
+	if( accw > 0 ) filltimeweight = seffcorr/accw;
 	//std::cout<<"filltimeweight = "<<filltimeweight<<std::endl;
 
       	float zt = assoc_pt/trig_pt;
@@ -225,7 +226,7 @@ public:
   
 
 private:
-  float GetHadronEfficiency(float pt);
+  float GetHadronEfficiencyCorr(float pt);
   void GetAcceptanceWeights(std::string filename);
   double GetAcceptance(PairType type, int cbin, float trigpt, float partpt, float dphi);
   float GetFlowWeights(PairType type, int cbin, float trigpt, float partpt, float dphifold);
