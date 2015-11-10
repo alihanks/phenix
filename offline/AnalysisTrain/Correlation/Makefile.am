@@ -38,7 +38,7 @@ nobase_dist_mydata_DATA = \
   inputs/run8/dA_run8_trig_eff_1_v0.root \
   inputs/run8/dA_run8_trig_eff_2_v0.root \
   inputs/run8/dA_run8_trig_eff_3_v0.root \
-  inputs/run8/chhadron_eff_dAu_C0.root \
+  inputs/run8/hadron_eff_dAu.root \
   inputs/run8/filltimeweighting.root
 
 libCorrelation_la_LIBADD = \
