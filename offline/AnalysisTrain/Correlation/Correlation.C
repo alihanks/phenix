@@ -1449,7 +1449,7 @@ float Correlation::GetFlowWeights(PairType type, int cbin, float trigpt, float p
   // cout<<"trig_v2["<<typebin<<"]["<<tbin<<"]["<<pbin<<"] = "<<trig_v2[typebin][tbin][pbin]<<endl;
   // cout<<"part_v2["<<tbin<<"]["<<pbin<<"] = "<<part_v2[tbin][pbin]<<endl;
   // cout<<"cos(2*dphi) = "<<cos(2*dphifold)<<endl;
-  return flowweight;
+    return flowweight;
 }
 
 TH1F* Correlation::MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, string hname)
@@ -2111,38 +2111,17 @@ float Correlation::GetHadronEfficiencyCorr(float pt)
   fexemb->SetParameters(0.761,1.640,-4.734);
   
   float embcorr[4]={(0.779+0.851)/2.,(0.887+.938)/2.,(0.968+0.988)/2.,(.986+.993+.998)/3.};
-
   if(pt>5.0 && cbin==0) embcorr[0]=fexemb->Eval(pt);
   
   float seffcorr = 1.0;
-  //cout<<"fhadroneff->Eval(pt) = "<<fhadroneff->Eval(pt)<<endl;
+  cout<<"fhadroneff->Eval(pt) = "<<fhadroneff->Eval(pt)<<endl;
   seffcorr = 2.0/fhadroneff->Eval(pt);
-  if(pt>5.0) seffcorr = seffcorr/embcorr[cbin];
-  else seffcorr = seffcorr/richcorr[cbin];
-
+  if( data_set != Run8dAu ) {
+    if(pt>5.0) seffcorr = seffcorr/embcorr[cbin];
+    else seffcorr = seffcorr/richcorr[cbin];
+  }
   return seffcorr;
 }
-
-// float Correlation::GetHadronEfficiency(float pt)
-// {
-//   float richcorr[4]={0.680,0.835,0.925,0.975};
-//   //From Andrew's thesis for 0-20% without Rich embedding
-//   //TF1* fexemb = new TF1("fexemb","[0]+[1]*exp([2]*x)",5.0,10.0);
-//   fexemb->SetParameters(0.761,1.640,-4.734);
-  
-//   float embcorr[4]={(0.779+0.851)/2.,(0.887+.938)/2.,(0.968+0.988)/2.,(.986+.993+.998)/3.};
-
-//   if(pt>5.0 && cbin==0) embcorr[0]=fexemb->Eval(pt);
-  
-//   float seffcorr = 1.0;
-//   int binnbr = GetPtBin(pt,0);
-//   cout<<"hadron pt = "<<pt<<"; eff = "<<h1_hadeff->GetBinContent(binnbr);
-//   seffcorr = 2.0/h1_hadeff->GetBinContent(binnbr);
-//   if(pt>5.0) seffcorr = seffcorr/embcorr[cbin];
-//   else seffcorr = seffcorr/richcorr[cbin];
-
-//   return seffcorr;
-// }
 
 void Correlation::SetTriggerEfficiency(const char* filename_0, const char* filename_1, const char* filename_2, const char* filename_3)
 {

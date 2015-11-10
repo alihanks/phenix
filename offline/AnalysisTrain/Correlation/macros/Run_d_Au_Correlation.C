@@ -9,7 +9,7 @@ void Run_d_Au_Correlation(const char* outFile = "test.root")
   co->SetDiagFlag(0);
   co->SetNCentBins(10,4);
   co->SetNMixEvents(500);
-  co->SetHadronEffFileName("inputs/run8/chhadron_eff_dAu_C0.root");
+  co->SetHadronEffFileName("inputs/run8/hadron_eff_dAu.root");
   co->SetPi0EffFileName("inputs/run8/dA_run8_trig_eff_0_v0.root","inputs/run8/dA_run8_trig_eff_1_v0.root","inputs/run8/dA_run8_trig_eff_2_v0.root","inputs/run8/dA_run8_trig_eff_3_v0.root");
   co->SetSharkFinFileName("inputs/run8/sharkfin_miss.root");
   co->SetWeightFileNames("inputs/run8/filltimeweighting.root","inputs/run11/v2_inputs.root");
