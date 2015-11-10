@@ -2096,7 +2096,7 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
 void Correlation::SetHadronEfficiency(const char* filename)
 {
   TFile* fhadeff = new TFile(filename);
-  cout<<PHWHERE<<"loading hadron efficiency"<<fhadeff->GetName()<<endl;
+  if( verbosity > 1 ) cout<<PHWHERE<<"loading hadron efficiency"<<fhadeff->GetName()<<endl;
   fhadeff->GetObject("feff",fhadroneff);
   //fhadroneff = (TH1D*)fhadeff->Get("heff2");
   fexemb = new TF1("fexemb","[0]+[1]*exp([2]*x)",5.0,10.0);
