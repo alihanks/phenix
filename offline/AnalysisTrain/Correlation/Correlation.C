@@ -1432,13 +1432,14 @@ double Correlation::GetAcceptance(PairType type, int cbin, float trigpt, float p
 
 float Correlation::GetFlowWeights(PairType type, int cbin, float trigpt, float partpt, float dphifold)
 {
-  int tbin = GetPtBin(trigpt, 1);
-  int pbin = GetPtBin(partpt, 0);
-  
-  int typebin = 0;
+  int typebin = -1;
   if( type == MIX ) typebin = 0;
   if( type == MIXPI ) typebin = 1;
   if( type == MIXDEC) typebin = 2;
+  if( typebin < 0 ) return 1.0;  // only return flow modulation for mixed pairs
+
+  int tbin = GetPtBin(trigpt, 1);
+  int pbin = GetPtBin(partpt, 0);  
 
   float flowweight = /*meanpart[typebin][cbin][tbin][pbin]/num_bgtrig[typebin][cbin][tbin]*/(1+trig_v2[typebin][tbin][pbin]*part_v2[tbin][pbin]*cos(2*dphifold));
   //cout<<"meanpart["<<typebin<<"]["<<cbin<<"]["<<tbin<<"]["<<pbin<<"] = "<<meanpart[typebin][cbin][tbin][pbin]<<endl;
@@ -2038,36 +2039,35 @@ void Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, v
   }
 }
 
-void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight,
-                             std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, 
-			     std::vector<TH2F*> hdphixi, std::vector<TH2F*> hdphixi_fold,
-			     std::vector<TH2F*> hdphizt, std::vector<TH2F*> hdphizt_fold)
-		      
+float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, float trigpt)
 {
-  // cout<<"MakeDecays: type = "<<type<<endl;
-  int isbg = 0;
-  if(type == REALPI) isbg = 0;
-  if(type == MIXPI) isbg = 1;
-
-  //calculate xi weights for filltime 
-  float seffcorr = GetHadronEfficiencyCorr(partpt);
-  //cout<<"MakeDecays: seffcorr = "<<seffcorr<<endl;
-  
   float filltimeweight = 1.;
   float filltimeflow = 1.;
-  float filltimeweightfold = 1.;
-  float filltimeflowfold = 1.;
-  
-  float accw = GetAcceptance(DEC, cbin, trigpt, partpt, dphi);
-  float accwfold = GetAcceptanceFold(DEC, cbin, trigpt, partpt, dphifold);
-  //std::cout << "get accw for decay: " << accw << std::endl;
-  if( accw > 0 ) filltimeweight = seffcorr/accw;
-  if( accwfold > 0 ) filltimeweightfold = seffcorr/accwfold;
-  //cout<<"filltimeweight = "<<filltimeweight<<endl;
-  
-  if (isbg) filltimeflow = GetFlowWeights(MIXDEC,cbin,trigpt,partpt,dphi)*filltimeweight;
-  if (isbg) filltimeflowfold = GetFlowWeights(MIXDEC,cbin,trigpt,partpt,dphifold)*filltimeweightfold;
 
+  float seffcorr = GetHadronEfficiencyCorr(partpt);
+  if( verbosity ) cout << PHWHERE << ": seffcorr = " << seffcorr << endl;
+  
+  float accw = GetAcceptance(type, cbin, trigpt, partpt, dphi);
+  if( verbosity ) cout << PHWHERE << "get accw for decay: " << accw << endl;
+  if( accw > 0 ) filltimeweight = seffcorr/accw;
+  if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
+
+  // GetFlowWeights returns 1.0 if these are real pairs
+  filltimeflow = GetFlowWeights(type,cbin,trigpt,partpt,dphi)*filltimeweight;
+
+  return filltimeflow;
+}
+
+void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight,
+                             std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, 
+                  			     std::vector<TH2F*> hdphixi, std::vector<TH2F*> hdphixi_fold,
+                  			     std::vector<TH2F*> hdphizt, std::vector<TH2F*> hdphizt_fold)		      
+{
+  if( verbosity > 1) cout<<"MakeDecays: type = "<<type<<endl;
+
+  //calculate xi weights for filltime 
+  float filltimeflow = GetFilltimeWeight(type,dphi,partpt,trigpt);
+  
   float zt = partpt/trigpt;
   float xi = log(1.0/zt);
   
@@ -2075,22 +2075,18 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
     if(weight[ipw]>0) {
       hdphi[ipw]->Fill(dphi,partpt,weight[ipw]);
       if( hdphi_fold.size()>ipw )
-	hdphi_fold[ipw]->Fill(dphifold,partpt,weight[ipw]);
+      	hdphi_fold[ipw]->Fill(dphifold,partpt,weight[ipw]);
       if( hdphixi.size()>ipw ){
-	if(!isbg) hdphixi[ipw]->Fill(dphi,xi,weight[ipw]*filltimeweight);
-	else hdphixi[ipw]->Fill(dphi,xi,weight[ipw]*filltimeflow);
+      	hdphixi[ipw]->Fill(dphi,xi,weight[ipw]*filltimeflow);
       }
       if( hdphizt.size()>ipw ){
-      	if(!isbg) hdphizt[ipw]->Fill(dphi,zt,weight[ipw]*filltimeweight);
-      	else hdphizt[ipw]->Fill(dphi,zt,weight[ipw]*filltimeflow);
+      	hdphizt[ipw]->Fill(dphi,zt,weight[ipw]*filltimeflow);
       }
       if( hdphixi_fold.size()>ipw ){
-	if(!isbg) hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeweightfold);
-	else hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeflowfold);
+      	hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeflow);
       }
       if( hdphizt_fold.size()>ipw ){
-      	if(!isbg) hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeweightfold);
-      	else hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeflowfold);
+      	hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeflow);
       }
     }
   }

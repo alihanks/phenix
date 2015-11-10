@@ -96,17 +96,17 @@ public:
                                             PairType type, DataSet dataset,
                                             TH3F* h3dphi,
                                             TH3F* h3dphi_fold,
-					    TH3F* h3ptxidphi = NULL,
-                          		    TH3F* h3ptxidphi_fold = NULL,
-					    TH3F* h3ptztdphi = NULL,
-					    TH3F* h3ptztdphi_fold = NULL,
-					    std::vector<TH2F*> h2dphi_dec = std::vector<TH2F*>(),
+                              					    TH3F* h3ptxidphi = NULL,
+                          		              TH3F* h3ptxidphi_fold = NULL,
+                              					    TH3F* h3ptztdphi = NULL,
+                              					    TH3F* h3ptztdphi_fold = NULL,
+                              					    std::vector<TH2F*> h2dphi_dec = std::vector<TH2F*>(),
                                             std::vector<TH2F*> h2dphi_dec_fold = std::vector<TH2F*>(),
-					    std::vector<TH2F*> h2dphixi_dec = std::vector<TH2F*>(),
-					    std::vector<TH2F*> h2dphixi_dec_fold = std::vector<TH2F*>(),
-					    std::vector<TH2F*> h2dphizt_dec = std::vector<TH2F*>(),
-					    std::vector<TH2F*> h2dphizt_dec_fold = std::vector<TH2F*>(),
-					    TH2F* h2paircut_bf = NULL,
+                              					    std::vector<TH2F*> h2dphixi_dec = std::vector<TH2F*>(),
+                              					    std::vector<TH2F*> h2dphixi_dec_fold = std::vector<TH2F*>(),
+                              					    std::vector<TH2F*> h2dphizt_dec = std::vector<TH2F*>(),
+                              					    std::vector<TH2F*> h2dphizt_dec_fold = std::vector<TH2F*>(),
+                              					    TH2F* h2paircut_bf = NULL,
                                             TH2F* h2paircut_af = NULL
                                            )
   {
@@ -125,21 +125,21 @@ public:
      
       //if( (type==MIX||type==MIXPI) ) std::cout << "Correlation::MakePairs combining " << associated.size() << " associated tracks" << std::endl;
       for(unsigned int ia = 0; ia < associated.size(); ia++){
-	//if(type == MIXPI) std::cout<<"ia = "<<ia<<std::endl;
+      	//if(type == MIXPI) std::cout<<"ia = "<<ia<<std::endl;
       	float assoc_pt = associated[ia]->Pt();
         float assoc_phi = associated[ia]->Phi();
         
         if(associated[ia]->Theta()<-99) continue;
         
         //adopted from loopthrutrack in old code -032215 this might not have any effect as the pair cut was implemented when selecting the triggers already
-	float dist = 99.;
+      	float dist = 99.;
         if(assoc_pt>vetoPtCut){
           if(type==REAL) dist=FindTrackDistance((ACluster*)triggers[it], associated[ia]);
           if(type==REALPI) dist=FindTrackDistance((ACluster*)triggers[it]->Daughter1(), associated[ia]);
         }
         if(dist<8) continue;
 
-	int ipartpt = GetPtBin(assoc_pt,0);
+      	int ipartpt = GetPtBin(assoc_pt,0);
 
         // Apply pair cut for mixed pairs
         if( type==MIX||type==MIXPI ) {
@@ -169,87 +169,47 @@ public:
 
         if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold);
 	
-	//fill xi plots with filltime weights
-	float seffcorr = GetHadronEfficiencyCorr(assoc_pt);
-       	//std::cout << "hadron efficiency correction at pt = " << assoc_pt << " is " << seffcorr << std::endl;
-
-	float filltimeweight = 1.;
-	float filltimeflow = 1.;
-	float filltimeweightfold = 1.;
-	float filltimeflowfold = 1.;
-	
-	float accw = GetAcceptance(type, cbin, trig_pt, assoc_pt, deltaphi);
-	float accwfold = GetAcceptanceFold(type, cbin, trig_pt, assoc_pt, dphifold);
-	//std::cout << "get accw for type: " << type << ": " << accw << std::endl;
-	//if( accw > 0 ) filltimeweight = 1/(seffcorr*accw);
-	if( accw > 0 ) filltimeweight = seffcorr/accw;
-	if( accwfold > 0 ) filltimeweightfold = seffcorr/accwfold;
-	//std::cout<<"filltimeweight = "<<filltimeweight<<std::endl;
-
+      	//fill xi plots with filltime weights
+      	float filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,trig_pt);
+      	
       	float zt = assoc_pt/trig_pt;
       	float xi = log(1.0/zt);
       	
-	if( h3ptxidphi ) {
-	  if(type == REAL || type == REALPI)
-	    h3ptxidphi->Fill(trig_pt, xi, deltaphi, filltimeweight);
-	  if(type == MIX || type == MIXPI){
-	    filltimeflow = GetFlowWeights(type,cbin,trig_pt,assoc_pt,deltaphi);
-	    //std::cout<<"filltimeflow = "<<filltimeflow<<std::endl;
-	    filltimeflow*=filltimeweight;
-	    //std::cout<<"filltimeflow*=filltimeweight = "<<filltimeflow<<std::endl;
-	    h3ptxidphi->Fill(trig_pt, xi, deltaphi, filltimeflow);
-	    //std::cout<<"h3ptxidphi_fold filled."<<std::endl;
-	  }
-	}
-	if( h3ptztdphi ) {
-	  if(type == REAL || type == REALPI)
-	    h3ptztdphi->Fill(trig_pt, zt, deltaphi, filltimeweight);
-	  if(type == MIX || type == MIXPI){
-	    filltimeflow = GetFlowWeights(type,cbin,trig_pt,assoc_pt,deltaphi);
-	    //std::cout<<"filltimeflow = "<<filltimeflow<<std::endl;
-	    filltimeflow*=filltimeweight;
-	    h3ptztdphi->Fill(trig_pt, zt, deltaphi, filltimeflow);
-	    //std::cout<<"h3ptztdphi_fold filled."<<std::endl;
-	  }
-	}
-	if( h3ptxidphi_fold ) {
-	  if(type == REAL || type == REALPI)
-	    h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeweightfold);
-	  if(type == MIX || type == MIXPI){
-	    filltimeflowfold = GetFlowWeights(type,cbin,trig_pt,assoc_pt,dphifold);
-	    //std::cout<<"filltimeflow = "<<filltimeflow<<std::endl;
-	    filltimeflowfold*=filltimeweightfold;
-	    //std::cout<<"filltimeflow*=filltimeweight = "<<filltimeflow<<std::endl;
-	    h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeflowfold);
-	    //std::cout<<"h3ptxidphi_fold filled."<<std::endl;
-	  }
-	}
-	if( h3ptztdphi_fold ) {
-	  if(type == REAL || type == REALPI)
-	    h3ptztdphi_fold->Fill(trig_pt, zt, dphifold, filltimeweightfold);
-	  if(type == MIX || type == MIXPI){
-	    filltimeflowfold = GetFlowWeights(type,cbin,trig_pt,assoc_pt,dphifold);
-	    //std::cout<<"filltimeflow = "<<filltimeflow<<std::endl;
-	    filltimeflowfold*=filltimeweightfold;
-	    h3ptztdphi_fold->Fill(trig_pt, zt, dphifold, filltimeflowfold);
-	    //std::cout<<"h3ptztdphi_fold filled."<<std::endl;
-	  }
-	}
+      	if( h3ptxidphi ) {
+    	    h3ptxidphi->Fill(trig_pt, xi, deltaphi, filltimeflow);
+      	}
+      	if( h3ptztdphi ) {
+    	    h3ptztdphi->Fill(trig_pt, zt, deltaphi, filltimeflow);
+      	}
+      	if( h3ptxidphi_fold ) {
+    	    h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeflow);
+          if( verbosity > 1 ) std::cout<<"h3ptxidphi_fold filled."<<std::endl;
+      	}
+      	if( h3ptztdphi_fold ) {
+    	    h3ptztdphi_fold->Fill(trig_pt, zt, dphifold, filltimeflow);
+          if( verbosity > 1 ) std::cout<<"h3ptztdphi_fold filled."<<std::endl;
+      	}
 
-	if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
-	
-	//******************************************
-	//*  Make decay photon-h pairs             *
-	//******************************************
-	if(type==REALPI || type==MIXPI) {
-	  if (verbosity > 1) std::cout<<"Correlation::MakePairs - making decay pairs" << std::endl;
-	  MakeDecays(type,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
-	}
+      	if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
+      	
+      	//******************************************
+      	//*  Make decay photon-h pairs             *
+      	//******************************************
+      	if(type==REALPI ) {
+      	  if (verbosity > 1) std::cout<<"Correlation::MakePairs - making real decay pairs" << std::endl;
+      	  MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),
+                     h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+        }
+        if(type==MIXPI ) {
+          if (verbosity > 1) std::cout<<"Correlation::MakePairs - making mixed decay pairs" << std::endl;
+          MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),
+                     h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+        }
       }
-      
+        
       if( type==MIX && DiagFlag ) {
-	h3_mintrackdist_bg_allcent->Fill(mindist,trig_pt, ptofvetotrack);
-	h3_mintrackdist_bg[cbin]->Fill(mindist,trig_pt, ptofvetotrack);
+      	h3_mintrackdist_bg_allcent->Fill(mindist,trig_pt, ptofvetotrack);
+      	h3_mintrackdist_bg[cbin]->Fill(mindist,trig_pt, ptofvetotrack);
       }
     }
   }
@@ -259,6 +219,7 @@ private:
   float GetHadronEfficiencyCorr(float pt);
   void GetAcceptanceWeightsFold(std::string filename);
   void GetAcceptanceWeights(std::string filename);
+  float GetFilltimeWeight(PairType type, float dphi, float partpt, float trigpt);
   double GetAcceptanceFold(PairType type, int cbin, float trigpt, float partpt, float dphi);
   double GetAcceptance(PairType type, int cbin, float trigpt, float partpt, float dphi);
   float GetFlowWeights(PairType type, int cbin, float trigpt, float partpt, float dphifold);
