@@ -2053,7 +2053,8 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, fl
   if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
 
   // GetFlowWeights returns 1.0 if these are real pairs
-  filltimeflow = GetFlowWeights(type,cbin,trigpt,partpt,dphi)*filltimeweight;
+  // Don't apply flow modulation for non Au+Au runs (like dAu)
+  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,cbin,trigpt,partpt,dphi)*filltimeweight;
 
   return filltimeflow;
 }
