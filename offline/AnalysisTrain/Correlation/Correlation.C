@@ -251,6 +251,38 @@ int Correlation::Init(PHCompositeNode* topNode)
     name = "h3_dphi_pi0_mix_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
     h3_dphi_pi0_mix.push_back(temp3);
+
+    name = "h3_ptxidphi_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    h3_ptxidphi.push_back(temp3);
+
+    name = "h3_ptztdphi_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    h3_ptztdphi.push_back(temp3);
+
+    name = "h3_ptxidphi_pi0_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    h3_ptxidphi_pi0.push_back(temp3);
+
+    name = "h3_ptztdphi_pi0_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    h3_ptztdphi_pi0.push_back(temp3);
+
+    name = "h3_ptxidphi_mix_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    h3_ptxidphi_mix.push_back(temp3);
+
+    name = "h3_ptztdphi_mix_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    h3_ptztdphi_mix.push_back(temp3);
+
+    name = "h3_ptxidphi_pi0_mix_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    h3_ptxidphi_pi0_mix.push_back(temp3);
+
+    name = "h3_ptztdphi_pi0_mix_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    h3_ptztdphi_pi0_mix.push_back(temp3);
     
     name = "h3_dphi_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
@@ -283,14 +315,16 @@ int Correlation::Init(PHCompositeNode* topNode)
     name = "h3_ptztdphi_mix_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_ptztdphi_mix_fold.push_back(temp3);
-    
+
     name = "h3_dphi_pi0_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_dphi_pi0_fold.push_back(temp3);
 
+
     name = "h3_ptxidphi_pi0_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_ptxidphi_pi0_fold.push_back(temp3);
+
 
     name = "h3_ptztdphi_pi0_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 30, 0., PI);
@@ -449,12 +483,24 @@ int Correlation::Init(PHCompositeNode* topNode)
       for(int ih = 0; ih < NPARTBINS; ih++){
 	bin.str("");
 	bin << ic << "_p" << ip << "_h" << ih;
+	name = "h1_IncAcc_fold_c" + bin.str();
+	Init1DHisto(IncAccFold[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
+	name = "h1_Pi0Acc_fold_c" + bin.str();
+	Init1DHisto(Pi0AccFold[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
+	name = "h1_DecAcc_fold_c" + bin.str();
+	Init1DHisto(DecAccFold[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
+      }
+    }
+    for(int ip = 0; ip < NTRIGBINS; ip++){
+      for(int ih = 0; ih < NPARTBINS; ih++){
+	bin.str("");
+	bin << ic << "_p" << ip << "_h" << ih;
 	name = "h1_IncAcc_c" + bin.str();
-	Init1DHisto(IncAcc[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
+	Init1DHisto(IncAcc[ic][ip][ih], name.c_str(), "", 60, -PI/2, 3*PI/2);
 	name = "h1_Pi0Acc_c" + bin.str();
-	Init1DHisto(Pi0Acc[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
+	Init1DHisto(Pi0Acc[ic][ip][ih], name.c_str(), "", 60, -PI/2, 3*PI/2);
 	name = "h1_DecAcc_c" + bin.str();
-	Init1DHisto(DecAcc[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
+	Init1DHisto(DecAcc[ic][ip][ih], name.c_str(), "", 60, -PI/2, 3*PI/2);
       }
     }
   }
@@ -567,13 +613,17 @@ int Correlation::Init(PHCompositeNode* topNode)
 
   h2_dphi_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphixi_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphixi_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphizt_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphizt_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_iso_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
-  h2_dphixi_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
-  h2_dphizt_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphixi_dec_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphixi_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphizt_dec_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphizt_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_mix_iso_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
 
   for(int ic=0; ic<NCBINS; ic++){
@@ -583,30 +633,55 @@ int Correlation::Init(PHCompositeNode* topNode)
       name = "h2_dphi_dec_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 60, -PI/2, 3*PI/2, "p_{T, h} [GeV/c]",100,0.0,10.0);
       h2_dphi_dec[ic].push_back(temp2);
+
       name = "h2_dphi_dec_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
       h2_dphi_dec_fold[ic].push_back(temp2);
+
+      name = "h2_dphixi_dec_p" + bin.str();
+      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 60, -PI/2, 3*PI/2, "xi",25,-1.0,4.0);
+      h2_dphixi_dec[ic].push_back(temp2);
+
       name = "h2_dphixi_dec_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "xi",25,-1.0,4.0);
       h2_dphixi_dec_fold[ic].push_back(temp2);
+
+      name = "h2_dphizt_dec_p" + bin.str();
+      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 60, -PI/2, 3*PI/2, "zt",40,0.0,2.0);
+      h2_dphizt_dec[ic].push_back(temp2);
+
       name = "h2_dphizt_dec_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "zt",40,0.0,2.0);
       h2_dphizt_dec_fold[ic].push_back(temp2);
+
       name = "h2_dphi_dec_iso_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
       h2_dphi_dec_iso_fold[ic].push_back(temp2);
+
       name = "h2_dphi_dec_mix_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 60, -PI/2, 3*PI/2, "p_{T, h} [GeV/c]",100,0.0,10.0);
       h2_dphi_dec_mix[ic].push_back(temp2);
+
       name = "h2_dphi_dec_mix_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
       h2_dphi_dec_mix_fold[ic].push_back(temp2);
+
+      name = "h2_dphixi_dec_mix_p" + bin.str();
+      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 60, -PI/2, 3*PI/2, "xi",25,-1.0,4.0);
+      h2_dphixi_dec_mix[ic].push_back(temp2);
+
       name = "h2_dphixi_dec_mix_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "xi",25,-1.0,4.0);
       h2_dphixi_dec_mix_fold[ic].push_back(temp2);
+
+      name = "h2_dphizt_dec_mix_p" + bin.str();
+      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 60, -PI/2, 3*PI/2, "zt",40,0.0,2.0);
+      h2_dphizt_dec_mix[ic].push_back(temp2);
+
       name = "h2_dphizt_dec_mix_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "zt",40,0.0,2.0);
       h2_dphizt_dec_mix_fold[ic].push_back(temp2);
+
       name = "h2_dphi_dec_mix_iso_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
       h2_dphi_dec_mix_iso_fold[ic].push_back(temp2);
@@ -617,6 +692,7 @@ int Correlation::Init(PHCompositeNode* topNode)
 
   string acc_filename = toad_loader->location(_accfilename.c_str());
   cout<<"get acc_filename: "<<acc_filename.c_str()<<endl;
+  GetAcceptanceWeightsFold(acc_filename.c_str());
   GetAcceptanceWeights(acc_filename.c_str());
 
   atree = new AMixingTree();
@@ -938,7 +1014,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
   //***********************************************
 
   //inclusive photon-hadron delta phi dists.
-  MakePairs(clus_vector,trk_vector,REAL,data_set,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi_fold[cbin]);
+  MakePairs(clus_vector,trk_vector,REAL,data_set,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi[cbin],h3_ptztdphi_fold[cbin]);
   
   //checking background effect on pair dphi distribution.
   //pc3 matching cut at 1 sigma.
@@ -949,7 +1025,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
   //****************************************
   //*   Make pi0-h foreground pairs        *
   //****************************************  
-  MakePairs(pi0_vector,trk_vector,REALPI,data_set,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec_fold[cbin]);
+  MakePairs(pi0_vector,trk_vector,REALPI,data_set,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec[cbin],h2_dphizt_dec_fold[cbin]);
   
   atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());
   if( data_set == Run8dAu ) {
@@ -1124,7 +1200,7 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
   }
 }
 
-void Correlation::GetAcceptanceWeights(string filename)//input file is a previous taxi output
+void Correlation::GetAcceptanceWeightsFold(string filename)//input file is a previous taxi output
 {
   double trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
   double part_pt_range[NPARTBINS+1] = {0.5,1.0,2.0,3.0,5.0,7.0};
@@ -1170,6 +1246,100 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
       for( int ip = 0; ip < NPARTBINS; ip++ ){
 	bin.str("");
 	bin << ic << "_p" << it << "_h" << ip;
+        name = "h1_inc_acc_fold_c" + bin.str();
+	TH1F* temp_inc = MakeDphiProjection(bginc,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.c_str());
+
+	MakeAccHistos(temp_inc, IncAccFold[ic][it][ip]);
+	delete temp_inc;
+
+        name = "h1_pi0_acc_fold_c" + bin.str();
+        TH1F* temp_pi0 = MakeDphiProjection(bgpi0,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.c_str());
+	
+	MakeAccHistos(temp_pi0, Pi0AccFold[ic][it][ip]);
+	delete temp_pi0;
+	
+        name = "h1_dec_acc_fold_c" + bin.str();
+        int ymin = bgdec->GetYaxis()->FindBin(part_pt_range[ip]);
+        int ymax = bgdec->GetYaxis()->FindBin(part_pt_range[ip+1]);
+	TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax);
+
+	MakeAccHistos(temp_dec, DecAccFold[ic][it][ip]);
+	delete temp_dec;
+	
+	// getting normalization level, # of mix pairs
+	// meanpart[0][ic][it][ip] = IncAcc[ic][it][ip]->Integral();
+	// meanpart[1][ic][it][ip] = Pi0Acc[ic][it][ip]->Integral();
+	// meanpart[2][ic][it][ip] = DecAcc[ic][it][ip]->Integral();
+	
+	IncAccFold[ic][it][ip]->Scale(1/IncAccFold[ic][it][ip]->Integral("width")*PI);
+	Pi0AccFold[ic][it][ip]->Scale(1/Pi0AccFold[ic][it][ip]->Integral("width")*PI);
+	DecAccFold[ic][it][ip]->Scale(1/DecAccFold[ic][it][ip]->Integral("width")*PI);
+      }
+
+      //# of mix triggers
+      // num_bgtrig[0][ic][it] = GetNTriggers(bgtrig_inc,trig_pt_range[it],trig_pt_range[it+1]);
+      // num_bgtrig[1][ic][it] = GetNTriggers(bgtrig_pi0,trig_pt_range[it],trig_pt_range[it+1]);
+      // if(it<3) num_bgtrig[2][ic][it] = bgtrig_dec->GetBinContent(it+1);
+      // else num_bgtrig[2][ic][it] = bgtrig_dec->GetBinContent(it+2);
+
+      delete bgdec;
+    }
+    delete bginc;
+    delete bgpi0;
+    delete bgtrig_inc;
+    delete bgtrig_pi0;
+    delete bgtrig_dec;
+  }
+  fin->Close();
+  delete fin;
+}
+
+void Correlation::GetAcceptanceWeights(string filename)//input file is a previous taxi output
+{
+  double trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
+  double part_pt_range[NPARTBINS+1] = {0.5,1.0,2.0,3.0,5.0,7.0};
+  ostringstream bin;
+  string name;
+  
+  TH1::AddDirectory(kFALSE);
+  TFile* fin = TFile::Open(filename.c_str(), "READ");
+
+  for( int ic = 0; ic < 4; ic++ ){
+    bin.str("");
+    bin << "h3_dphi_mix_c" << ic;
+    TH3F* bginc = (TH3F*)fin->Get(bin.str().c_str());
+   
+    bin.str("");
+    bin << "h3_dphi_pi0_mix_c" << ic;
+    TH3F* bgpi0 = (TH3F*)fin->Get(bin.str().c_str());
+      
+    bin.str("");
+    bin << "h1_trig_pt_inc_mix_c" << ic;
+    TH1F* bgtrig_inc = (TH1F*)fin->Get(bin.str().c_str());
+
+    bin.str("");
+    bin << "h1_trig_pt_pi0_mix_c" << ic;
+    TH1F* bgtrig_pi0 = (TH1F*)fin->Get(bin.str().c_str());
+
+    bin.str("");
+    bin << "h1_trig_pt_dec_mix_c" << ic;
+    TH1F* bgtrig_dec = (TH1F*)fin->Get(bin.str().c_str());
+     
+    for( int it = 0; it < NTRIGBINS; it++ ){
+      bin.str("");
+      if( it < 3 ){
+	bin << it << "_c" << ic;
+	name = "h2_dphi_dec_mix_p" + bin.str();
+      }
+      else {
+	bin << it+1 << "_c" << ic;
+	name = "h2_dphi_dec_mix_p" + bin.str();
+      }
+      TH2F* bgdec = (TH2F*)fin->Get(name.c_str());
+      
+      for( int ip = 0; ip < NPARTBINS; ip++ ){
+	bin.str("");
+	bin << ic << "_p" << it << "_h" << ip;
         name = "h1_inc_acc_c" + bin.str();
 	TH1F* temp_inc = MakeDphiProjection(bginc,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.c_str());
 
@@ -1191,20 +1361,20 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
 	delete temp_dec;
 	
 	// getting normalization level, # of mix pairs
-	meanpart[0][ic][it][ip] = IncAcc[ic][it][ip]->Integral();
-	meanpart[1][ic][it][ip] = Pi0Acc[ic][it][ip]->Integral();
-	meanpart[2][ic][it][ip] = DecAcc[ic][it][ip]->Integral();
+	// meanpart[0][ic][it][ip] = IncAcc[ic][it][ip]->Integral();
+	// meanpart[1][ic][it][ip] = Pi0Acc[ic][it][ip]->Integral();
+	// meanpart[2][ic][it][ip] = DecAcc[ic][it][ip]->Integral();
 	
-	IncAcc[ic][it][ip]->Scale(1/IncAcc[ic][it][ip]->Integral("width")*PI);
-	Pi0Acc[ic][it][ip]->Scale(1/Pi0Acc[ic][it][ip]->Integral("width")*PI);
-	DecAcc[ic][it][ip]->Scale(1/DecAcc[ic][it][ip]->Integral("width")*PI);
+	IncAcc[ic][it][ip]->Scale(1/IncAcc[ic][it][ip]->Integral("width")*2*PI);
+	Pi0Acc[ic][it][ip]->Scale(1/Pi0Acc[ic][it][ip]->Integral("width")*2*PI);
+	DecAcc[ic][it][ip]->Scale(1/DecAcc[ic][it][ip]->Integral("width")*2*PI);
       }
 
       //# of mix triggers
-      num_bgtrig[0][ic][it] = GetNTriggers(bgtrig_inc,trig_pt_range[it],trig_pt_range[it+1]);
-      num_bgtrig[1][ic][it] = GetNTriggers(bgtrig_pi0,trig_pt_range[it],trig_pt_range[it+1]);
-      if(it<3) num_bgtrig[2][ic][it] = bgtrig_dec->GetBinContent(it+1);
-      else num_bgtrig[2][ic][it] = bgtrig_dec->GetBinContent(it+2);
+      // num_bgtrig[0][ic][it] = GetNTriggers(bgtrig_inc,trig_pt_range[it],trig_pt_range[it+1]);
+      // num_bgtrig[1][ic][it] = GetNTriggers(bgtrig_pi0,trig_pt_range[it],trig_pt_range[it+1]);
+      // if(it<3) num_bgtrig[2][ic][it] = bgtrig_dec->GetBinContent(it+1);
+      // else num_bgtrig[2][ic][it] = bgtrig_dec->GetBinContent(it+2);
 
       delete bgdec;
     }
@@ -1216,6 +1386,27 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
   }
   fin->Close();
   delete fin;
+}
+
+double Correlation::GetAcceptanceFold(PairType type, int cbin, float trigpt, float partpt, float dphi)
+{
+  int tbin = GetPtBin(trigpt, 1);
+  int pbin = GetPtBin(partpt, 0);
+  double acc = 1.;
+
+  if(type == REAL || type == MIX){
+    int phibin = IncAccFold[cbin][tbin][pbin]->FindBin(dphi);
+    acc = IncAccFold[cbin][tbin][pbin]->GetBinContent(phibin);
+  }
+  if(type == REALPI || type == MIXPI){
+    int phibin = Pi0AccFold[cbin][tbin][pbin]->FindBin(dphi);
+    acc = Pi0AccFold[cbin][tbin][pbin]->GetBinContent(phibin);
+  }
+  if(type == DEC || type == MIXDEC){
+    int phibin = DecAccFold[cbin][tbin][pbin]->FindBin(dphi);
+    acc = DecAccFold[cbin][tbin][pbin]->GetBinContent(phibin);
+  }
+  return acc;
 }
 
 double Correlation::GetAcceptance(PairType type, int cbin, float trigpt, float partpt, float dphi)
@@ -1849,7 +2040,8 @@ void Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, v
 
 void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight,
                              std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, 
-			     std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt_fold)
+			     std::vector<TH2F*> hdphixi, std::vector<TH2F*> hdphixi_fold,
+			     std::vector<TH2F*> hdphizt, std::vector<TH2F*> hdphizt_fold)
 		      
 {
   // cout<<"MakeDecays: type = "<<type<<endl;
@@ -1863,14 +2055,18 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   
   float filltimeweight = 1.;
   float filltimeflow = 1.;
-  float accw = GetAcceptance(DEC, cbin, trigpt, partpt, dphifold);
+  float filltimeweightfold = 1.;
+  float filltimeflowfold = 1.;
+  
+  float accw = GetAcceptance(DEC, cbin, trigpt, partpt, dphi);
+  float accwfold = GetAcceptanceFold(DEC, cbin, trigpt, partpt, dphifold);
   //std::cout << "get accw for decay: " << accw << std::endl;
-  //if( accw > 0 ) filltimeweight = 1/(seffcorr*accw);
   if( accw > 0 ) filltimeweight = seffcorr/accw;
+  if( accwfold > 0 ) filltimeweightfold = seffcorr/accwfold;
   //cout<<"filltimeweight = "<<filltimeweight<<endl;
   
-  if (isbg) filltimeflow = GetFlowWeights(MIXDEC,cbin,trigpt,partpt,dphifold)*filltimeweight;
-  //if (isbg) cout<<"filltimeflow = "<<filltimeflow<<endl;
+  if (isbg) filltimeflow = GetFlowWeights(MIXDEC,cbin,trigpt,partpt,dphi)*filltimeweight;
+  if (isbg) filltimeflowfold = GetFlowWeights(MIXDEC,cbin,trigpt,partpt,dphifold)*filltimeweightfold;
 
   float zt = partpt/trigpt;
   float xi = log(1.0/zt);
@@ -1880,13 +2076,21 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
       hdphi[ipw]->Fill(dphi,partpt,weight[ipw]);
       if( hdphi_fold.size()>ipw )
 	hdphi_fold[ipw]->Fill(dphifold,partpt,weight[ipw]);
+      if( hdphixi.size()>ipw ){
+	if(!isbg) hdphixi[ipw]->Fill(dphi,xi,weight[ipw]*filltimeweight);
+	else hdphixi[ipw]->Fill(dphi,xi,weight[ipw]*filltimeflow);
+      }
+      if( hdphizt.size()>ipw ){
+      	if(!isbg) hdphizt[ipw]->Fill(dphi,zt,weight[ipw]*filltimeweight);
+      	else hdphizt[ipw]->Fill(dphi,zt,weight[ipw]*filltimeflow);
+      }
       if( hdphixi_fold.size()>ipw ){
-	if(!isbg) hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeweight);
-	else hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeflow);
+	if(!isbg) hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeweightfold);
+	else hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeflowfold);
       }
       if( hdphizt_fold.size()>ipw ){
-      	if(!isbg) hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeweight);
-      	else hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeflow);
+      	if(!isbg) hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeweightfold);
+      	else hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeflowfold);
       }
     }
   }
@@ -2229,6 +2433,9 @@ void Correlation::InitHistos()
 	IncAcc[ic][it][ip] = NULL;
 	Pi0Acc[ic][it][ip] = NULL;
 	DecAcc[ic][it][ip] = NULL;
+	IncAccFold[ic][it][ip] = NULL;
+	Pi0AccFold[ic][it][ip] = NULL;
+	DecAccFold[ic][it][ip] = NULL;
       }
     }
   }
@@ -2456,7 +2663,7 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
         MakeTrackObject(&trk, partpt[ipart], partphi[ipart], parteta[ipart], parte[ipart], pemcx[ipart], pemcy[ipart], pemcz[ipart], zvtx_part);
         hadrons.push_back(trk.clone());
       }
-      
+     
       vector<ACluster*> clusters;
       for( int iclust=0; iclust<nphotons; iclust++ )
       {
@@ -2483,7 +2690,7 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
         if( pi0s[itrig]->IsIso() )
           h1_trig_pt_pi0_iso_mix[cbin]->Fill(pi0s[itrig]->Pt());
         h1_trig_pt_pi0_mix_tot->Fill(pi0s[itrig]->Pt());
-
+	
 	//counting dec triggers
         for(int ipw=0; ipw<5; ipw++){
           double weight = pi0s[itrig]->GetDecayWeights()[ipw];
@@ -2498,10 +2705,11 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
 
       pooldepth++;
       if( verbosity>3 ) cout<<"pooldepth = "<<pooldepth<<endl;
-
-      MakePairs(photons,hadrons,MIX,data_set,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc);
-      MakePairs(pi0s,hadrons,MIXPI,data_set,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0);
-
+      
+      MakePairs(photons,hadrons,MIX,data_set,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix[cbin],h3_ptztdphi_mix_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc);
+      
+      MakePairs(pi0s,hadrons,MIXPI,data_set,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix[cbin],h2_dphizt_dec_mix_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0);
+      
       //for(unsigned int i=0; i<hadrons.size(); i++) delete hadrons[i];
       //hadrons.clear();
       //for(unsigned int i=0; i<clusters.size(); i++) delete hadrons[i];
