@@ -178,8 +178,8 @@ void MakeCFs::Run(int type, int ispertrigger)
 				l1->AddEntry(dphi_1d_mix[ic][ippt][ihpt],"mixed","lpf");
 				l1->SetTextSize(0.05);
 				l1->Draw("same");
-				dphi_1d[ic][ippt][ihpt];
-				dphi_1d_mix[ic][ippt][ihpt];
+				dphi_1d[ic][ippt][ihpt]->Write();
+				dphi_1d_mix[ic][ippt][ihpt]->Write();
 
 			    //*****************************************************	  
 				corr_name.str("");
