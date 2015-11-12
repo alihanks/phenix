@@ -173,10 +173,13 @@ void MakeCFs::Run(int type, int ispertrigger)
 				legend_name<<trig_pt[ippt]<<"-"<<trig_pt[ippt+1]<<" #times "<<part_pt[ihpt]<<"-"<<part_pt[ihpt+1]<<" GeV/c";
 				TLegend *l1 = new TLegend(0.5,0.7,0.8,0.9,legend_name.str().c_str(),"brNDC");
 				l1->SetFillColor(0);
+				l1->SetBorderSize(0);
 				l1->AddEntry(dphi_1d[ic][ippt][ihpt],"real","lpf");
 				l1->AddEntry(dphi_1d_mix[ic][ippt][ihpt],"mixed","lpf");
 				l1->SetTextSize(0.05);
 				l1->Draw("same");
+				dphi_1d[ic][ippt][ihpt];
+				dphi_1d_mix[ic][ippt][ihpt];
 
 			    //*****************************************************	  
 				corr_name.str("");
