@@ -36,7 +36,7 @@ public:
   void SetPtRange(TH3F* h3, double x_pt_min, double x_pt_max, double y_pt_min, double y_pt_max);
   void MakeDphiProjection(TH3F* h3, TH1F*& h1, std::string hname);
   void MakeDphiProjection(TH3F* h3, TH1F*& h1, double xmin, double xmax, double ymin, double ymax, std::string hname);
-  TH1F* MakeCFs::MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, std::string hname);
+  TH1F* MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, std::string hname);
   void FoldDphiDist(TH1F* h1, TH1F*& h1_fold, std::string hname_fold);
   void SetHisto(TH1F* h1, std::string hname, int color);
   void SetPad(TVirtualPad* pad);
