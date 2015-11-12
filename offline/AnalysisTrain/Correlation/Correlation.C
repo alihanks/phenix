@@ -2065,7 +2065,7 @@ float Correlation::GetHadronEfficiencyCorr(float pt)
   if(pt>5.0 && cbin==0) embcorr[0]=fexemb->Eval(pt);
   
   float seffcorr = 1.0;
-  cout<<"fhadroneff->Eval(pt) = "<<fhadroneff->Eval(pt)<<endl;
+  if( verbosity > 1 ) cout<<"fhadroneff->Eval(pt) = "<<fhadroneff->Eval(pt)<<endl;
   seffcorr = 2.0/fhadroneff->Eval(pt);
   if( data_set != Run8dAu ) {
     if(pt>5.0) seffcorr = seffcorr/embcorr[cbin];
