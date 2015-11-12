@@ -241,7 +241,8 @@ int Correlation::Init(PHCompositeNode* topNode)
     h3_dphi_2sig.push_back(temp3);
     
     name = "h3_dphi_mix_c" + bin.str();
-    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    //Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 120, -PI/2, 3*PI/2);
     h3_dphi_mix.push_back(temp3);
     
     name = "h3_dphi_pi0_c" + bin.str();
@@ -249,7 +250,8 @@ int Correlation::Init(PHCompositeNode* topNode)
     h3_dphi_pi0.push_back(temp3);
     
     name = "h3_dphi_pi0_mix_c" + bin.str();
-    Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    //Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
+    Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 120, -PI/2, 3*PI/2);
     h3_dphi_pi0_mix.push_back(temp3);
 
     name = "h3_ptxidphi_c" + bin.str();
@@ -659,7 +661,8 @@ int Correlation::Init(PHCompositeNode* topNode)
       h2_dphi_dec_iso_fold[ic].push_back(temp2);
 
       name = "h2_dphi_dec_mix_p" + bin.str();
-      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 60, -PI/2, 3*PI/2, "p_{T, h} [GeV/c]",100,0.0,10.0);
+      //Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 60, -PI/2, 3*PI/2, "p_{T, h} [GeV/c]",100,0.0,10.0);
+      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 120, -PI/2, 3*PI/2, "p_{T, h} [GeV/c]",100,0.0,10.0);
       h2_dphi_dec_mix[ic].push_back(temp2);
 
       name = "h2_dphi_dec_mix_fold_p" + bin.str();
@@ -1218,18 +1221,6 @@ void Correlation::GetAcceptanceWeightsFold(string filename)//input file is a pre
     bin.str("");
     bin << "h3_dphi_pi0_mix_fold_c" << ic;
     TH3F* bgpi0 = (TH3F*)fin->Get(bin.str().c_str());
-      
-    bin.str("");
-    bin << "h1_trig_pt_inc_mix_c" << ic;
-    TH1F* bgtrig_inc = (TH1F*)fin->Get(bin.str().c_str());
-
-    bin.str("");
-    bin << "h1_trig_pt_pi0_mix_c" << ic;
-    TH1F* bgtrig_pi0 = (TH1F*)fin->Get(bin.str().c_str());
-
-    bin.str("");
-    bin << "h1_trig_pt_dec_mix_c" << ic;
-    TH1F* bgtrig_dec = (TH1F*)fin->Get(bin.str().c_str());
      
     for( int it = 0; it < NTRIGBINS; it++ ){
       bin.str("");
@@ -1266,75 +1257,11 @@ void Correlation::GetAcceptanceWeightsFold(string filename)//input file is a pre
 	MakeAccHistos(temp_dec, DecAccFold[ic][it][ip]);
 	delete temp_dec;
 	
-	// getting normalization level, # of mix pairs
-	// meanpart[0][ic][it][ip] = IncAcc[ic][it][ip]->Integral();
-	// meanpart[1][ic][it][ip] = Pi0Acc[ic][it][ip]->Integral();
-	// meanpart[2][ic][it][ip] = DecAcc[ic][it][ip]->Integral();
-	
 	IncAccFold[ic][it][ip]->Scale(1/IncAccFold[ic][it][ip]->Integral("width")*PI);
 	Pi0AccFold[ic][it][ip]->Scale(1/Pi0AccFold[ic][it][ip]->Integral("width")*PI);
 	DecAccFold[ic][it][ip]->Scale(1/DecAccFold[ic][it][ip]->Integral("width")*PI);
       }
 
-      //# of mix triggers
-      // num_bgtrig[0][ic][it] = GetNTriggers(bgtrig_inc,trig_pt_range[it],trig_pt_range[it+1]);
-      // num_bgtrig[1][ic][it] = GetNTriggers(bgtrig_pi0,trig_pt_range[it],trig_pt_range[it+1]);
-      // if(it<3) num_bgtrig[2][ic][it] = bgtrig_dec->GetBinContent(it+1);
-      // else num_bgtrig[2][ic][it] = bgtrig_dec->GetBinContent(it+2);
-
-      delete bgdec;
-    }
-    delete bginc;
-    delete bgpi0;
-    delete bgtrig_inc;
-    delete bgtrig_pi0;
-    delete bgtrig_dec;
-  }
-  fin->Close();
-  delete fin;
-}
-
-void Correlation::GetAcceptanceWeights(string filename)//input file is a previous taxi output
-{
-  double trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
-  double part_pt_range[NPARTBINS+1] = {0.5,1.0,2.0,3.0,5.0,7.0};
-  ostringstream bin;
-  string name;
-  
-  TH1::AddDirectory(kFALSE);
-  TFile* fin = TFile::Open(filename.c_str(), "READ");
-
-  for( int ic = 0; ic < 4; ic++ ){
-    bin.str("");
-    bin << "h3_dphi_mix_c" << ic;
-    TH3F* bginc = (TH3F*)fin->Get(bin.str().c_str());
-   
-    bin.str("");
-    bin << "h3_dphi_pi0_mix_c" << ic;
-    TH3F* bgpi0 = (TH3F*)fin->Get(bin.str().c_str());
-      
-    bin.str("");
-    bin << "h1_trig_pt_inc_mix_c" << ic;
-    TH1F* bgtrig_inc = (TH1F*)fin->Get(bin.str().c_str());
-
-    bin.str("");
-    bin << "h1_trig_pt_pi0_mix_c" << ic;
-    TH1F* bgtrig_pi0 = (TH1F*)fin->Get(bin.str().c_str());
-
-    bin.str("");
-    bin << "h1_trig_pt_dec_mix_c" << ic;
-    TH1F* bgtrig_dec = (TH1F*)fin->Get(bin.str().c_str());
-     
-    for( int it = 0; it < NTRIGBINS; it++ ){
-      bin.str("");
-      if( it < 3 ){
-      	bin << it << "_c" << ic;
-      	name = "h2_dphi_dec_mix_p" + bin.str();
-      }
-      else {
-      	bin << it+1 << "_c" << ic;
-      	name = "h2_dphi_dec_mix_p" + bin.str();
-      }
       TH2F* bgdec = (TH2F*)fin->Get(name.c_str());
       
       for( int ip = 0; ip < NPARTBINS; ip++ ){
@@ -1380,6 +1307,74 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
     }
     delete bginc;
     delete bgpi0;
+  }
+  fin->Close();
+  delete fin;
+}
+
+void Correlation::GetAcceptanceWeights(string filename)//input file is a previous taxi output
+{
+  double trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
+  double part_pt_range[NPARTBINS+1] = {0.5,1.0,2.0,3.0,5.0,7.0};
+  ostringstream bin;
+  string name;
+  
+  TH1::AddDirectory(kFALSE);
+  TFile* fin = TFile::Open(filename.c_str(), "READ");
+
+  for( int ic = 0; ic < 4; ic++ ){
+    bin.str("");
+    bin << "h3_dphi_mix_c" << ic;
+    TH3F* bginc = (TH3F*)fin->Get(bin.str().c_str());
+   
+    bin.str("");
+    bin << "h3_dphi_pi0_mix_c" << ic;
+    TH3F* bgpi0 = (TH3F*)fin->Get(bin.str().c_str());
+    
+    for( int it = 0; it < NTRIGBINS; it++ ){
+      bin.str("");
+      if( it < 3 ){
+	bin << it << "_c" << ic;
+	name = "h2_dphi_dec_mix_p" + bin.str();
+      }
+      else {
+	bin << it+1 << "_c" << ic;
+	name = "h2_dphi_dec_mix_p" + bin.str();
+      }
+      TH2F* bgdec = (TH2F*)fin->Get(name.c_str());
+      
+      for( int ip = 0; ip < NPARTBINS; ip++ ){
+	bin.str("");
+	bin << ic << "_p" << it << "_h" << ip;
+        name = "h1_inc_acc_c" + bin.str();
+	TH1F* temp_inc = MakeDphiProjection(bginc,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.c_str());
+
+	MakeAccHistos(temp_inc, IncAcc[ic][it][ip]);
+	delete temp_inc;
+
+        name = "h1_pi0_acc_c" + bin.str();
+        TH1F* temp_pi0 = MakeDphiProjection(bgpi0,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.c_str());
+	
+	MakeAccHistos(temp_pi0, Pi0Acc[ic][it][ip]);
+	delete temp_pi0;
+	
+        name = "h1_dec_acc_c" + bin.str();
+        int ymin = bgdec->GetYaxis()->FindBin(part_pt_range[ip]);
+        int ymax = bgdec->GetYaxis()->FindBin(part_pt_range[ip+1]);
+	TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax);
+
+	MakeAccHistos(temp_dec, DecAcc[ic][it][ip]);
+	delete temp_dec;
+
+	IncAcc[ic][it][ip]->Scale(1/IncAcc[ic][it][ip]->Integral("width")*2*PI);
+	Pi0Acc[ic][it][ip]->Scale(1/Pi0Acc[ic][it][ip]->Integral("width")*2*PI);
+	DecAcc[ic][it][ip]->Scale(1/DecAcc[ic][it][ip]->Integral("width")*2*PI);
+      }
+
+      delete bgdec;
+    }
+    delete bginc;
+    delete bgpi0;
     delete bgtrig_inc;
     delete bgtrig_pi0;
     delete bgtrig_dec;
@@ -1418,7 +1413,6 @@ double Correlation::GetAcceptance(PairType type, int cbin, float trigpt, float p
   if(type == REAL || type == MIX){
     int phibin = IncAcc[cbin][tbin][pbin]->FindBin(dphi);
     acc = IncAcc[cbin][tbin][pbin]->GetBinContent(phibin);
-  }
   if(type == REALPI || type == MIXPI){
     int phibin = Pi0Acc[cbin][tbin][pbin]->FindBin(dphi);
     acc = Pi0Acc[cbin][tbin][pbin]->GetBinContent(phibin);
@@ -1469,6 +1463,9 @@ TH1F* Correlation::MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ym
   delete proj_y;
   
   return proj_hist;
+
+  fin->Close();
+  delete fin;
 }
 
 void Correlation::MakeAccHistos(TH1F* h1in, TH1F* h1out)//take the projected 1d histo and feed the content into IncAcc, Pi0Acc
