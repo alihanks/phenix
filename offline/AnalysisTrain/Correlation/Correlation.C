@@ -481,26 +481,26 @@ int Correlation::Init(PHCompositeNode* topNode)
     }
     for(int ip = 0; ip < NTRIGBINS; ip++){
       for(int ih = 0; ih < NPARTBINS; ih++){
-	bin.str("");
-	bin << ic << "_p" << ip << "_h" << ih;
-	name = "h1_IncAcc_fold_c" + bin.str();
-	Init1DHisto(IncAccFold[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
-	name = "h1_Pi0Acc_fold_c" + bin.str();
-	Init1DHisto(Pi0AccFold[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
-	name = "h1_DecAcc_fold_c" + bin.str();
-	Init1DHisto(DecAccFold[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
+      	bin.str("");
+      	bin << ic << "_p" << ip << "_h" << ih;
+      	name = "h1_IncAcc_fold_c" + bin.str();
+      	Init1DHisto(IncAccFold[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
+      	name = "h1_Pi0Acc_fold_c" + bin.str();
+      	Init1DHisto(Pi0AccFold[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
+      	name = "h1_DecAcc_fold_c" + bin.str();
+      	Init1DHisto(DecAccFold[ic][ip][ih], name.c_str(), "", 30, 0.0, PI);
       }
     }
     for(int ip = 0; ip < NTRIGBINS; ip++){
       for(int ih = 0; ih < NPARTBINS; ih++){
-	bin.str("");
-	bin << ic << "_p" << ip << "_h" << ih;
-	name = "h1_IncAcc_c" + bin.str();
-	Init1DHisto(IncAcc[ic][ip][ih], name.c_str(), "", 60, -PI/2, 3*PI/2);
-	name = "h1_Pi0Acc_c" + bin.str();
-	Init1DHisto(Pi0Acc[ic][ip][ih], name.c_str(), "", 60, -PI/2, 3*PI/2);
-	name = "h1_DecAcc_c" + bin.str();
-	Init1DHisto(DecAcc[ic][ip][ih], name.c_str(), "", 60, -PI/2, 3*PI/2);
+      	bin.str("");
+      	bin << ic << "_p" << ip << "_h" << ih;
+      	name = "h1_IncAcc_c" + bin.str();
+      	Init1DHisto(IncAcc[ic][ip][ih], name.c_str(), "", 60, -PI/2, 3*PI/2);
+      	name = "h1_Pi0Acc_c" + bin.str();
+      	Init1DHisto(Pi0Acc[ic][ip][ih], name.c_str(), "", 60, -PI/2, 3*PI/2);
+      	name = "h1_DecAcc_c" + bin.str();
+      	Init1DHisto(DecAcc[ic][ip][ih], name.c_str(), "", 60, -PI/2, 3*PI/2);
       }
     }
   }
@@ -1328,46 +1328,46 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
     for( int it = 0; it < NTRIGBINS; it++ ){
       bin.str("");
       if( it < 3 ){
-	bin << it << "_c" << ic;
-	name = "h2_dphi_dec_mix_p" + bin.str();
+      	bin << it << "_c" << ic;
+      	name = "h2_dphi_dec_mix_p" + bin.str();
       }
       else {
-	bin << it+1 << "_c" << ic;
-	name = "h2_dphi_dec_mix_p" + bin.str();
+      	bin << it+1 << "_c" << ic;
+      	name = "h2_dphi_dec_mix_p" + bin.str();
       }
       TH2F* bgdec = (TH2F*)fin->Get(name.c_str());
       
       for( int ip = 0; ip < NPARTBINS; ip++ ){
-	bin.str("");
-	bin << ic << "_p" << it << "_h" << ip;
+      	bin.str("");
+      	bin << ic << "_p" << it << "_h" << ip;
         name = "h1_inc_acc_c" + bin.str();
-	TH1F* temp_inc = MakeDphiProjection(bginc,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.c_str());
+      	TH1F* temp_inc = MakeDphiProjection(bginc,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.c_str());
 
-	MakeAccHistos(temp_inc, IncAcc[ic][it][ip]);
-	delete temp_inc;
+      	MakeAccHistos(temp_inc, IncAcc[ic][it][ip]);
+      	delete temp_inc;
 
         name = "h1_pi0_acc_c" + bin.str();
         TH1F* temp_pi0 = MakeDphiProjection(bgpi0,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.c_str());
 	
-	MakeAccHistos(temp_pi0, Pi0Acc[ic][it][ip]);
-	delete temp_pi0;
+      	MakeAccHistos(temp_pi0, Pi0Acc[ic][it][ip]);
+      	delete temp_pi0;
 	
         name = "h1_dec_acc_c" + bin.str();
         int ymin = bgdec->GetYaxis()->FindBin(part_pt_range[ip]);
         int ymax = bgdec->GetYaxis()->FindBin(part_pt_range[ip+1]);
-	TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax);
+      	TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax);
 
-	MakeAccHistos(temp_dec, DecAcc[ic][it][ip]);
-	delete temp_dec;
+      	MakeAccHistos(temp_dec, DecAcc[ic][it][ip]);
+      	delete temp_dec;
 	
-	// getting normalization level, # of mix pairs
-	// meanpart[0][ic][it][ip] = IncAcc[ic][it][ip]->Integral();
-	// meanpart[1][ic][it][ip] = Pi0Acc[ic][it][ip]->Integral();
-	// meanpart[2][ic][it][ip] = DecAcc[ic][it][ip]->Integral();
-	
-	IncAcc[ic][it][ip]->Scale(1/IncAcc[ic][it][ip]->Integral("width")*2*PI);
-	Pi0Acc[ic][it][ip]->Scale(1/Pi0Acc[ic][it][ip]->Integral("width")*2*PI);
-	DecAcc[ic][it][ip]->Scale(1/DecAcc[ic][it][ip]->Integral("width")*2*PI);
+      	// getting normalization level, # of mix pairs
+      	// meanpart[0][ic][it][ip] = IncAcc[ic][it][ip]->Integral();
+      	// meanpart[1][ic][it][ip] = Pi0Acc[ic][it][ip]->Integral();
+      	// meanpart[2][ic][it][ip] = DecAcc[ic][it][ip]->Integral();
+      	
+      	IncAcc[ic][it][ip]->Scale(1/IncAcc[ic][it][ip]->Integral("width")*2*PI);
+      	Pi0Acc[ic][it][ip]->Scale(1/Pi0Acc[ic][it][ip]->Integral("width")*2*PI);
+      	DecAcc[ic][it][ip]->Scale(1/DecAcc[ic][it][ip]->Integral("width")*2*PI);
       }
 
       //# of mix triggers
@@ -1441,7 +1441,7 @@ float Correlation::GetFlowWeights(PairType type, int cbin, float trigpt, float p
   int tbin = GetPtBin(trigpt, 1);
   int pbin = GetPtBin(partpt, 0);  
 
-  float flowweight = /*meanpart[typebin][cbin][tbin][pbin]/num_bgtrig[typebin][cbin][tbin]*/(1+trig_v2[typebin][tbin][pbin]*part_v2[tbin][pbin]*cos(2*dphifold));
+  float flowweight = (1+trig_v2[typebin][tbin][pbin]*part_v2[tbin][pbin]*cos(2*dphifold));
   //cout<<"meanpart["<<typebin<<"]["<<cbin<<"]["<<tbin<<"]["<<pbin<<"] = "<<meanpart[typebin][cbin][tbin][pbin]<<endl;
   //cout<<"num_bgtrig["<<typebin<<"]["<<cbin<<"]["<<tbin<<"] = "<<num_bgtrig[typebin][cbin][tbin]<<endl;
   //cout<<"meanpart["<<typebin<<"]["<<cbin<<"]["<<tbin<<"]["<<pbin<<"]/num_bgtrig["<<typebin<<"]["<<cbin<<"]["<<tbin<<"] = "<<meanpart[typebin][cbin][tbin][pbin]/num_bgtrig[typebin][cbin][tbin]<<endl;
@@ -2045,16 +2045,16 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, fl
   float filltimeflow = 1.;
 
   float seffcorr = GetHadronEfficiencyCorr(partpt);
-  if( verbosity ) cout << PHWHERE << ": seffcorr = " << seffcorr << endl;
+  if( verbosity ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
   float accw = GetAcceptance(type, cbin, trigpt, partpt, dphi);
-  if( verbosity ) cout << PHWHERE << "get accw for decay: " << accw << endl;
+  if( verbosity ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
-  if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
 
   // GetFlowWeights returns 1.0 if these are real pairs
   // Don't apply flow modulation for non Au+Au runs (like dAu)
   if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,cbin,trigpt,partpt,dphi)*filltimeweight;
+  if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
 
   return filltimeflow;
 }
