@@ -51,9 +51,11 @@ void MakeCFs::Run(int type, int ispertrigger)
 
 		if(type == 0 || type == 1){
 			temp3D = new TH3F(*(TH3F*)infile->Get(name.c_str()));
+			cout << "Prjecting 1D FG histogram from: " << name << endl;			
 			name = "h1_part_pt" + bin.str();
 			h1_partpt[ic] = new TH1F(*(TH1F*)temp3D->ProjectionY(name.c_str()));
 			temp3D_mix = new TH3F(*(TH3F*)infile->Get(name_mix.c_str()));
+			cout << "Prjecting 1D BG histogram from: " << name_mix << endl;
 			//cout<<"get temp3D: "<<name.c_str()<<endl;
 			for(int ippt = 0; ippt < NTRIGBIN; ippt++){
 				for(int ihpt = 0; ihpt < NPARTBIN; ihpt++){
@@ -67,12 +69,10 @@ void MakeCFs::Run(int type, int ispertrigger)
 					dphi_1d[ic][ippt][ihpt] = MakeDphiProjection(dphi_3d[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name.c_str());
 					SetHisto(dphi_1d[ic][ippt][ihpt],dphi_title,1);
 					dphi_1d[ic][ippt][ihpt]->SetName(name.c_str());
-					cout << "Prjecting 1D FG histogram:" << name << endl;
 
 					dphi_1d_mix[ic][ippt][ihpt] = MakeDphiProjection(dphi_3d_mix[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name_mix.c_str());
 					SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
 					dphi_1d_mix[ic][ippt][ihpt]->SetName(name_mix.c_str());
-					cout << "Prjecting 1D BG histogram:" << name << endl;
 					if(ispertrigger) {
 						dphi_1d_mix[ic][ippt][ihpt]->Scale(1/500.0);
 					}
