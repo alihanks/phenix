@@ -8,9 +8,7 @@
 #include <iostream>
 //#include <fstream>
 
-class TH1D;
-class TH2D;
-class TH3D;
+class TH1F;
 class TF1;
 class TFile;
 class TGraph;
@@ -22,11 +20,11 @@ class TLatex;
 class MakeJFs
 {
 public:
-  MakeJFs(int type, int centbin, int trigbin, int partbin, TH1D *CFinc, double meanpart, double ntrigbg, TFile *fin,  const std::string v2input, int nFits, int useMSMP, TH1D*& CFflowZYAM, TH1D*& CFjetZYAM);
+  MakeJFs(int type, int centbin, int trigbin, int partbin, TH1F *CFinc, double meanpart, double ntrigbg, TFile *fin,  const std::string v2input, int nFits, int useMSMP, TH1F*& CFflowZYAM, TH1F*& CFjetZYAM);
   virtual ~MakeJFs(){};
 
-  void InitHistos(TH1D* CFflow, std::string name);
-  //  double GetNTriggers(TH1D* trigpt, double trigptmin, double trigptmax);
+  void InitHistos(TH1F* CFflow, std::string name);
+  //  double GetNTriggers(TH1F* trigpt, double trigptmin, double trigptmax);
   void SetV2(const std::string v2_inputs);
   double GetZYAMScale(TF1* topFunc, TF1* bottomFunc);
   void EvalXi(int type, int trigbin, int partbin, TFile* fcentdist, TFile *fin, TGraphErrors*& XICORR, TGraphErrors*& XICORRLARGEBIN);
@@ -60,8 +58,8 @@ private:
   double partv2;
   double c2;
 
-  //TH1D* CFflowZYAM;
-  //  TH1D* CFjetZYAM;
+  //TH1F* CFflowZYAM;
+  //  TH1F* CFjetZYAM;
   TF1 *flowFunc;//Flow fit
   TF1* cfFunc;//CF fit
   double scale;//ZYAM scale

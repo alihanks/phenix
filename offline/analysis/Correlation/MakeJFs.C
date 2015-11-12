@@ -20,12 +20,12 @@
 using namespace std;
 
 MakeJFs::MakeJFs(int type, int centbin, int trigbin, 
-                 int partbin, TH1D *CFinc, 
+                 int partbin, TH1F *CFinc, 
                  double meanpart, double ntrigbg, 
                  TFile* fin, const string v2input, 
                  int nFits, int useMSMP, 
-                 TH1D*& CFflowZYAM, 
-                 TH1D*& CFjetZYAM)
+                 TH1F*& CFflowZYAM, 
+                 TH1F*& CFjetZYAM)
 {
   //type == 0: inclusive photon
   //type == 1: pi0
@@ -53,7 +53,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   flowFunc->SetParameter(0, 1.0);
   flowFunc->SetParameter(1,c2);
 
-  CFflowZYAM = new TH1D("CFflowZYAM","CFflowZYAM",nbins,0.0,PI);
+  CFflowZYAM = new TH1F("CFflowZYAM","CFflowZYAM",nbins,0.0,PI);
   CFflowZYAM->Sumw2();
 
   for( int ibin = 1; ibin < nbins + 1; ibin++){
@@ -216,17 +216,17 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
 
   CFflowZYAM->Scale(norm);
 
-  CFjetZYAM = new TH1D(*(TH1D*)CFinc);
+  CFjetZYAM = new TH1F(*(TH1F*)CFinc);
   CFjetZYAM->Sumw2();
   CFjetZYAM->Add(CFflowZYAM, -1.0);
   //delete CFflowZYAM;
   //cout << "testing yield: " << CFjetZYAM->GetBinContent(5) << endl;
 }
 
-void MakeJFs::InitHistos(TH1D* CFflow, string name)
+void MakeJFs::InitHistos(TH1F* CFflow, string name)
 {
-  //CFflow = new TH1D(name.c_str(),name.c_str(),60, -PI/2, 3*PI/2);
-  CFflow = new TH1D(name.c_str(),name.c_str(),30, 0.0, PI);
+  //CFflow = new TH1F(name.c_str(),name.c_str(),60, -PI/2, 3*PI/2);
+  CFflow = new TH1F(name.c_str(),name.c_str(),30, 0.0, PI);
   CFflow->GetXaxis()->SetTitle("#Delta#phi [rad]");
 }
 
@@ -282,7 +282,7 @@ void MakeJFs::SetV2(const string v2_inputs)
     double *pi0_sys = gr_pi0_v2sys[i]->GetEY();
     for(int j=0; j<4; j++) pi0_v2_sys[i][j] = pi0_sys[j];
 
-      name.str("");
+    name.str("");
     name << "hadron_v2_" << i;
     gr_had_v2[i] = new TGraphErrors(*(TGraphErrors*)v2file->Get(name.str().c_str()));
     double *had = gr_had_v2[i]->GetY();
@@ -427,7 +427,7 @@ void MakeJFs::EvalXi(int type, int trigbin, int partbin, TFile *fcentdist, TFile
       if(NpartFlag) name << "AuAu_Npart_" << 5*icent << "_" << 5*(icent+1);
       else name << "AuAu_Ncoll_" << 5*icent << "_" << 5*(icent+1);
 
-      TH1D* nbdweight = new TH1D(*(TH1D*)fcentdist->Get(name.str().c_str()));
+      TH1F* nbdweight = new TH1F(*(TH1F*)fcentdist->Get(name.str().c_str()));
       double nbdinteg = nbdweight->Integral();
       nbdweight->Scale(1/nbdinteg);
 
@@ -512,8 +512,8 @@ if(type == 0) ZVTXCENTTR = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_trig_inc")
 else ZVTXCENTTR = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_trig_pi0"));
 TH2D *ZVTXCENTPA = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_part"));
 
-TH1D *TRIGGERCENT = new TH1D(*(TH1D*) ZVTXCENTTR->ProjectionY());
-TH1D *PARTNERCENT = new TH1D(*(TH1D*) ZVTXCENTPA->ProjectionY());
+TH1F *TRIGGERCENT = new TH1F(*(TH1F*) ZVTXCENTTR->ProjectionY());
+TH1F *PARTNERCENT = new TH1F(*(TH1F*) ZVTXCENTPA->ProjectionY());
 
 TRIGGERCENT->Sumw2();
 PARTNERCENT->Sumw2();
