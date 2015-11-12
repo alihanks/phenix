@@ -1334,9 +1334,6 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
     }
     delete bginc;
     delete bgpi0;
-    delete bgtrig_inc;
-    delete bgtrig_pi0;
-    delete bgtrig_dec;
   }
   fin->Close();
   delete fin;
@@ -1372,6 +1369,7 @@ double Correlation::GetAcceptance(PairType type, int cbin, float trigpt, float p
   if(type == REAL || type == MIX){
     int phibin = IncAcc[cbin][tbin][pbin]->FindBin(dphi);
     acc = IncAcc[cbin][tbin][pbin]->GetBinContent(phibin);
+  }
   if(type == REALPI || type == MIXPI){
     int phibin = Pi0Acc[cbin][tbin][pbin]->FindBin(dphi);
     acc = Pi0Acc[cbin][tbin][pbin]->GetBinContent(phibin);
