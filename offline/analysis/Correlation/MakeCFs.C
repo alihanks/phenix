@@ -67,10 +67,12 @@ void MakeCFs::Run(int type, int ispertrigger)
 					dphi_1d[ic][ippt][ihpt] = MakeDphiProjection(dphi_3d[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name.c_str());
 					SetHisto(dphi_1d[ic][ippt][ihpt],dphi_title,1);
 					dphi_1d[ic][ippt][ihpt]->SetName(name.c_str());
+					cout << "Prjecting 1D FG histogram:" << name << endl;
 
 					dphi_1d_mix[ic][ippt][ihpt] = MakeDphiProjection(dphi_3d_mix[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name_mix.c_str());
 					SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
 					dphi_1d_mix[ic][ippt][ihpt]->SetName(name_mix.c_str());
+					cout << "Prjecting 1D BG histogram:" << name << endl;
 					if(ispertrigger) {
 						dphi_1d_mix[ic][ippt][ihpt]->Scale(1/500.0);
 					}
@@ -171,7 +173,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 
 				legend_name.str("");
 				legend_name<<trig_pt[ippt]<<"-"<<trig_pt[ippt+1]<<" #times "<<part_pt[ihpt]<<"-"<<part_pt[ihpt+1]<<" GeV/c";
-				TLegend *l1 = new TLegend(0.5,0.7,0.8,0.9,legend_name.str().c_str(),"brNDC");
+				TLegend *l1 = new TLegend(0.45,0.7,0.75,0.9,legend_name.str().c_str(),"brNDC");
 				l1->SetFillColor(0);
 				l1->SetBorderSize(0);
 				l1->AddEntry(dphi_1d[ic][ippt][ihpt],"real","lpf");
