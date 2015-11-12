@@ -72,8 +72,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 					SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
 					dphi_1d_mix[ic][ippt][ihpt]->SetName(name_mix.c_str());
 					if(ispertrigger) {
-						dphi_1d_mix[ic][ippt][ihpt]->Scale(1/100.0);
-						meanpart[ic][ippt][ihpt] = dphi_1d_mix[ic][ippt][ihpt]->Integral();
+						dphi_1d_mix[ic][ippt][ihpt]->Scale(1/500.0);
 					}
 				}
 			}
