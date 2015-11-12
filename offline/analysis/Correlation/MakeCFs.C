@@ -30,8 +30,6 @@ void MakeCFs::Run(int type, int ispertrigger)
 	cout<<"start"<<endl;
 	TH1D* h1_trigpt[NCENTBIN];
 	TH1D* h1_partpt[NCENTBIN];
-	double trig_pt_range[NTRIGBIN+1] = {5.0,7.0,9.0,12.0,15.0};
-	double part_pt_range[NPARTBIN+1] = {0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.8};
 
 	for(int ic=0; ic<NCENTBIN; ic++){
 		bin.str("");
