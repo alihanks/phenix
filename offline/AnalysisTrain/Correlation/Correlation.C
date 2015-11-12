@@ -1420,9 +1420,6 @@ TH1F* Correlation::MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ym
   delete proj_y;
   
   return proj_hist;
-
-  fin->Close();
-  delete fin;
 }
 
 void Correlation::MakeAccHistos(TH1F* h1in, TH1F* h1out)//take the projected 1d histo and feed the content into IncAcc, Pi0Acc
