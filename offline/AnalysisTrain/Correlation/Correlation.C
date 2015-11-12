@@ -1262,47 +1262,6 @@ void Correlation::GetAcceptanceWeightsFold(string filename)//input file is a pre
       	DecAccFold[ic][it][ip]->Scale(1/DecAccFold[ic][it][ip]->Integral("width")*PI);
       }
 
-      TH2F* bgdec = (TH2F*)fin->Get(name.c_str());
-      
-      for( int ip = 0; ip < NPARTBINS; ip++ ){
-      	bin.str("");
-      	bin << ic << "_p" << it << "_h" << ip;
-        name = "h1_inc_acc_c" + bin.str();
-      	TH1F* temp_inc = MakeDphiProjection(bginc,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.c_str());
-
-      	MakeAccHistos(temp_inc, IncAcc[ic][it][ip]);
-      	delete temp_inc;
-
-        name = "h1_pi0_acc_c" + bin.str();
-        TH1F* temp_pi0 = MakeDphiProjection(bgpi0,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],name.c_str());
-	
-      	MakeAccHistos(temp_pi0, Pi0Acc[ic][it][ip]);
-      	delete temp_pi0;
-	
-        name = "h1_dec_acc_c" + bin.str();
-        int ymin = bgdec->GetYaxis()->FindBin(part_pt_range[ip]);
-        int ymax = bgdec->GetYaxis()->FindBin(part_pt_range[ip+1]);
-      	TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax);
-
-      	MakeAccHistos(temp_dec, DecAcc[ic][it][ip]);
-      	delete temp_dec;
-	
-      	// getting normalization level, # of mix pairs
-      	// meanpart[0][ic][it][ip] = IncAcc[ic][it][ip]->Integral();
-      	// meanpart[1][ic][it][ip] = Pi0Acc[ic][it][ip]->Integral();
-      	// meanpart[2][ic][it][ip] = DecAcc[ic][it][ip]->Integral();
-      	
-      	IncAcc[ic][it][ip]->Scale(1/IncAcc[ic][it][ip]->Integral("width")*2*PI);
-      	Pi0Acc[ic][it][ip]->Scale(1/Pi0Acc[ic][it][ip]->Integral("width")*2*PI);
-      	DecAcc[ic][it][ip]->Scale(1/DecAcc[ic][it][ip]->Integral("width")*2*PI);
-      }
-
-      //# of mix triggers
-      // num_bgtrig[0][ic][it] = GetNTriggers(bgtrig_inc,trig_pt_range[it],trig_pt_range[it+1]);
-      // num_bgtrig[1][ic][it] = GetNTriggers(bgtrig_pi0,trig_pt_range[it],trig_pt_range[it+1]);
-      // if(it<3) num_bgtrig[2][ic][it] = bgtrig_dec->GetBinContent(it+1);
-      // else num_bgtrig[2][ic][it] = bgtrig_dec->GetBinContent(it+2);
-
       delete bgdec;
     }
     delete bginc;
