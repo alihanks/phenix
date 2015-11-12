@@ -166,11 +166,11 @@ public:
         //std::cout<<"Fill!! trigpt = "<<trig_pt<<"; partpt = "<<assoc_pt<<"; trigphi = "<<trig_phi<<"; partphi = "<<assoc_phi<<"; dphifold = "<<dphifold<<std::endl;
         
         h3dphi->Fill(trig_pt, assoc_pt, deltaphi);
-
-        if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold);
 	
       	//fill xi plots with filltime weights
       	float filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,trig_pt);
+        //fill folded dphi histogram with weights also for testing!
+        if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
       	
       	float zt = assoc_pt/trig_pt;
       	float xi = log(1.0/zt);
