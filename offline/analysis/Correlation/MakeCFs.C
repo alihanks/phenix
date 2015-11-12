@@ -28,15 +28,15 @@ MakeCFs::MakeCFs(const string fin, const string fout)
 void MakeCFs::Run(int type, int ispertrigger)
 {
 	cout<<"start"<<endl;
-	TH1D* h1_trigpt[NCENTBIN];
-	TH1D* h1_partpt[NCENTBIN];
+	TH1F* h1_trigpt[NCENTBIN];
+	TH1F* h1_partpt[NCENTBIN];
 
 	for(int ic=0; ic<NCENTBIN; ic++){
 		bin.str("");
 		bin << "_c" << ic;
 		name = trig_name + bin.str();
 		cout << "getting trig histo: " << name << endl;
-		h1_trigpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
+		h1_trigpt[ic] = new TH1F(*(TH1F*)infile->Get(name.c_str()));
 	}
 
 	outfile->cd();
@@ -50,15 +50,15 @@ void MakeCFs::Run(int type, int ispertrigger)
 		name_mix = dphi_mix_name + bin.str();
 
 		if(type == 0 || type == 1){
-			temp3D = new TH3D(*(TH3D*)infile->Get(name.c_str()));
+			temp3D = new TH3F(*(TH3F*)infile->Get(name.c_str()));
 			name = "h1_part_pt" + bin.str();
-			h1_partpt[ic] = new TH1D(*(TH1D*)temp3D->ProjectionY(name.c_str()));
-			temp3D_mix = new TH3D(*(TH3D*)infile->Get(name_mix.c_str()));
+			h1_partpt[ic] = new TH1F(*(TH1F*)temp3D->ProjectionY(name.c_str()));
+			temp3D_mix = new TH3F(*(TH3F*)infile->Get(name_mix.c_str()));
 			//cout<<"get temp3D: "<<name.c_str()<<endl;
 			for(int ippt = 0; ippt < NTRIGBIN; ippt++){
 				for(int ihpt = 0; ihpt < NPARTBIN; ihpt++){
-					dphi_3d[ic][ippt][ihpt] = new TH3D(*(TH3D*)temp3D);
-					dphi_3d_mix[ic][ippt][ihpt] = new TH3D(*(TH3D*)temp3D_mix);
+					dphi_3d[ic][ippt][ihpt] = new TH3F(*(TH3F*)temp3D);
+					dphi_3d_mix[ic][ippt][ihpt] = new TH3F(*(TH3F*)temp3D_mix);
 
 					bin.str("");
 					bin << ic <<"_p"<<ippt<<"_h"<<ihpt;
@@ -87,15 +87,15 @@ void MakeCFs::Run(int type, int ispertrigger)
 				name = dphi_name + bin.str();
 				name_mix = dphi_mix_name + bin.str();
 
-				temp2D = new TH2D(*(TH2D*)infile->Get(name.c_str()));
+				temp2D = new TH2F(*(TH2F*)infile->Get(name.c_str()));
 				bin.str("");
 				bin<<"_c"<<ic;
 				name = "h1_part_pt" + bin.str();
-				h1_partpt[ic] = new TH1D(*(TH1D*)temp2D->ProjectionY(name.c_str()));
-				temp2D_mix = new TH2D(*(TH2D*)infile->Get(name_mix.c_str()));
+				h1_partpt[ic] = new TH1F(*(TH1F*)temp2D->ProjectionY(name.c_str()));
+				temp2D_mix = new TH2F(*(TH2F*)infile->Get(name_mix.c_str()));
 				for(int ihpt=0; ihpt < NPARTBIN; ihpt++){  
-					dphi_2d[ic][ippt][ihpt] = new TH2D(*(TH2D*)temp2D);
-					dphi_2d_mix[ic][ippt][ihpt] = new TH2D(*(TH2D*)temp2D_mix);
+					dphi_2d[ic][ippt][ihpt] = new TH2F(*(TH2F*)temp2D);
+					dphi_2d_mix[ic][ippt][ihpt] = new TH2F(*(TH2F*)temp2D_mix);
 					bin.str("");
 					bin << ic <<"_p"<<ippt<<"_h"<<ihpt;
 					name = "h1_dphi_c" + bin.str();
@@ -103,11 +103,11 @@ void MakeCFs::Run(int type, int ispertrigger)
 
 					int ymin = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
 					int ymax = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
-					dphi_1d[ic][ippt][ihpt] = new TH1D (*(TH1D*)dphi_2d[ic][ippt][ihpt]->ProjectionX(name.c_str(),ymin,ymax));
+					dphi_1d[ic][ippt][ihpt] = new TH1F (*(TH1F*)dphi_2d[ic][ippt][ihpt]->ProjectionX(name.c_str(),ymin,ymax));
 					SetHisto(dphi_1d[ic][ippt][ihpt],dphi_title,1);
 					ymin = dphi_2d_mix[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
 					ymax = dphi_2d_mix[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
-					dphi_1d_mix[ic][ippt][ihpt] = new TH1D (*(TH1D*)dphi_2d_mix[ic][ippt][ihpt]->ProjectionX(name_mix.c_str(),ymin,ymax));
+					dphi_1d_mix[ic][ippt][ihpt] = new TH1F (*(TH1F*)dphi_2d_mix[ic][ippt][ihpt]->ProjectionX(name_mix.c_str(),ymin,ymax));
 					SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
 					if(ispertrigger) {
 						dphi_1d_mix[ic][ippt][ihpt]->Scale(1/100.0);
@@ -181,7 +181,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 			    //*****************************************************	  
 				corr_name.str("");
 				corr_name << "CF_c" << ic << "_p"<<ippt <<"_h"<< ihpt; 
-				corr[ic][ippt][ihpt] = new TH1D(*(TH1D*)dphi_1d[ic][ippt][ihpt]);
+				corr[ic][ippt][ihpt] = new TH1F(*(TH1F*)dphi_1d[ic][ippt][ihpt]);
 				//corr[ic][ippt][ihpt]->Divide(dphi_1d_mix[ic][ippt][ihpt]);
 				SetHisto(corr[ic][ippt][ihpt],dphi_title,1);
 				corr[ic][ippt][ihpt]->SetName(corr_name.str().c_str());
@@ -267,7 +267,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 
 }
 
-void MakeCFs::SetPtRange(TH3D* h3, double x_pt_min, double x_pt_max, double y_pt_min, double y_pt_max)
+void MakeCFs::SetPtRange(TH3F* h3, double x_pt_min, double x_pt_max, double y_pt_min, double y_pt_max)
 {
 	h3->GetXaxis()->SetRangeUser(x_pt_min, x_pt_max);
 	h3->GetYaxis()->SetRangeUser(y_pt_min, y_pt_max);
@@ -294,33 +294,46 @@ void MakeCFs::SetPartPtBinning()
 	part_pt[0]=2.8;
 }
 
-void MakeCFs::MakeDphiProjection(TH3D* h3, TH1D*& h1,string hname)
+void MakeCFs::MakeDphiProjection(TH3F* h3, TH1F*& h1,string hname)
 {
-	h1 = new TH1D(*(TH1D*)h3->Project3D("z"));
+	h1 = new TH1F(*(TH1F*)h3->Project3D("z"));
 	h1->SetNameTitle(hname.c_str(),hname.c_str());
   // cout<<"h1 name: "<<hname.c_str()<<endl;
 }
 
-void MakeCFs::MakeDphiProjection(TH3D* h3, TH1D*& h1,double xmin, double xmax, double ymin, double ymax, string hname)
+void MakeCFs::MakeDphiProjection(TH3F* h3, TH1F*& h1,double xmin, double xmax, double ymin, double ymax, string hname)
 {
-	TH1D* proj_x = (TH1D*)h3->ProjectionX("px");
-	TH1D* proj_y = (TH1D*)h3->ProjectionY("py");
+	TH1F* proj_x = (TH1F*)h3->ProjectionX("px");
+	TH1F* proj_y = (TH1F*)h3->ProjectionY("py");
 	int xbinlo = proj_x->FindBin(xmin);
 	int xbinhi = proj_x->FindBin(xmax);
 	int ybinlo = proj_y->FindBin(ymin);
 	int ybinhi = proj_y->FindBin(ymax);
   	//cout<<"xbinlo = "<<xbinlo<<"; xbinhi = "<<xbinhi<<endl;
   	//cout<<"ybinlo = "<<ybinlo<<"; ybinhi = "<<ybinhi<<endl;
-	//h1 = new TH1D(*(TH1D*)h3->Project3D("z"));
+	//h1 = new TH1F(*(TH1F*)h3->Project3D("z"));
 	string pz = hname + "_pz";
-	h1 = new TH1D(*(TH1D*)h3->ProjectionZ(pz.c_str(),xbinlo,xbinhi-1,ybinlo,ybinhi-1));
+	h1 = new TH1F(*(TH1F*)h3->ProjectionZ(pz.c_str(),xbinlo,xbinhi-1,ybinlo,ybinhi-1));
 	//cout << "checking projection: phi=0 -> " << h1->GetBinContent(1) << endl;
 }
 
-void MakeCFs::FoldDphiDist(TH1D* h1, TH1D*& h1_fold, string hname_fold)
+TH1F* MakeCFs::MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, string hname)
+{
+  TH1F* proj_x = (TH1F*)h3->ProjectionX("px");
+  TH1F* proj_y = (TH1F*)h3->ProjectionY("py");
+  int xbinlo = proj_x->FindBin(xmin);
+  int xbinhi = proj_x->FindBin(xmax);
+  int ybinlo = proj_y->FindBin(ymin);
+  int ybinhi = proj_y->FindBin(ymax);
+  string pz = hname + "_pz";
+  TH1F* proj_hist = (TH1F*)h3->ProjectionZ(pz.c_str(),xbinlo,xbinhi-1,ybinlo,ybinhi-1);
+  return (TH1F*)proj_hist;
+}
+
+void MakeCFs::FoldDphiDist(TH1F* h1, TH1F*& h1_fold, string hname_fold)
 {
 	int Nbins = h1->GetNbinsX();
-	h1_fold = new TH1D(hname_fold.c_str(),"",Nbins/2,0.0,PI);
+	h1_fold = new TH1F(hname_fold.c_str(),"",Nbins/2,0.0,PI);
 	for(int ibin = 1; ibin <= Nbins/4; ibin++){
 		double added_bin_left = h1->GetBinContent(ibin)+h1->GetBinContent(Nbins/2-ibin+1);
 		double added_bin_right = h1->GetBinContent(Nbins/2+ibin)+h1->GetBinContent(Nbins-ibin+1);    
@@ -336,7 +349,7 @@ void MakeCFs::FoldDphiDist(TH1D* h1, TH1D*& h1_fold, string hname_fold)
 	}
 }
 
-void MakeCFs::SetHisto(TH1D* h1, string title, int color)
+void MakeCFs::SetHisto(TH1F* h1, string title, int color)
 {
 	h1->SetName("");
 	h1->SetTitle(title.c_str());
@@ -355,7 +368,7 @@ void MakeCFs::SetPad(TVirtualPad* pad)
 	pad->SetRightMargin(0.02);
 }
 
-double MakeCFs::GetNTriggers(TH1D* trigpt, double trigptmin, double trigptmax)
+double MakeCFs::GetNTriggers(TH1F* trigpt, double trigptmin, double trigptmax)
 {
 	double ntrig = 0;
 	for(int i = 0; i < trigpt->GetNbinsX(); i++)
@@ -370,7 +383,7 @@ double MakeCFs::GetNTriggers(TH1D* trigpt, double trigptmin, double trigptmax)
 	return ntrig;
 }
 
-double MakeCFs::GetHadronEff(TH1D* hadron_pt, int ipart)
+double MakeCFs::GetHadronEff(TH1F* hadron_pt, int ipart)
 {
 	TF1* fhadeff = new TF1("fhadeff","(x<=3)*(0.396-0.337*exp(-1.50*x))+(x>3&&x<=5)*(0.400+-2.13e-13*exp(5.36*x))+(x>5)*(0.396-0.337*exp(-1.50*x))",0.5,10.0);
 	hadron_pt->SetAxisRange(part_pt[ipart],part_pt[ipart+1],"X");
@@ -381,7 +394,7 @@ double MakeCFs::GetHadronEff(TH1D* hadron_pt, int ipart)
 	return eff;
 }
 
-double MakeCFs::GetHadronEff_v2(TH1D* hadron_pt, int ipart)
+double MakeCFs::GetHadronEff_v2(TH1F* hadron_pt, int ipart)
 {
 	TF1* fhadeff = new TF1("fhadeff","(x<=3)*(0.396-0.337*exp(-1.50*x))+(x>3&&x<=5)*(0.400+-2.13e-13*exp(5.36*x))+(x>5)*(0.396-0.337*exp(-1.50*x))",0.5,10.0);
 	int bin1 = hadron_pt->FindBin(part_pt[ipart]);
