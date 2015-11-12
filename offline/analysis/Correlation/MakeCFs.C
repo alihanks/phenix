@@ -157,13 +157,13 @@ void MakeCFs::Run(int type, int ispertrigger)
 
 			for(int ihpt=0; ihpt<NPARTBIN; ihpt++){
 
-				double R_bg = dphi_1d_mix[ic][ippt][ihpt]->Integral("width")/PI;
-				if( R_bg==0 ) R_bg = 1.0;
-				dphi_1d_mix[ic][ippt][ihpt]->Scale(1/R_bg);
+				//double R_bg = dphi_1d_mix[ic][ippt][ihpt]->Integral("width")/PI;
+				//if( R_bg==0 ) R_bg = 1.0;
+				//dphi_1d_mix[ic][ippt][ihpt]->Scale(1/R_bg);
 
-				double R_fg = dphi_1d[ic][ippt][ihpt]->Integral("width")/PI;
-				if( R_fg==0 ) R_fg = 1.0;
-				if(!ispertrigger) dphi_1d[ic][ippt][ihpt]->Scale(1/R_fg);
+				//double R_fg = dphi_1d[ic][ippt][ihpt]->Integral("width")/PI;
+				//if( R_fg==0 ) R_fg = 1.0;
+				//if(!ispertrigger) dphi_1d[ic][ippt][ihpt]->Scale(1/R_fg);
 
 				TVirtualPad* pad = can_dphi[ic][ippt]->cd(ihpt+1);
 				SetPad(pad);
@@ -182,7 +182,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 				corr_name.str("");
 				corr_name << "CF_c" << ic << "_p"<<ippt <<"_h"<< ihpt; 
 				corr[ic][ippt][ihpt] = new TH1D(*(TH1D*)dphi_1d[ic][ippt][ihpt]);
-				corr[ic][ippt][ihpt]->Divide(dphi_1d_mix[ic][ippt][ihpt]);
+				//corr[ic][ippt][ihpt]->Divide(dphi_1d_mix[ic][ippt][ihpt]);
 				SetHisto(corr[ic][ippt][ihpt],dphi_title,1);
 				corr[ic][ippt][ihpt]->SetName(corr_name.str().c_str());
 
@@ -284,14 +284,14 @@ void MakeCFs::SetTrigPtBinning()
 
 void MakeCFs::SetPartPtBinning()
 {
-	part_pt[0]=0.;
-	part_pt[1]=0.4;
-	part_pt[2]=0.8;
-	part_pt[3]=1.2;
-	part_pt[4]=1.6;
-	part_pt[5]=2.0;
-	part_pt[6]=2.4;
-	part_pt[7]=2.8;
+	part_pt[7]=0.;
+	part_pt[6]=0.4;
+	part_pt[5]=0.8;
+	part_pt[4]=1.2;
+	part_pt[3]=1.6;
+	part_pt[2]=2.0;
+	part_pt[1]=2.4;
+	part_pt[0]=2.8;
 }
 
 void MakeCFs::MakeDphiProjection(TH3D* h3, TH1D*& h1,string hname)
