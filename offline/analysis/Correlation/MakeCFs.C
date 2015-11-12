@@ -30,7 +30,6 @@ void MakeCFs::Run(int type, int ispertrigger)
 	cout<<"start"<<endl;
 	TH1D* h1_trigpt[NCENTBIN];
 	TH1D* h1_partpt[NCENTBIN];
-	double hadron_eff[NCENTBIN][NTRIGBIN][NPARTBIN] = {{{1.0}}};
 	double trig_pt_range[NTRIGBIN+1] = {5.0,7.0,9.0,12.0,15.0};
 	double part_pt_range[NPARTBIN+1] = {0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.8};
 
@@ -40,24 +39,6 @@ void MakeCFs::Run(int type, int ispertrigger)
 		name = trig_name + bin.str();
 		cout << "getting trig histo: " << name << endl;
 		h1_trigpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
-		bin.str("");
-		bin << "_C" << ic;
-		name = "/phenix/u/workarea/ahanks/gitrepo/offline/analysis/Correlation/macros/hadron_eff/chhadron_eff_dAu" + bin.str() + ".root";
-		TFile* feff = new TFile(name.c_str());
-		TH1D* heff = (TH1D*)feff->Get("heff2");
-		for( int t = 0; t < NTRIGBIN; t++ ) {
-			for( int i = 1; i <= heff->GetNbinsX(); i++ ) {
-				double xi_low = -1*log((heff->GetBinLowEdge(i)+heff->GetBinWidth(i))/trig_pt_range[t]);
-				double xi_high = -1*log(heff->GetBinLowEdge(i)/trig_pt_range[t+1]);
-				cout << "setting hadron efficiency for " << xi_low << " < xi < " << xi_high << endl;
-				for( int p = 0; p < NPARTBIN; p++ ) {
-					if( (xi_low > part_pt_range[p] && xi_low < part_pt_range[p+1]) || (xi_high > part_pt_range[p] && xi_high < part_pt_range[p+1]) ) {
-						hadron_eff[ic][t][p] = heff->GetBinContent(i);
-						cout << "Setting hadron efficiency (" << ic << ", " << t << ", " << p << ") = " << hadron_eff[ic][t][p] << endl;
-					}
-				}
-			}
-		}
 	}
 
 	outfile->cd();
@@ -250,9 +231,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 					double binwidth = jet[ic][itrig][ipart]->GetBinWidth(1);
 					//cout<<"jet func binwidth: "<<binwidth<<endl;
 					jet[ic][itrig][ipart]->Scale(1/binwidth);
-					jet[ic][itrig][ipart]->Scale(1/hadron_eff[ic][itrig][ipart]);
 					jet_err[ic][itrig][ipart]->Scale(1/binwidth);
-					jet_err[ic][itrig][ipart]->Scale(1/hadron_eff[ic][itrig][ipart]);
 					SetHisto(jet[ic][itrig][ipart],dphi_title,1);
 					jet[ic][itrig][ipart]->SetName(name.c_str());
 					name = "JFerr" + bin.str();
