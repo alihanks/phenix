@@ -187,7 +187,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 				corr_name.str("");
 				corr_name << "CF_c" << ic << "_p"<<ippt <<"_h"<< ihpt; 
 				corr[ic][ippt][ihpt] = new TH1F(*(TH1F*)dphi_1d[ic][ippt][ihpt]);
-				//corr[ic][ippt][ihpt]->Divide(dphi_1d_mix[ic][ippt][ihpt]);
+				corr[ic][ippt][ihpt]->Divide(dphi_1d_mix[ic][ippt][ihpt]);
 				SetHisto(corr[ic][ippt][ihpt],dphi_title,1);
 				corr[ic][ippt][ihpt]->SetName(corr_name.str().c_str());
 
