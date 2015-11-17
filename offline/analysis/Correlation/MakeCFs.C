@@ -179,7 +179,8 @@ void MakeCFs::Run(int type, int ispertrigger)
 				dphi_1d_mix[ic][ippt][ihpt]->Draw("same");
 
 				legend_name.str("");
-				legend_name<<trig_pt[ippt]<<"-"<<trig_pt[ippt+1]<<" #times "<<part_pt[ihpt]<<"-"<<part_pt[ihpt+1]<<" GeV/c";
+				if( XiBinning ) legend_name<<trig_pt[ippt]<<"-"<<trig_pt[ippt+1]<<" #times "<<part_pt[ihpt+1]<<"-"<<part_pt[ihpt]<<" GeV/c";
+				else legend_name<<trig_pt[ippt]<<"-"<<trig_pt[ippt+1]<<" #times "<<part_pt[ihpt]<<"-"<<part_pt[ihpt+1]<<" GeV/c";
 				TLegend *l1 = new TLegend(0.45,0.7,0.75,0.9,legend_name.str().c_str(),"brNDC");
 				l1->SetFillColor(0);
 				l1->SetBorderSize(0);
@@ -308,13 +309,12 @@ void MakeCFs::SetPartPtBinning(int isxi)
 		part_pt[0]=2.8;
 	}
 	else {
-		part_pt[0] = 0.0;
-		part_pt[1] = 0.5;
-		part_pt[2] = 1.0;
-		part_pt[3] = 2.0;
-		part_pt[4] = 3.0;
-		part_pt[5] = 5.0;
-		part_pt[6] = 7.0;
+		part_pt[0] = 0.5;
+		part_pt[1] = 1.0;
+		part_pt[2] = 2.0;
+		part_pt[3] = 3.0;
+		part_pt[4] = 5.0;
+		part_pt[5] = 7.0;
 	}
 }
 
