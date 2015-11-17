@@ -292,7 +292,7 @@ void MakeCFs::SetTrigPtBinning()
 
 void MakeCFs::SetPartPtBinning(int isxi)
 {
-	if( isxi )
+	if( isxi ) {
 		part_pt[7]=0.;
 		part_pt[6]=0.4;
 		part_pt[5]=0.8;
