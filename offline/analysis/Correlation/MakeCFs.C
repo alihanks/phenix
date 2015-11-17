@@ -17,12 +17,12 @@
 
 using namespace std;
 
-MakeCFs::MakeCFs(const string fin, const string fout)
+MakeCFs::MakeCFs(const string fin, const string fout, int isxi)
 {
 	infile = new TFile(fin.c_str());
 	outfile = new TFile(fout.c_str(),"recreate");
 	SetTrigPtBinning();
-	SetPartPtBinning();
+	SetPartPtBinning(isxi);
 }
 
 void MakeCFs::Run(int type, int ispertrigger)
@@ -168,6 +168,9 @@ void MakeCFs::Run(int type, int ispertrigger)
 
 				TVirtualPad* pad = can_dphi[ic][ippt]->cd(ihpt+1);
 				SetPad(pad);
+				double min = 0.75*dphi_1d_mix[ic][ippt][ihpt]->GetMinimum();
+				double max = 1.1*dphi_1d[ic][ippt][ihpt]->GetMaximum();
+				dphi_1d[ic][ippt][ihpt]->SetAxisRange(min,max,"Y");
 				dphi_1d[ic][ippt][ihpt]->Draw();
 				dphi_1d_mix[ic][ippt][ihpt]->Draw("same");
 
@@ -287,16 +290,27 @@ void MakeCFs::SetTrigPtBinning()
 	trig_pt[4]=15.;
 }
 
-void MakeCFs::SetPartPtBinning()
+void MakeCFs::SetPartPtBinning(int isxi)
 {
-	part_pt[7]=0.;
-	part_pt[6]=0.4;
-	part_pt[5]=0.8;
-	part_pt[4]=1.2;
-	part_pt[3]=1.6;
-	part_pt[2]=2.0;
-	part_pt[1]=2.4;
-	part_pt[0]=2.8;
+	if( isxi )
+		part_pt[7]=0.;
+		part_pt[6]=0.4;
+		part_pt[5]=0.8;
+		part_pt[4]=1.2;
+		part_pt[3]=1.6;
+		part_pt[2]=2.0;
+		part_pt[1]=2.4;
+		part_pt[0]=2.8;
+	}
+	else {
+		part_pt[0] = 0.0;
+		part_pt[1] = 0.5;
+		part_pt[2] = 1.0;
+		part_pt[3] = 2.0;
+		part_pt[4] = 3.0;
+		part_pt[5] = 5.0;
+		part_pt[6] = 7.0;
+	}
 }
 
 void MakeCFs::MakeDphiProjection(TH3F* h3, TH1F*& h1,string hname)

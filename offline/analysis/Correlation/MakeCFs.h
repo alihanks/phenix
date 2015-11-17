@@ -24,7 +24,7 @@ const double PI = acos(-1.0);
 class MakeCFs
 {
 public:
-  MakeCFs(const std::string fin, const std::string fout);
+  MakeCFs(const std::string fin, const std::string fout, int isxi);
   virtual ~MakeCFs(){};
 
   void Run(int type, int ispertrigger);
@@ -32,7 +32,7 @@ public:
   void SetDphiNames(std::string name, std::string mix_name) { dphi_name = name; dphi_mix_name = mix_name; }
 
   void SetTrigPtBinning();
-  void SetPartPtBinning();
+  void SetPartPtBinning(int isxi);
   void SetPtRange(TH3F* h3, double x_pt_min, double x_pt_max, double y_pt_min, double y_pt_max);
   void MakeDphiProjection(TH3F* h3, TH1F*& h1, std::string hname);
   void MakeDphiProjection(TH3F* h3, TH1F*& h1, double xmin, double xmax, double ymin, double ymax, std::string hname);
