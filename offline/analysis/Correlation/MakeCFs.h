@@ -64,6 +64,7 @@ private:
   TH2F* temp2D_mix;
   double trig_pt[NTRIGBIN+1];
   double part_pt[NPARTBIN+1];
+  int XiBinning;
 
   double normint;
   double num_trigger[NCENTBIN][NTRIGBIN];

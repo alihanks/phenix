@@ -21,6 +21,7 @@ MakeCFs::MakeCFs(const string fin, const string fout, int isxi)
 {
 	infile = new TFile(fin.c_str());
 	outfile = new TFile(fout.c_str(),"recreate");
+	XiBinning = isxi;
 	SetTrigPtBinning();
 	SetPartPtBinning(isxi);
 }
@@ -66,11 +67,14 @@ void MakeCFs::Run(int type, int ispertrigger)
 					bin << ic <<"_p"<<ippt<<"_h"<<ihpt;
 					name = "h1_dphi_c" + bin.str();
 					name_mix = "h1_dphi_mix_c" + bin.str();
-					dphi_1d[ic][ippt][ihpt] = MakeDphiProjection(dphi_3d[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt+1], part_pt[ihpt],name.c_str());
+					if( XiBinning ) dphi_1d[ic][ippt][ihpt] = MakeDphiProjection(dphi_3d[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt+1], part_pt[ihpt],name.c_str());
+					else dphi_1d[ic][ippt][ihpt] = MakeDphiProjection(dphi_3d[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name.c_str());
 					SetHisto(dphi_1d[ic][ippt][ihpt],dphi_title,1);
 					dphi_1d[ic][ippt][ihpt]->SetName(name.c_str());
 
-					dphi_1d_mix[ic][ippt][ihpt] = MakeDphiProjection(dphi_3d_mix[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt+1], part_pt[ihpt],name_mix.c_str());
+					if( XiBinning) dphi_1d_mix[ic][ippt][ihpt] = MakeDphiProjection(dphi_3d_mix[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt+1], part_pt[ihpt],name_mix.c_str());
+					else dphi_1d_mix[ic][ippt][ihpt] = MakeDphiProjection(dphi_3d_mix[ic][ippt][ihpt],trig_pt[ippt], trig_pt[ippt+1], part_pt[ihpt], part_pt[ihpt+1],name_mix.c_str());
+
 					SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
 					dphi_1d_mix[ic][ippt][ihpt]->SetName(name_mix.c_str());
 					if(ispertrigger) {
@@ -249,7 +253,8 @@ void MakeCFs::Run(int type, int ispertrigger)
 					jet_err[ic][itrig][ipart]->Write();
 
 					legend_name.str("");
-					legend_name<<trig_pt[itrig]<<"-"<<trig_pt[itrig+1]<<" #times "<<part_pt[ipart]<<"-"<<part_pt[ipart+1]<<" GeV/c";
+					if( XiBinning ) legend_name<<trig_pt[itrig]<<"-"<<trig_pt[itrig+1]<<" #times "<<part_pt[ipart+1]<<"-"<<part_pt[ipart]<<" GeV/c";
+					else legend_name<<trig_pt[itrig]<<"-"<<trig_pt[itrig+1]<<" #times "<<part_pt[ipart]<<"-"<<part_pt[ipart+1]<<" GeV/c";
 					TLatex *la = new TLatex(0.25, 0.75, legend_name.str().c_str());
 					la->SetNDC();
 					la->Draw("same");
