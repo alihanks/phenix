@@ -7,9 +7,9 @@
 #include <sstream>
 #include <iostream>
 
-class TH1D;
-class TH2D;
-class TH3D;
+class TH1F;
+class TH2F;
+class TH3F;
 class TFile;
 class TGraphErrors;
 class TCanvas;
@@ -23,8 +23,8 @@ public:
   virtual ~MakeDir(){};
 
   void SetRgamma(const std::string Rgamma_input, int ic);
-  void DoSubtraction(TH1D* incjet, TH1D* decjet, double Rgamma, TH1D*& dirjet);
-  void CombinePtBins(TH1D* h1, TH1D* h2, TH1D* combined);
+  void DoSubtraction(TH1F* incjet, TH1F* decjet, double Rgamma, TH1F*& dirjet);
+  void CombinePtBins(TH1F* h1, TH1F* h2, TH1F* combined);
 
 private:
   std::ostringstream bin;
@@ -41,11 +41,11 @@ private:
   TGraphErrors* stat[NCENTBIN];
   TGraphErrors* sys[NCENTBIN];
 
-  TH1D* inc_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
-  TH1D* dec_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
-  TH1D* dir_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
-  TH1D* dir_sub_err[NCENTBIN][NTRIGBIN][NPARTBIN];
-  TH1D* dir_jet_err[NCENTBIN][NTRIGBIN][NPARTBIN];
+  TH1F* inc_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
+  TH1F* dec_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
+  TH1F* dir_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
+  TH1F* dir_sub_err[NCENTBIN][NTRIGBIN][NPARTBIN];
+  TH1F* dir_jet_err[NCENTBIN][NTRIGBIN][NPARTBIN];
 };
 
 #endif
