@@ -41,10 +41,10 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
     for(int ipart=0; ipart<NPARTBIN; ipart++){
     	bin.str("");
     	bin << prefix.str()<<"_p"<<itrig<<"_h"<<ipart;
-    	inc_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)fileinc->Get(bin.str().c_str()));
+    	inc_jet[ic][itrig][ipart] = new TH1F(*(TH1F*)fileinc->Get(bin.str().c_str()));
     	name = "INC_" + bin.str();
     	inc_jet[ic][itrig][ipart]->SetName(name.c_str());
-    	dec_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)filedec->Get(bin.str().c_str()));
+    	dec_jet[ic][itrig][ipart] = new TH1F(*(TH1F*)filedec->Get(bin.str().c_str()));
     	name = "DEC_" + bin.str();
     	dec_jet[ic][itrig][ipart]->SetName(name.c_str());
     	DoSubtraction(inc_jet[ic][itrig][ipart],dec_jet[ic][itrig][ipart],rgamma[ic][itrig],dir_jet[ic][itrig][ipart]);
@@ -61,10 +61,10 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
     for(int ipart=0; ipart<NPARTBIN; ipart++){
       bin.str("");
       bin << prefix_err.str()<<"_p"<<itrig<<"_h"<<ipart;
-      inc_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)fileinc->Get(bin.str().c_str()));
+      inc_jet[ic][itrig][ipart] = new TH1F(*(TH1F*)fileinc->Get(bin.str().c_str()));
       name = "INC_" + bin.str();
       inc_jet[ic][itrig][ipart]->SetName(name.c_str());
-      dec_jet[ic][itrig][ipart] = new TH1D(*(TH1D*)filedec->Get(bin.str().c_str()));
+      dec_jet[ic][itrig][ipart] = new TH1F(*(TH1F*)filedec->Get(bin.str().c_str()));
       name = "DEC_" + bin.str();
       dec_jet[ic][itrig][ipart]->SetName(name.c_str());
       DoSubtraction(inc_jet[ic][itrig][ipart],dec_jet[ic][itrig][ipart],rgamma[ic][itrig],dir_jet_err[ic][itrig][ipart]);
@@ -77,19 +77,19 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
     for(int ipart=0; ipart<NPARTBIN; ipart++) {
       ostringstream cname;
       cname << "DIR_JF_comb_p" << i << "_h" << ipart;
-      TH1D* temp = new TH1D(*dir_jet[ic][i][ipart]);
+      TH1F* temp = new TH1F(*dir_jet[ic][i][ipart]);
       temp->SetName(cname.str().c_str());
       CombinePtBins(dir_jet[ic][i][ipart],dir_jet[ic][i+1][ipart],temp);
       temp->Write();
       cname.str("");
       cname << "DIR_JFerr_comb_p" << i << "_h" << ipart;
-      temp = new TH1D(*dir_jet_err[ic][i][ipart]);
+      temp = new TH1F(*dir_jet_err[ic][i][ipart]);
       temp->SetName(cname.str().c_str());
       CombinePtBins(dir_jet_err[ic][i][ipart],dir_jet_err[ic][i+1][ipart],temp);
       temp->Write();
       cname.str("");
       cname << "DIRerr_JF_comb_p" << i << "_h" << ipart;
-      temp = new TH1D(*dir_sub_err[ic][i][ipart]);
+      temp = new TH1F(*dir_sub_err[ic][i][ipart]);
       temp->SetName(cname.str().c_str());
       CombinePtBins(dir_sub_err[ic][i][ipart],dir_sub_err[ic][i+1][ipart],temp);
       temp->Write();
@@ -97,7 +97,7 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
   }
 }
 
-void MakeDir::CombinePtBins(TH1D* h1, TH1D* h2, TH1D* combined)
+void MakeDir::CombinePtBins(TH1F* h1, TH1F* h2, TH1F* combined)
 {
   for( int ib = 1; ib <= h1->GetNbinsX(); ib++ ) {
     double err1 = h1->GetBinError(ib);
@@ -167,12 +167,12 @@ void MakeDir::SetRgamma(string Rgamma_input, int ic)
   for(int ip=0; ip<NTRIGBIN; ip++) rgamma_sys[ic][ip] = rga_sys[ip];
 }
 
-void MakeDir::DoSubtraction(TH1D* incjet, TH1D* decjet, double Rgamma, TH1D*& dirjet)
+void MakeDir::DoSubtraction(TH1F* incjet, TH1F* decjet, double Rgamma, TH1F*& dirjet)
 {
   //dir = (Rgamma*inc-dec)/(Rgamma-1)
-  TH1D* incjetclone = new TH1D(*(TH1D*)incjet);
+  TH1F* incjetclone = new TH1F(*(TH1F*)incjet);
   incjetclone->Scale(Rgamma);
   incjetclone->Add(decjet, -1.0);
   incjetclone->Scale(1.0/(Rgamma-1));
-  dirjet = (TH1D*)incjetclone;
+  dirjet = (TH1F*)incjetclone;
 }
