@@ -202,8 +202,8 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     CFinc->SetAxisRange(0.85,TMath::Pi(),"X");
     int lbin = CFinc->GetMinimumBin()-1;//CFinc->FindBin(1.1);
     int hbin = lbin+2;
-    float lphi = CFinc->GetBinContent(lbin);
-    float hphi = CFinc->GetBinContent(hbin);
+    float lphi = CFinc->GetBinCenter(lbin);
+    float hphi = CFinc->GetBinCenter(hbin);
     norm = CFinc->Integral(lbin,hbin);
     norm = norm/((double)(hbin-lbin+1));
     cout << "ZYAM norm = " << CFinc->Integral(lbin,hbin) << "/(" << hphi << " - " << lphi << ") = " << norm << endl;
@@ -213,12 +213,13 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     CFinc->SetAxisRange(0.85,TMath::Pi(),"X");
     int lbin = CFinc->GetMinimumBin()-1;//CFinc->FindBin(1.1);
     int hbin = lbin+2;
-    float lphi = CFinc->GetBinContent(lbin);
-    float hphi = CFinc->GetBinContent(hbin);
+    float lphi = CFinc->GetBinCenter(lbin);
+    float hphi = CFinc->GetBinCenter(hbin);
     double norm_err = 0;
     norm = CFinc->IntegralAndError(lbin,hbin,norm_err);
     norm = (norm+norm_err)/((double)(hbin-lbin+1));
     cout << "ZYAM norm+err = " << CFinc->Integral(lbin,hbin) << "/(" << hphi << " - " << lphi << ") = " << norm << endl;
+    CFinc->SetAxisRange(0.0,TMath::Pi(),"X");
   }
 
   CFflowZYAM->Scale(norm);
