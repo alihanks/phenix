@@ -106,12 +106,13 @@ void MakeCFs::Run(int type, int ispertrigger)
 					name = "h1_dphi_c" + bin.str();
 					name_mix = "h1_dphi_mix_c" + bin.str();
 
-					int ymin = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
-					int ymax = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
+					int ymin = 0; int ymax = 0;
+					if( XiBinning ) ymin = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
+					else ymin = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
+					if( XiBinning ) ymax = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
+					else ymax = dphi_2d[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
 					dphi_1d[ic][ippt][ihpt] = new TH1F (*(TH1F*)dphi_2d[ic][ippt][ihpt]->ProjectionX(name.c_str(),ymin,ymax));
 					SetHisto(dphi_1d[ic][ippt][ihpt],dphi_title,1);
-					ymin = dphi_2d_mix[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt]);
-					ymax = dphi_2d_mix[ic][ippt][ihpt]->GetYaxis()->FindBin(part_pt[ihpt+1]);
 					dphi_1d_mix[ic][ippt][ihpt] = new TH1F (*(TH1F*)dphi_2d_mix[ic][ippt][ihpt]->ProjectionX(name_mix.c_str(),ymin,ymax));
 					SetHisto(dphi_1d_mix[ic][ippt][ihpt],dphi_title,2);
 					if(ispertrigger) {

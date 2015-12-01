@@ -53,7 +53,9 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   flowFunc->SetParameter(0, 1.0);
   flowFunc->SetParameter(1,c2);
 
-  CFflowZYAM = new TH1F("CFflowZYAM","CFflowZYAM",nbins,0.0,PI);
+  ostringstream name;
+  name << "CFflowZYAM_" << type << "_" << centbin << "_" << trigbin << "_" << partbin;
+  CFflowZYAM = new TH1F(name.str().c_str(),"CFflowZYAM",nbins,0.0,PI);
   CFflowZYAM->Sumw2();
 
   for( int ibin = 1; ibin < nbins + 1; ibin++){
@@ -225,7 +227,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   CFflowZYAM->Scale(norm);
 
   CFjetZYAM = new TH1F(*(TH1F*)CFinc);
-  CFjetZYAM->Sumw2();
+  //CFjetZYAM->Sumw2();
   CFjetZYAM->Add(CFflowZYAM, -1.0);
   //delete CFflowZYAM;
   //cout << "testing yield: " << CFjetZYAM->GetBinContent(5) << endl;
