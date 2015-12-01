@@ -199,7 +199,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     fcent->Close();
   }
   else if (useMSMP==2) {
-    CFinc->SetAxisRange(0.85,TMath::Pi(),"X");
+    CFinc->SetAxisRange(0.85,1.9,"X");
     int lbin = CFinc->GetMinimumBin()-1;//CFinc->FindBin(1.1);
     int hbin = lbin+2;
     float lphi = CFinc->GetBinCenter(lbin);
@@ -210,7 +210,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     CFinc->SetAxisRange(0.0,TMath::Pi(),"X");
   }
   else if (useMSMP==3) {
-    CFinc->SetAxisRange(0.85,TMath::Pi(),"X");
+    CFinc->SetAxisRange(0.85,1.9,"X");
     int lbin = CFinc->GetMinimumBin()-1;//CFinc->FindBin(1.1);
     int hbin = lbin+2;
     float lphi = CFinc->GetBinCenter(lbin);
