@@ -54,8 +54,8 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   flowFunc->SetParameter(1,c2);
 
   ostringstream name;
-  name << "CFflowZYAM_" << type << "_" << centbin << "_" << trigbin << "_" << partbin;
-  CFflowZYAM = new TH1F(name.str().c_str(),"CFflowZYAM",nbins,0.0,PI);
+  name << "CFflowZYAM_" << useMSMP << "_" << centbin << "_" << trigbin << "_" << partbin;
+  CFflowZYAM = new TH1F(name.str().c_str(),name.str().c_str(),nbins,0.0,PI);
   CFflowZYAM->Sumw2();
 
   for( int ibin = 1; ibin < nbins + 1; ibin++){
@@ -201,7 +201,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     fcent->Close();
   }
   else if (useMSMP==2) {
-    CFinc->SetAxisRange(0.85,1.9,"X");
+    CFinc->SetAxisRange(0.9,1.8,"X");
     int lbin = CFinc->GetMinimumBin()-1;//CFinc->FindBin(1.1);
     int hbin = lbin+2;
     float lphi = CFinc->GetBinCenter(lbin);
@@ -212,7 +212,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     CFinc->SetAxisRange(0.0,TMath::Pi(),"X");
   }
   else if (useMSMP==3) {
-    CFinc->SetAxisRange(0.85,1.9,"X");
+    CFinc->SetAxisRange(0.9,1.8,"X");
     int lbin = CFinc->GetMinimumBin()-1;//CFinc->FindBin(1.1);
     int hbin = lbin+2;
     float lphi = CFinc->GetBinCenter(lbin);
