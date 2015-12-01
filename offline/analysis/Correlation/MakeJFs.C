@@ -199,16 +199,18 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     fcent->Close();
   }
   else if (useMSMP==2) {
-    CFinc->SetAxisRange(0.8,TMath::Pi(),"X");
+    CFinc->SetAxisRange(0.85,TMath::Pi(),"X");
     int lbin = CFinc->GetMinimumBin()-1;//CFinc->FindBin(1.1);
     int hbin = lbin+2;
     norm = CFinc->Integral(lbin,hbin);
     norm = norm/((double)(hbin-lbin+1));
     cout << "ZYAM norm = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin-1 << ") = " << norm << endl;
+    CFinc->SetAxisRange(0.0,TMath::Pi(),"X");
   }
   else if (useMSMP==3) {
-    int lbin = CFinc->FindBin(1.1);
-    int hbin = CFinc->FindBin(1.4);
+    CFinc->SetAxisRange(0.85,TMath::Pi(),"X");
+    int lbin = CFinc->GetMinimumBin()-1;//CFinc->FindBin(1.1);
+    int hbin = lbin+2;
     double norm_err = 0;
     norm = CFinc->IntegralAndError(lbin,hbin,norm_err);
     norm = (norm+norm_err)/((double)(hbin-lbin+1));
