@@ -41,6 +41,7 @@ MakeDir::MakeDir(const string Rgamma_input, const string finc, const string fdec
     for(int ipart=0; ipart<NPARTBIN; ipart++){
     	bin.str("");
     	bin << prefix.str()<<"_p"<<itrig<<"_h"<<ipart;
+      cout << "Subtracting decay from " << bin.str() << endl;
     	inc_jet[ic][itrig][ipart] = new TH1F(*(TH1F*)fileinc->Get(bin.str().c_str()));
     	name = "INC_" + bin.str();
     	inc_jet[ic][itrig][ipart]->SetName(name.c_str());
