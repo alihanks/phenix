@@ -227,9 +227,9 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
   CFflowZYAM->Scale(norm);
 
   CFjetZYAM = new TH1F(*(TH1F*)CFinc);
-  //CFjetZYAM->Sumw2();
-  CFjetZYAM->Add(CFflowZYAM, -1.0);
-  //delete CFflowZYAM;
+  //CFjetZYAM->Add(CFflowZYAM, -1.0);
+
+  delete CFflowZYAM;
   //cout << "testing yield: " << CFjetZYAM->GetBinContent(5) << endl;
 }
 
