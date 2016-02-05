@@ -31,7 +31,7 @@ void MakeWeightedJFs::Get1DOutputHistos(int type, int cbin)
 	if( !type ) MakeDphiFrom3D(h1_trigpt[cbin],cbin);
 	else MakeDphiFrom2D(h1_trigpt[cbin],cbin);
 
-	h1_trigpt->Write();
+	h1_trigpt[cbin]->Write();
 }
 
 void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
@@ -44,7 +44,7 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 	name = dphi_name + bin.str();
 	name_mix = dphi_mix_name + bin.str();
 	TH3F* temp3D = (TH3F*)infile->Get(name.c_str());
-	TH3F* temp3D_mix = (TH3F*)infile->Get(mix_name.c_str());
+	TH3F* temp3D_mix = (TH3F*)infile->Get(name_mix.c_str());
 	outfile->cd();
 
 	for(int it = 0; it < NTRIGBIN; it++){
@@ -64,11 +64,11 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 			name_mix = "h1_dphi_mix" + bin.str();
 
 			MakeDphiProjection(temp3D,dphi_1d[cbin][it][ih],trig_pt[it], trig_pt[it+1], part_pt[ih], part_pt[ih+1],name);
-			MakeDphiProjection(temp3D_mix,trig_pt[it], dphi_1d_mix[cbin][it][ih], trig_pt[it+1], part_pt[ih], part_pt[ih+1], name_mix);
+			MakeDphiProjection(temp3D_mix, dphi_1d_mix[cbin][it][ih], trig_pt[it], trig_pt[it+1], part_pt[ih], part_pt[ih+1], name_mix);
 			dphi_1d[cbin][it][ih]->Write();
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], trigpt, it, ih);
+			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], trigpt, it, ih, cbin);
 			corr[cbin][it][ih]->Write();
 		}
 	}
@@ -90,7 +90,7 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 		name = dphi_name + bin.str();
 		mix_name = dphi_mix_name + bin.str();
 		TH2F* temp2D = (TH2F*)infile->Get(name.c_str());
-		TH2F* temp2D_mix = (TH2F*)infile->Get(mix_name.c_str());
+		TH2F* temp2D_mix = (TH2F*)infile->Get(name_mix.c_str());
 
 		bin.str("");
 		bin <<"_p"<<it<<"_c"<<cbin;	   
@@ -109,7 +109,7 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 			dphi_1d[cbin][it][ih]->Write();
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], trigpt, it, ih);
+			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], trigpt, it, ih, cbin);
 		}
 	}
 
