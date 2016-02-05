@@ -7,9 +7,9 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
   ostringstream suffix;
   suffix << "_fold";
 
-  vector trig_bins;
+  vector<double> trig_bins;
   trig_bins.push_back(5.0); trig_bins.push_back(7.0); trig_bins.push_back(9.0); trig_bins.push_back(12.0); trig_bins.push_back(15.0);
-  vector part_bins;
+  vector<double> part_bins;
   if( type == 0 ) {
     part_bins.push_back(0.5); part_bins.push_back(1.0); part_bins.push_back(2.0); part_bins.push_back(3.0);
     part_bins.push_back(5.0); part_bins.push_back(7.0); part_bins.push_back(0.0); part_bins.push_back(0.0);
