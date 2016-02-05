@@ -1,9 +1,9 @@
 #include "MakeWeightedJFs.h"
 
 #include <TFile.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TH3.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TH3F.h>
 #include <TF1.h>
 #include <TCanvas.h>
 #include <TLegend.h>
@@ -28,8 +28,8 @@ void MakeWeightedJFs::Get1DOutputHistos(int type, int cbin)
 	name = trig_name + bin.str();
 	h1_trigpt[cbin] = (TH1F*)infile->Get(name.c_str());
 
-	if( !type ) MakeDphiFrom3D(h1_trigpt,cbin);
-	else MakeDphiFrom2D(h1_trigpt,cbin);
+	if( !type ) MakeDphiFrom3D(h1_trigpt[cbin],cbin);
+	else MakeDphiFrom2D(h1_trigpt[cbin],cbin);
 
 	h1_trigpt->Write();
 }
@@ -42,7 +42,7 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 	bin << "_c" << cbin;
 
 	name = dphi_name + bin.str();
-	mix_name = dphi_mix_name + bin.str();
+	name_mix = dphi_mix_name + bin.str();
 	TH3F* temp3D = (TH3F*)infile->Get(name.c_str());
 	TH3F* temp3D_mix = (TH3F*)infile->Get(mix_name.c_str());
 	outfile->cd();
@@ -106,8 +106,10 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 
 			Make2DDphiProjection(temp2D,dphi_1d[cbin][it][ih], part_pt[ih], part_pt[ih+1],name);
 			Make2DDphiProjection(temp2D_mix,dphi_1d_mix[cbin][it][ih], part_pt[ih], part_pt[ih+1],name_mix);
+			dphi_1d[cbin][it][ih]->Write();
+			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(dphi_1d[it][ih], corr[it][ih], trigpt, it, ih);
+			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], trigpt, it, ih);
 		}
 	}
 
