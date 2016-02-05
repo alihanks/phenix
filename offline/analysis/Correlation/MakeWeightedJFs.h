@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <vector>
 //#include <fstream>
 
 class TH1F;
@@ -27,21 +28,27 @@ public:
 	MakeWeightedJFs(const std::string fin, const std::string fout);
 	virtual ~MakeWeightedJFs(){};
 
-	void Get1DOutputHistos(int type, int cbin);
+	void GetCentralityHistos(int type);
+	void SetTriggerBinning(std::vector<double> trig_bins) { trig_pt = trig_bins; }
+	void SetPartnerBinning(std::vector<double> part_bins) { part_pt = part_bins; }
+	void SetTriggerName(std::string name) { trig_name = name; }
+	void SetDphiNames(std::string name, std::string mix_name) { dphi_name = name; dphi_mix_name = mix_name; }
+
+	int XiBinning;
 
 private:
 
+	void Get1DOutputHistos(int type, int cbin);
 	void MakeDphiFrom3D(TH1F* trigpt, int cbin);
 	void MakeDphiFrom2D(TH1F* trigpt, int cbin);
-	void MakeDphiProjection(TH3F* h3, TH1F*& h1,double xmin, double xmax, double ymin, double ymax, std::string hname);
-	void Make2DDphiProjection(TH2F* h3, TH1F*& h1,double ymin, double ymax, std::string hname);
+	void MakeDphiProjection(TH3F* h3, TH1F*& h1, double xmin, double xmax, double ymin, double ymax, std::string hname);
+	void Make2DDphiProjection(TH2F* h3, TH1F*& h1, double ymin, double ymax, std::string hname);
 	void MakeJetFunction(TH1F* dphi, TH1F*& correlation, TH1F* trigpt, int it, int ih, int cbin);
 	void SubtractBackground(TH1F* foreground, TH1F*& signal, std::string name);
 	double GetZYAMNorm(TH1F* dphi);
 
-	double trig_pt[NTRIGBIN+1];
-	double part_pt[NPARTBIN+1];
-	int XiBinning;
+	std::vector<double> trig_pt;
+	std::vector<double> part_pt;
 
 	std::string trig_name;
 	std::string dphi_name;

@@ -18,6 +18,14 @@ MakeWeightedJFs::MakeWeightedJFs(const string fin, const string fout)
 	outfile = new TFile(fout.c_str(),"recreate");
 }
 
+void MakeWeightedJFs::GetCentralityHistos(int type)
+{
+	for( int ic = 0; ic < NCENT; ic++ )
+	{
+		Get1DOutputHistos(type,ic);
+	}
+}
+
 void MakeWeightedJFs::Get1DOutputHistos(int type, int cbin)
 {
 	ostringstream bin;
