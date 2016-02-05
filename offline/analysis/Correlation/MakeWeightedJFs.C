@@ -58,7 +58,7 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 	for(int it = 0; it < NTRIGBIN; it++){
 		bin.str("");
 		bin << "_p" << it << "_c" << cbin;
-		name = "h1_part_pt" + bin.str();
+		name = "h1_part_pt_" + prefix + bin.str();
 		TH1F* h1_trigpt = (TH1F*)temp3D->ProjectionX();
 		int lbin = h1_trigpt->FindBin(trig_pt[it]);
 		int hbin = h1_trigpt->FindBin(trig_pt[it+1]);
@@ -68,8 +68,8 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 		for(int ih = 0; ih < NPARTBIN; ih++){
 			bin.str("");
 			bin << "_c" << cbin << "_p"<<it<<"_h"<<ih;
-			name = "h1_dphi" + bin.str();
-			name_mix = "h1_dphi_mix" + bin.str();
+			name = "h1_dphi_" + prefix + bin.str();
+			name_mix = "h1_dphi_mix_" + prefix + bin.str();
 
 			MakeDphiProjection(temp3D,dphi_1d[cbin][it][ih],trig_pt[it], trig_pt[it+1], part_pt[ih], part_pt[ih+1],name);
 			MakeDphiProjection(temp3D_mix, dphi_1d_mix[cbin][it][ih], trig_pt[it], trig_pt[it+1], part_pt[ih], part_pt[ih+1], name_mix);
@@ -102,15 +102,15 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 
 		bin.str("");
 		bin <<"_p"<<it<<"_c"<<cbin;	   
-		name = "h1_part_pt" + bin.str();
+		name = "h1_part_pt_" + prefix + bin.str();
 		h1_partpt[cbin][it] = (TH1F*)temp2D->ProjectionY(name.c_str());
 		h1_partpt[cbin][it]->Write();
 
 		for(int ih = 0; ih < NPARTBIN; ih++){
 			bin.str("");
 			bin << "_c" << cbin << "_p"<<it<<"_h"<<ih;
-			name = "h1_dphi" + bin.str();
-			name_mix = "h1_dphi_mix" + bin.str();
+			name = "h1_dphi_" + prefix + bin.str();
+			name_mix = "h1_dphi_mix_" + prefix + bin.str();
 
 			Make2DDphiProjection(temp2D,dphi_1d[cbin][it][ih], part_pt[ih], part_pt[ih+1],name);
 			Make2DDphiProjection(temp2D_mix,dphi_1d_mix[cbin][it][ih], part_pt[ih], part_pt[ih+1],name_mix);

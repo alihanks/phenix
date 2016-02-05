@@ -33,6 +33,7 @@ public:
 	void SetPartnerBinning(std::vector<double> part_bins) { part_pt = part_bins; }
 	void SetTriggerName(std::string name) { trig_name = name; }
 	void SetDphiNames(std::string name, std::string mix_name) { dphi_name = name; dphi_mix_name = mix_name; }
+	void SetTypeName(std::string type) { prefix = type; }
 
 	int XiBinning;
 
@@ -50,6 +51,7 @@ private:
 	std::vector<double> trig_pt;
 	std::vector<double> part_pt;
 
+	std::string prefix;
 	std::string trig_name;
 	std::string dphi_name;
 	std::string dphi_mix_name;

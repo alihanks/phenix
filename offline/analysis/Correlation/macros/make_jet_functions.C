@@ -32,6 +32,7 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
 
   jet_functions->SetTriggerName(trig_name.str());
   jet_functions->SetDphiNames(dphi_name.str(),dphi_mix_name.str());
+  jet_functions->SetTypeName("inc");
   jet_functions->GetCentralityHistos(0);
 
   trig_name.str(""); dphi_name.str(""); dphi_mix_name.str("");
@@ -43,6 +44,7 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
 
   jet_functions->SetTriggerName(trig_name.str());
   jet_functions->SetDphiNames(dphi_name.str(),dphi_mix_name.str());
+  jet_functions->SetTypeName("pi0");
   jet_functions->GetCentralityHistos(0);
 
   trig_name.str(""); dphi_name.str(""); dphi_mix_name.str("");
@@ -54,6 +56,7 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
 
   jet_functions->SetTriggerName(trig_name.str());
   jet_functions->SetDphiNames(dphi_name.str(),dphi_mix_name.str());
+  jet_functions->SetTypeName("dec");
   jet_functions->GetCentralityHistos(1);
 
   cout<<"finish making CFs for type "<<type<<endl;
