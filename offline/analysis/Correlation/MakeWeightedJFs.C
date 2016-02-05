@@ -88,7 +88,7 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 		else bin<<"_p"<<it+1<<"_c"<<cbin;
 
 		name = dphi_name + bin.str();
-		mix_name = dphi_mix_name + bin.str();
+		name_mix = dphi_mix_name + bin.str();
 		TH2F* temp2D = (TH2F*)infile->Get(name.c_str());
 		TH2F* temp2D_mix = (TH2F*)infile->Get(name_mix.c_str());
 
