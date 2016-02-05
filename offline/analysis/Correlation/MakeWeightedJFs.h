@@ -33,8 +33,8 @@ private:
 
 	void MakeDphiFrom3D(TH1F* trigpt, int cbin);
 	void MakeDphiFrom2D(TH1F* trigpt, int cbin);
-	void MakeDphiProjection(TH3F* h3, TH1F*& h1,double xmin, double xmax, double ymin, double ymax, string hname);
-	void Make2DDphiProjection(TH2F* h3, TH1F*& h1,double ymin, double ymax, string hname);
+	void MakeDphiProjection(TH3F* h3, TH1F*& h1,double xmin, double xmax, double ymin, double ymax, std::string hname);
+	void Make2DDphiProjection(TH2F* h3, TH1F*& h1,double ymin, double ymax, std::string hname);
 	void MakeJetFunction(TH1F* dphi, TH1F*& correlation, TH1F* trigpt, int it, int ih, int cbin);
 	void SubtractBackground(TH1F* foreground, TH1F*& signal, std::string name);
 	double GetZYAMNorm(TH1F* dphi);
@@ -47,12 +47,19 @@ private:
 	std::string dphi_name;
 	std::string dphi_mix_name;
 
+	TFile* infile;
+	TFile* outfile;
+
 	TH1F* h1_trigpt[NCENT];
 	TH1F* h1_partpt[NCENT][NTRIGBIN];
 	TH1F* dphi_1d[NCENT][NTRIGBIN][NPARTBIN];
 	TH1F* dphi_1d_mix[NCENT][NTRIGBIN][NPARTBIN];
 	TH1F* corr[NCENT][NTRIGBIN][NPARTBIN];
 
-}
+};
+
+#endif
+
+
 
 
