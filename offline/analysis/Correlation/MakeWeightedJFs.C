@@ -156,7 +156,7 @@ void MakeWeightedJFs::MakeJetFunction(TH1F* dphi, TH1F*& correlation, TH1F* trig
 	int hbin = trigpt->FindBin(trig_pt[it+1]);
 	double ntrigs = trigpt->Integral(lbin,hbin);
 	ostringstream name;
-	name << "JF_c" << cbin << "_p" << it << "_h" << ih; 
+	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
 	SubtractBackground(dphi, correlation, name.str());
 	correlation->Scale(1/ntrigs);
 }
