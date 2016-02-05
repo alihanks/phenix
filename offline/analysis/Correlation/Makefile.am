@@ -25,7 +25,8 @@ include_HEADERS = \
   MakeCFs.h \
   MakeJFs.h \
   MakeCombinedHistos.h \
-  MakeDir.h
+  MakeDir.h \
+  MakeWeightedJFs.h
 
 noinst_HEADERS = MakePlotsLinkDef.h
 
@@ -33,7 +34,8 @@ libCorrelationPlots_la_SOURCES = \
   MakeCFs.C \
   MakeJFs.C \
   MakeCombinedHistos.C \
-  MakeDir.C
+  MakeDir.C \
+  MakeWeightedJFs.C
 
 nodist_libCorrelationPlots_la_SOURCES = CorrelationPlots_Dict.C
 
@@ -55,7 +57,7 @@ testexternals.C:
 	echo "  return 0;" >> $@
 	echo "}" >> $@
 
-CorrelationPlots_Dict.C: MakeCFs.h MakeJFs.h MakeDir.h MakeCombinedHistos.h MakePlotsLinkDef.h
+CorrelationPlots_Dict.C: MakeCFs.h MakeJFs.h MakeDir.h MakeWeightedJFs.h MakeCombinedHistos.h MakePlotsLinkDef.h
 	rootcint -f $@ -c -O -Wall -fPIC $(ROOTCFLAGS) $(DEFAULT_INCLUDES) $(INCLUDES) $^
 
 clean-local:

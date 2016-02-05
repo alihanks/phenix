@@ -118,6 +118,8 @@ void MakeCFs::Run(int type, int ispertrigger)
 					if(ispertrigger) {
 						dphi_1d_mix[ic][ippt][ihpt]->Scale(1/500.0);
 						meanpart[ic][ippt][ihpt] = dphi_1d_mix[ic][ippt][ihpt]->Integral();
+						double norm = dphi_1d_mix[ic][ippt][ihpt]->Integral("width")/PI;
+						dphi_1d_mix[ic][ippt][ihpt]->Scale(1/norm);
 					}
 				}
 			}
@@ -192,7 +194,7 @@ void MakeCFs::Run(int type, int ispertrigger)
 				dphi_1d[ic][ippt][ihpt]->Write();
 				dphi_1d_mix[ic][ippt][ihpt]->Write();
 
-			    //*****************************************************	  
+			    //*****************************************************
 				corr_name.str("");
 				corr_name << "CF_c" << ic << "_p"<<ippt <<"_h"<< ihpt; 
 				corr[ic][ippt][ihpt] = new TH1F(*(TH1F*)dphi_1d[ic][ippt][ihpt]);
