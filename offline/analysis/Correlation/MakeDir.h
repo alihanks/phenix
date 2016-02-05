@@ -33,19 +33,19 @@ private:
   TFile* filedec;
   TFile* fileout;
   TFile* Rgammafile;
-  double rgamma[NCENTBIN][NTRIGBIN];
-  double rgamma_err[NCENTBIN][NTRIGBIN];//stat+sys
-  double rgamma_stat[NCENTBIN][NTRIGBIN];
-  double rgamma_sys[NCENTBIN][NTRIGBIN];
-  TGraphErrors* gr[NCENTBIN];
-  TGraphErrors* stat[NCENTBIN];
-  TGraphErrors* sys[NCENTBIN];
+  double rgamma[NCENT][NTRIGBIN];
+  double rgamma_err[NCENT][NTRIGBIN];//stat+sys
+  double rgamma_stat[NCENT][NTRIGBIN];
+  double rgamma_sys[NCENT][NTRIGBIN];
+  TGraphErrors* gr[NCENT];
+  TGraphErrors* stat[NCENT];
+  TGraphErrors* sys[NCENT];
 
-  TH1F* inc_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
-  TH1F* dec_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
-  TH1F* dir_jet[NCENTBIN][NTRIGBIN][NPARTBIN];
-  TH1F* dir_sub_err[NCENTBIN][NTRIGBIN][NPARTBIN];
-  TH1F* dir_jet_err[NCENTBIN][NTRIGBIN][NPARTBIN];
+  TH1F* inc_jet[NCENT][NTRIGBIN][NPARTBIN];
+  TH1F* dec_jet[NCENT][NTRIGBIN][NPARTBIN];
+  TH1F* dir_jet[NCENT][NTRIGBIN][NPARTBIN];
+  TH1F* dir_sub_err[NCENT][NTRIGBIN][NPARTBIN];
+  TH1F* dir_jet_err[NCENT][NTRIGBIN][NPARTBIN];
 };
 
 #endif
