@@ -15,8 +15,8 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
     part_bins.push_back(5.0); part_bins.push_back(7.0); part_bins.push_back(0.0); part_bins.push_back(0.0);
   }
   if( type == 1 ) {
-    part_bins.push_back(2.4); part_bins.push_back(2.0); part_bins.push_back(1.6);
-    part_bins.push_back(1.2); part_bins.push_back(0.8); part_bins.push_back(0.4); part_bins.push_back(0.0); part_bins.push_back(0.0);
+    part_bins.push_back(2.42); part_bins.push_back(2.01); part_bins.push_back(1.61);
+    part_bins.push_back(1.22); part_bins.push_back(0.81); part_bins.push_back(0.41); part_bins.push_back(0.0); part_bins.push_back(0.0);
   }
 
   MakeWeightedJFs* jet_functions = new MakeWeightedJFs(fin,fout);
