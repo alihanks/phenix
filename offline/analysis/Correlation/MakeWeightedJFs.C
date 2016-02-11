@@ -76,7 +76,10 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 			dphi_1d[cbin][it][ih]->Write();
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], trigpt, it, ih, cbin);
+			int lbin = trigpt->FindBin(trig_pt[it]);
+			int hbin = trigpt->FindBin(trig_pt[it+1]);
+			double ntrigs = trigpt->Integral(lbin,hbin);
+			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
 			corr[cbin][it][ih]->Write();
 		}
 	}
@@ -117,7 +120,12 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 			dphi_1d[cbin][it][ih]->Write();
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], trigpt, it, ih, cbin);
+			double ntrigs = 0.0;
+			if(it<3)
+				ntrigs = trigpt->GetBinContent(it+1);
+			else
+				ntrigs = trigpt->GetBinContent(it+2);
+			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
 			corr[cbin][it][ih]->Write();
 		}
 	}
@@ -134,7 +142,7 @@ void MakeWeightedJFs::MakeDphiProjection(TH3F* h3, TH1F*& h1,double xmin, double
 	if( XiBinning ) ybinlo = proj_y->FindBin(ymax);
 	int ybinhi = proj_y->FindBin(ymax);
 	if( XiBinning ) ybinhi = proj_y->FindBin(ymin);
-
+	cout << "Projecting into dphi for xbins " << xbinlo << " - " << xbinhi << ", ybins " << ybinlo << " - " << ybinhi << endl;
 	h1 = new TH1F(*(TH1F*)h3->ProjectionZ(hname.c_str(),xbinlo,xbinhi-1,ybinlo,ybinhi-1));
 	h1->SetName(hname.c_str());
 }
@@ -151,11 +159,8 @@ void MakeWeightedJFs::Make2DDphiProjection(TH2F* h3, TH1F*& h1,double ymin, doub
 	h1->SetName(hname.c_str());
 }
 
-void MakeWeightedJFs::MakeJetFunction(TH1F* dphi, TH1F*& correlation, TH1F* trigpt, int it, int ih, int cbin)
+void MakeWeightedJFs::MakeJetFunction(TH1F* dphi, TH1F*& correlation, double ntrigs, int it, int ih, int cbin)
 {
-	int lbin = trigpt->FindBin(trig_pt[it]);
-	int hbin = trigpt->FindBin(trig_pt[it+1]);
-	double ntrigs = trigpt->Integral(lbin,hbin);
 	ostringstream name;
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
 	SubtractBackground(dphi, correlation, name.str());
