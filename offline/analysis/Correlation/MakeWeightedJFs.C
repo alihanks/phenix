@@ -101,7 +101,7 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 		TH2F* temp2D_mix = (TH2F*)infile->Get(name_mix.c_str());
 
 		bin.str("");
-		bin <<"_p"<<it<<"_c"<<cbin;	   
+		bin <<"_p"<<it<<"_c"<<cbin;
 		name = "h1_part_pt_" + prefix + bin.str();
 		h1_partpt[cbin][it] = (TH1F*)temp2D->ProjectionY(name.c_str());
 		h1_partpt[cbin][it]->Write();
@@ -118,6 +118,7 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 			dphi_1d_mix[cbin][it][ih]->Write();
 
 			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], trigpt, it, ih, cbin);
+			corr[cbin][it][ih]->Write();
 		}
 	}
 
@@ -158,6 +159,7 @@ void MakeWeightedJFs::MakeJetFunction(TH1F* dphi, TH1F*& correlation, TH1F* trig
 	ostringstream name;
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
 	SubtractBackground(dphi, correlation, name.str());
+	cout << "scaling by ntrig = " << ntrigs << endl;
 	correlation->Scale(1/ntrigs);
 }
 
