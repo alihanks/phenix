@@ -18,12 +18,13 @@ MakeWeightedJFs::MakeWeightedJFs(const string fin, const string fout)
 	outfile = new TFile(fout.c_str(),"recreate");
 }
 
-void MakeWeightedJFs::GetCentralityHistos(int type)
+void MakeWeightedJFs::GetHistos(int type)
 {
 	for( int ic = 0; ic < NCENT; ic++ )
 	{
 		Get1DOutputHistos(type,ic);
 	}
+	GetMergedHistos(type);
 }
 
 void MakeWeightedJFs::Get1DOutputHistos(int type, int cbin)
@@ -40,6 +41,61 @@ void MakeWeightedJFs::Get1DOutputHistos(int type, int cbin)
 	else MakeDphiFrom2D(h1_trigpt[cbin],cbin);
 
 	h1_trigpt[cbin]->Write();
+}
+
+void MakeWeightedJFs::MergeCentralities(int type)
+{
+	ostringstream bin;
+	string name;
+	TH1F* trigpt_combined = new TH1F(*h1_trigpt[0]);
+	trigpt_combined->SetName("h1_trigpt_all");
+	trigpt_combined->Reset();
+	for( int ic = 0; ic < NCENT; ic++ ) {
+		trigpt_combined->Add(h1_trigpt[ic]);
+		for( int it = 0; it < NTRIGBIN; it++ ) {
+			double ntrigs = GetNTrigs(type,it,h1_trigpt[ic]);
+			for( int ih = 0; ih < NPARTBIN; ih++ ) {
+				corr[ic][it][ih]->Scale(ntrigs);
+				if( ic==0 ) {
+					jf_comb[it] = new TH1F(*corr[ic][it][ih]);
+					bin.str("");
+					bin << "_p" << it << "_h" << ih;
+					name = "JF" + bin.str();
+					jf_comb[it]->SetName();
+				}
+				else jf_comb[it]->Add(corr[ic][it][ih]);
+				corr[ic][it][ih]->Scale(1/ntrigs);				
+			}
+		}
+	}
+	outfile->cd();
+	double ntrigs_comb[2] = {0,0};
+	for( int it = 0; it < 2; it++ ) {
+		bin.str("");
+		bin << "_" << it << "_h" << ih;
+		name = "JF" + bin.str();
+		jf_pt_comb[it] = new TH1F(*jf_comb[0]);
+		jf_pt_comb[it]->SetName(name.c_str());
+		jf_pt_comb[it]->Reset();
+	}
+
+	for( int it = 0; it < NTRIGBIN; it++ ) {
+		double ntrig_tot = GetNTrigs(type,it,trigpt_combined);
+		if( it==0 || it==1 ) {
+			jf_pt_comb[0]->Add(jf_comb[it]);
+			ntrigs_comb[0] += ntrig_tot;
+		}
+		if( it==2 || it==3 ) {
+			jf_pt_comb[1]->Add(jf_comb[it]);
+			ntrigs_comb[1] += ntrig_tot;
+		}
+		jf_comb[it]->Scale(1/ntrig_tot);
+		jf_comb[it]->Write();
+	}
+	for( int it = 0; it < 2; it++ ){
+		jf_pt_comb[it]->Scale(1/ntrigs_comb[it]);
+		jf_pt_comb[it]->Write();
+	}
 }
 
 void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
@@ -64,6 +120,7 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 		int hbin = h1_trigpt->FindBin(trig_pt[it+1]);
 		h1_partpt[cbin][it] = (TH1F*)temp3D->ProjectionY(name.c_str(),lbin,hbin-1);
 		h1_partpt[cbin][it]->Write();
+		double ntrigs = GetNTrigs(0,it,trigpt);
 
 		for(int ih = 0; ih < NPARTBIN; ih++){
 			bin.str("");
@@ -76,9 +133,6 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 			dphi_1d[cbin][it][ih]->Write();
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			int lbin = trigpt->FindBin(trig_pt[it]);
-			int hbin = trigpt->FindBin(trig_pt[it+1]);
-			double ntrigs = trigpt->Integral(lbin,hbin);
 			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
 			corr[cbin][it][ih]->Write();
 		}
@@ -108,6 +162,7 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 		name = "h1_part_pt_" + prefix + bin.str();
 		h1_partpt[cbin][it] = (TH1F*)temp2D->ProjectionY(name.c_str());
 		h1_partpt[cbin][it]->Write();
+		double ntrigs = GetNTrigs(1,it,trigpt);
 
 		for(int ih = 0; ih < NPARTBIN; ih++){
 			bin.str("");
@@ -120,16 +175,27 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 			dphi_1d[cbin][it][ih]->Write();
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			double ntrigs = 0.0;
-			if(it<3)
-				ntrigs = trigpt->GetBinContent(it+1);
-			else
-				ntrigs = trigpt->GetBinContent(it+2);
 			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
 			corr[cbin][it][ih]->Write();
 		}
 	}
 
+}
+
+double MakeWeightedJFs::GetNTrigs(int type, int bin, TH1F* histo)
+{
+	if( !type ) {
+		int lbin = trigpt->FindBin(trig_pt[bin]);
+		int hbin = trigpt->FindBin(trig_pt[bin+1]);
+		return histo->Integral(lbin,hbin);
+	}
+	if( type ) {
+		if(type<4)
+			return trigpt->GetBinContent(bin+1);
+		else
+			return trigpt->GetBinContent(bin+2);
+	}
+	return 0;
 }
 
 void MakeWeightedJFs::MakeDphiProjection(TH3F* h3, TH1F*& h1,double xmin, double xmax, double ymin, double ymax, string hname)
