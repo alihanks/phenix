@@ -61,7 +61,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 					bin.str("");
 					bin << "_p" << it << "_h" << ih;
 					name = "JF" + bin.str();
-					jf_comb[it][ih]->SetName();
+					jf_comb[it][ih]->SetName(name.c_str());
 				}
 				else jf_comb[it][ih]->Add(corr[ic][it][ih]);
 				corr[ic][it][ih]->Scale(1/ntrigs);				
