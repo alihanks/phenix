@@ -55,30 +55,29 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 		for( int it = 0; it < NTRIGBIN; it++ ) {
 			double ntrigs = GetNTrigs(type,it,h1_trigpt[ic]);
 			for( int ih = 0; ih < NPARTBIN; ih++ ) {
-				corr[ic][it][ih]->Scale(ntrigs);
 				if( ic==0 ) {
-					jf_comb[it][ih] = new TH1F(*corr[ic][it][ih]);
+					dphi_comb[it][ih] = new TH1F(*dphi_1d[ic][it][ih]);
 					bin.str("");
 					bin << prefix << "_p" << it << "_h" << ih;
 					name = "JF_" + bin.str();
-					jf_comb[it][ih]->SetName(name.c_str());
+					dphi_comb[it][ih]->SetName(name.c_str());
 				}
-				else jf_comb[it][ih]->Add(corr[ic][it][ih]);
-				corr[ic][it][ih]->Scale(1/ntrigs);				
+				else dphi_comb[it][ih]->Add(dphi_1dic][it][ih]);
 			}
 		}
 	}
 	outfile->cd();
 	double ntrigs_comb[2] = {0,0};
+	TH1F* dphi_pt_comb[2][NPARTBIN];
 	TH1F* jf_pt_comb[2][NPARTBIN];
 	for( int it = 0; it < 2; it++ ) {
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
 			bin.str("");
 			bin << prefix << "_" << it << "_h" << ih;
 			name = "JF_" + bin.str();
-			jf_pt_comb[it][ih] = new TH1F(*jf_comb[0][ih]);
-			jf_pt_comb[it][ih]->SetName(name.c_str());
-			jf_pt_comb[it][ih]->Reset();
+			dphi_pt_comb[it][ih] = new TH1F(*dphi_comb[0][ih]);
+			dphi_pt_comb[it][ih]->SetName(name.c_str());
+			dphi_pt_comb[it][ih]->Reset();
 		}
 	}
 
@@ -88,8 +87,9 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 		if( it==2 || it==3 ) ntrigs_comb[1] += ntrig_tot;
 
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
-			if( it==0 || it==1 ) jf_pt_comb[0][ih]->Add(jf_comb[it][ih]);
-			if( it==2 || it==3 ) jf_pt_comb[1][ih]->Add(jf_comb[it][ih]);
+			if( it==0 || it==1 ) jf_pt_comb[0][ih]->Add(dphi_comb[it][ih]);
+			if( it==2 || it==3 ) jf_pt_comb[1][ih]->Add(dphi_comb[it][ih]);
+			SubtractBackground(dphi_comb[it][ih], jf_comb[it][ih], dphi_comb[it][ih]->GetName());
 			jf_comb[it][ih]->Scale(1/ntrig_tot);
 			jf_comb[it][ih]->Write();
 		}
@@ -97,6 +97,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 
 	for( int it = 0; it < 2; it++ ){
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
+			SubtractBackground(dphi_pt_comb[it][ih],jf_pt_comb[it][ih], dphi_pt_comb[it][ih]->GetName());
 			jf_pt_comb[it][ih]->Scale(1/ntrigs_comb[it]);
 			jf_pt_comb[it][ih]->Write();
 		}
