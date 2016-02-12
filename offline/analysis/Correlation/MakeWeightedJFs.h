@@ -28,7 +28,7 @@ public:
 	MakeWeightedJFs(const std::string fin, const std::string fout);
 	virtual ~MakeWeightedJFs(){};
 
-	void GetCentralityHistos(int type);
+	void GetHistos(int type);
 	void SetTriggerBinning(std::vector<double> trig_bins) { trig_pt = trig_bins; }
 	void SetPartnerBinning(std::vector<double> part_bins) { part_pt = part_bins; }
 	void SetTriggerName(std::string name) { trig_name = name; }
