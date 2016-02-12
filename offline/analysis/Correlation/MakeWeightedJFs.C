@@ -43,7 +43,7 @@ void MakeWeightedJFs::Get1DOutputHistos(int type, int cbin)
 	h1_trigpt[cbin]->Write();
 }
 
-void MakeWeightedJFs::MergeCentralities(int type)
+void MakeWeightedJFs::GetMergedHistos(int type)
 {
 	ostringstream bin;
 	string name;
