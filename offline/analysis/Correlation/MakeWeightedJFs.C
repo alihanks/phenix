@@ -61,7 +61,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 					dphi_comb[it][ih] = new TH1F(*dphi_1d[ic][it][ih]);
 					bin.str("");
 					bin << prefix << "_p" << it << "_h" << ih;
-					name = "JF_" + bin.str();
+					name = "dphi_" + bin.str();
 					dphi_comb[it][ih]->SetName(name.c_str());
 				}
 				else dphi_comb[it][ih]->Add(dphi_1d[ic][it][ih]);
@@ -76,14 +76,14 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
 			bin.str("");
 			bin << prefix << "_" << it << "_h" << ih;
-			name = "JF_" + bin.str();
+			name = "dphi_" + bin.str();
 			dphi_pt_comb[it][ih] = new TH1F(*dphi_comb[0][ih]);
 			dphi_pt_comb[it][ih]->SetName(name.c_str());
 			dphi_pt_comb[it][ih]->Reset();
 		}
 	}
 
-	cout << "Subtrackting background for " << prefix << " merged centrality histograms" << endl;
+	cout << "Subtracting background for " << prefix << " merged centrality histograms" << endl;
 	for( int it = 0; it < NTRIGBIN; it++ ) {
 		double ntrig_tot = GetNTrigs(type,it,trigpt_combined);
 		if( it==0 || it==1 ) ntrigs_comb[0] += ntrig_tot;
@@ -92,16 +92,22 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
 			if( it==0 || it==1 ) jf_pt_comb[0][ih]->Add(dphi_comb[it][ih]);
 			if( it==2 || it==3 ) jf_pt_comb[1][ih]->Add(dphi_comb[it][ih]);
-			SubtractBackground(dphi_comb[it][ih], jf_comb[it][ih], dphi_comb[it][ih]->GetName());
+			bin.str("");
+			bin << prefix << "_p" << it << "_h" << ih;
+			name = "JF_" + bin.str();
+			SubtractBackground(dphi_comb[it][ih], jf_comb[it][ih], name.c_str());
 			jf_comb[it][ih]->Scale(1/ntrig_tot);
 			jf_comb[it][ih]->Write();
 		}
 	}
 
-	cout << "Subtrackting background for " << prefix << " merged pt histograms" << endl;
+	cout << "Subtracting background for " << prefix << " merged pt histograms" << endl;
 	for( int it = 0; it < 2; it++ ){
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
-			SubtractBackground(dphi_pt_comb[it][ih],jf_pt_comb[it][ih], dphi_pt_comb[it][ih]->GetName());
+			bin.str("");
+			bin << prefix << "_" << it << "_h" << ih;
+			name = "JF_" + bin.str();
+			SubtractBackground(dphi_pt_comb[it][ih],jf_pt_comb[it][ih], name.c_str();
 			jf_pt_comb[it][ih]->Scale(1/ntrigs_comb[it]);
 			jf_pt_comb[it][ih]->Write();
 		}
