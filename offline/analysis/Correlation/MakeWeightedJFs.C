@@ -90,8 +90,8 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 		if( it==2 || it==3 ) ntrigs_comb[1] += ntrig_tot;
 
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
-			if( it==0 || it==1 ) jf_pt_comb[0][ih]->Add(dphi_comb[it][ih]);
-			if( it==2 || it==3 ) jf_pt_comb[1][ih]->Add(dphi_comb[it][ih]);
+			if( it==0 || it==1 ) dphi_pt_comb[0][ih]->Add(dphi_comb[it][ih]);
+			if( it==2 || it==3 ) dphi_pt_comb[1][ih]->Add(dphi_comb[it][ih]);
 			bin.str("");
 			bin << prefix << "_p" << it << "_h" << ih;
 			name = "JF_" + bin.str();
