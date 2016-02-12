@@ -57,44 +57,49 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 			for( int ih = 0; ih < NPARTBIN; ih++ ) {
 				corr[ic][it][ih]->Scale(ntrigs);
 				if( ic==0 ) {
-					jf_comb[it] = new TH1F(*corr[ic][it][ih]);
+					jf_comb[it][ih] = new TH1F(*corr[ic][it][ih]);
 					bin.str("");
 					bin << "_p" << it << "_h" << ih;
 					name = "JF" + bin.str();
-					jf_comb[it]->SetName();
+					jf_comb[it][ih]->SetName();
 				}
-				else jf_comb[it]->Add(corr[ic][it][ih]);
+				else jf_comb[it][ih]->Add(corr[ic][it][ih]);
 				corr[ic][it][ih]->Scale(1/ntrigs);				
 			}
 		}
 	}
 	outfile->cd();
 	double ntrigs_comb[2] = {0,0};
+	TH1F* jf_pt_comb[2][NPARTBIN];
 	for( int it = 0; it < 2; it++ ) {
-		bin.str("");
-		bin << "_" << it << "_h" << ih;
-		name = "JF" + bin.str();
-		jf_pt_comb[it] = new TH1F(*jf_comb[0]);
-		jf_pt_comb[it]->SetName(name.c_str());
-		jf_pt_comb[it]->Reset();
+		for( int ih = 0; ih < NPARTBIN; ih++ ) {
+			bin.str("");
+			bin << "_" << it << "_h" << ih;
+			name = "JF" + bin.str();
+			jf_pt_comb[it][ih] = new TH1F(*jf_comb[0][ih]);
+			jf_pt_comb[it][ih]->SetName(name.c_str());
+			jf_pt_comb[it][ih]->Reset();
+		}
 	}
 
 	for( int it = 0; it < NTRIGBIN; it++ ) {
 		double ntrig_tot = GetNTrigs(type,it,trigpt_combined);
-		if( it==0 || it==1 ) {
-			jf_pt_comb[0]->Add(jf_comb[it]);
-			ntrigs_comb[0] += ntrig_tot;
+		if( it==0 || it==1 ) ntrigs_comb[0] += ntrig_tot;
+		if( it==2 || it==3 ) ntrigs_comb[1] += ntrig_tot;
+
+		for( int ih = 0; ih < NPARTBIN; ih++ ) {
+			if( it==0 || it==1 ) jf_pt_comb[0][ih]->Add(jf_comb[it][ih]);
+			if( it==2 || it==3 ) jf_pt_comb[1][ih]->Add(jf_comb[it][ih]);
+			jf_comb[it][ih]->Scale(1/ntrig_tot);
+			jf_comb[it][ih]->Write();
 		}
-		if( it==2 || it==3 ) {
-			jf_pt_comb[1]->Add(jf_comb[it]);
-			ntrigs_comb[1] += ntrig_tot;
-		}
-		jf_comb[it]->Scale(1/ntrig_tot);
-		jf_comb[it]->Write();
 	}
+
 	for( int it = 0; it < 2; it++ ){
-		jf_pt_comb[it]->Scale(1/ntrigs_comb[it]);
-		jf_pt_comb[it]->Write();
+		for( int ih = 0; ih < NPARTBIN; ih++ ) {
+			jf_pt_comb[it][ih]->Scale(1/ntrigs_comb[it]);
+			jf_pt_comb[it][ih]->Write();
+		}
 	}
 }
 
