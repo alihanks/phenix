@@ -59,8 +59,8 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 				if( ic==0 ) {
 					jf_comb[it][ih] = new TH1F(*corr[ic][it][ih]);
 					bin.str("");
-					bin << "_p" << it << "_h" << ih;
-					name = "JF" + bin.str();
+					bin << prefix << "_p" << it << "_h" << ih;
+					name = "JF_" + bin.str();
 					jf_comb[it][ih]->SetName(name.c_str());
 				}
 				else jf_comb[it][ih]->Add(corr[ic][it][ih]);
@@ -74,8 +74,8 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 	for( int it = 0; it < 2; it++ ) {
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
 			bin.str("");
-			bin << "_" << it << "_h" << ih;
-			name = "JF" + bin.str();
+			bin << prefix << "_" << it << "_h" << ih;
+			name = "JF_" + bin.str();
 			jf_pt_comb[it][ih] = new TH1F(*jf_comb[0][ih]);
 			jf_pt_comb[it][ih]->SetName(name.c_str());
 			jf_pt_comb[it][ih]->Reset();
