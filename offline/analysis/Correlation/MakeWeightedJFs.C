@@ -107,7 +107,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 			bin.str("");
 			bin << prefix << "_" << it << "_h" << ih;
 			name = "JF_" + bin.str();
-			SubtractBackground(dphi_pt_comb[it][ih],jf_pt_comb[it][ih], name.c_str();
+			SubtractBackground(dphi_pt_comb[it][ih],jf_pt_comb[it][ih], name.c_str());
 			jf_pt_comb[it][ih]->Scale(1/ntrigs_comb[it]);
 			jf_pt_comb[it][ih]->Write();
 		}
