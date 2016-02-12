@@ -259,8 +259,6 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
 	dphi->SetAxisRange(0.0,TMath::Pi(),"X");
 	int lbin = bin-2;//CFinc->FindBin(1.1);
 	int hbin = bin+2;
-	float lphi = dphi->GetBinCenter(lbin);
-	float hphi = dphi->GetBinCenter(hbin);
 	double norm = dphi->Integral(lbin,hbin);
 	norm = norm/((double)(hbin-lbin+1));
 
