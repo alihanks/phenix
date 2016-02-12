@@ -22,8 +22,10 @@ void MakeWeightedJFs::GetHistos(int type)
 {
 	for( int ic = 0; ic < NCENT; ic++ )
 	{
+		cout << "Getting " << prefix << " histograms for centrality bin " << ic << endl;
 		Get1DOutputHistos(type,ic);
 	}
+	cout << "Merging " << prefix << " centrality/pt binned histograms" << endl;
 	GetMergedHistos(type);
 }
 
@@ -50,6 +52,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 	TH1F* trigpt_combined = new TH1F(*h1_trigpt[0]);
 	trigpt_combined->SetName("h1_trigpt_all");
 	trigpt_combined->Reset();
+	cout << "Merging " << prefix << " 1D dphi centrality histograms" << endl;
 	for( int ic = 0; ic < NCENT; ic++ ) {
 		trigpt_combined->Add(h1_trigpt[ic]);
 		for( int it = 0; it < NTRIGBIN; it++ ) {
@@ -80,6 +83,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 		}
 	}
 
+	cout << "Subtrackting background for " << prefix << " merged centrality histograms" << endl;
 	for( int it = 0; it < NTRIGBIN; it++ ) {
 		double ntrig_tot = GetNTrigs(type,it,trigpt_combined);
 		if( it==0 || it==1 ) ntrigs_comb[0] += ntrig_tot;
@@ -94,6 +98,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 		}
 	}
 
+	cout << "Subtrackting background for " << prefix << " merged pt histograms" << endl;
 	for( int it = 0; it < 2; it++ ){
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
 			SubtractBackground(dphi_pt_comb[it][ih],jf_pt_comb[it][ih], dphi_pt_comb[it][ih]->GetName());
@@ -213,7 +218,6 @@ void MakeWeightedJFs::MakeDphiProjection(TH3F* h3, TH1F*& h1,double xmin, double
 	if( XiBinning ) ybinlo = proj_y->FindBin(ymax);
 	int ybinhi = proj_y->FindBin(ymax);
 	if( XiBinning ) ybinhi = proj_y->FindBin(ymin);
-	cout << "Projecting into dphi for xbins " << xbinlo << " - " << xbinhi << ", ybins " << ybinlo << " - " << ybinhi << endl;
 	h1 = new TH1F(*(TH1F*)h3->ProjectionZ(hname.c_str(),xbinlo,xbinhi-1,ybinlo,ybinhi-1));
 	h1->SetName(hname.c_str());
 }
@@ -235,7 +239,6 @@ void MakeWeightedJFs::MakeJetFunction(TH1F* dphi, TH1F*& correlation, double ntr
 	ostringstream name;
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
 	SubtractBackground(dphi, correlation, name.str());
-	cout << "scaling by ntrig = " << ntrigs << endl;
 	correlation->Scale(1/ntrigs);
 }
 
@@ -260,7 +263,6 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
 	float hphi = dphi->GetBinCenter(hbin);
 	double norm = dphi->Integral(lbin,hbin);
 	norm = norm/((double)(hbin-lbin+1));
-	cout << "ZYAM norm = " << dphi->Integral(lbin,hbin) << "/(" << hphi << " - " << lphi << ") = " << norm << endl;
 
 	return norm;
 }
