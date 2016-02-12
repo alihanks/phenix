@@ -185,15 +185,15 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 double MakeWeightedJFs::GetNTrigs(int type, int bin, TH1F* histo)
 {
 	if( !type ) {
-		int lbin = trigpt->FindBin(trig_pt[bin]);
-		int hbin = trigpt->FindBin(trig_pt[bin+1]);
+		int lbin = histo->FindBin(trig_pt[bin]);
+		int hbin = histo->FindBin(trig_pt[bin+1]);
 		return histo->Integral(lbin,hbin);
 	}
 	if( type ) {
 		if(type<4)
-			return trigpt->GetBinContent(bin+1);
+			return histo->GetBinContent(bin+1);
 		else
-			return trigpt->GetBinContent(bin+2);
+			return histo->GetBinContent(bin+2);
 	}
 	return 0;
 }
