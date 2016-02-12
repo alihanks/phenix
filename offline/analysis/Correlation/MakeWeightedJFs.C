@@ -53,7 +53,6 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 	for( int ic = 0; ic < NCENT; ic++ ) {
 		trigpt_combined->Add(h1_trigpt[ic]);
 		for( int it = 0; it < NTRIGBIN; it++ ) {
-			double ntrigs = GetNTrigs(type,it,h1_trigpt[ic]);
 			for( int ih = 0; ih < NPARTBIN; ih++ ) {
 				if( ic==0 ) {
 					dphi_comb[it][ih] = new TH1F(*dphi_1d[ic][it][ih]);
@@ -62,7 +61,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 					name = "JF_" + bin.str();
 					dphi_comb[it][ih]->SetName(name.c_str());
 				}
-				else dphi_comb[it][ih]->Add(dphi_1dic][it][ih]);
+				else dphi_comb[it][ih]->Add(dphi_1d[ic][it][ih]);
 			}
 		}
 	}
