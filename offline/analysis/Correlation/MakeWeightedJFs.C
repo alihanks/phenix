@@ -59,7 +59,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 			if( ic==0 ) {
 				h1_partpt_comb[it] = new TH1F(*h1_partpt[ic][it]);
 				bin.str("");
-				bin << prefix << "_p" << it << "_h" << ih;
+				bin << prefix << "_p" << it;
 				name = "h1_part_pt_" + bin.str();
 				h1_partpt_comb[it]->SetName(name.c_str());
 			}
