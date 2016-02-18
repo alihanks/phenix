@@ -56,6 +56,14 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 	for( int ic = 0; ic < NCENT; ic++ ) {
 		trigpt_combined->Add(h1_trigpt[ic]);
 		for( int it = 0; it < NTRIGBIN; it++ ) {
+			if( ic==0 ) {
+				h1_partpt_comb[it] = new TH1F(*h1_partpt[ic][it]);
+				bin.str("");
+				bin << prefix << "_p" << it << "_h" << ih;
+				name = "h1_part_pt_" + bin.str();
+				h1_partpt_comb[it]->SetName(name.c_str());
+			}
+			else h1_partpt_comb[it]->Add(h1_partpt[ic][it]);
 			for( int ih = 0; ih < NPARTBIN; ih++ ) {
 				if( ic==0 ) {
 					dphi_comb[it][ih] = new TH1F(*dphi_1d[ic][it][ih]);
@@ -72,7 +80,14 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 	double ntrigs_comb[2] = {0,0};
 	TH1F* dphi_pt_comb[2][NPARTBIN];
 	TH1F* jf_pt_comb[2][NPARTBIN];
+	TH1F* h1_partpt_tot[2];
 	for( int it = 0; it < 2; it++ ) {
+		bin.str("");
+		bin << prefix << "_" << it;
+		name = "h1_part_pt_" + bin.str();
+		h1_partpt_tot[it] = new TH1F(*h1_partpt_comb[0]);
+		h1_partpt_tot[it]->SetName(name.c_str());
+		h1_partpt_tot[it]->Reset();
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
 			bin.str("");
 			bin << prefix << "_" << it << "_h" << ih;
@@ -86,15 +101,22 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 	cout << "Subtracting background for " << prefix << " merged centrality histograms" << endl;
 	for( int it = 0; it < NTRIGBIN; it++ ) {
 		double ntrig_tot = GetNTrigs(type,it,trigpt_combined);
-		if( it==0 || it==1 ) ntrigs_comb[0] += ntrig_tot;
-		if( it==2 || it==3 ) ntrigs_comb[1] += ntrig_tot;
+		if( it==0 || it==1 ) {
+			ntrigs_comb[0] += ntrig_tot;
+			h1_partpt_tot[0]->Add(h1_partpt_comb[it]);
+		}
+		if( it==2 || it==3 ) {
+			ntrigs_comb[1] += ntrig_tot;
+			h1_partpt_tot[1]->Add(h1_partpt_comb[it]);
+		}
 
+		h1_partpt_comb[it]->Write();
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
 			if( it==0 || it==1 ) dphi_pt_comb[0][ih]->Add(dphi_comb[it][ih]);
 			if( it==2 || it==3 ) dphi_pt_comb[1][ih]->Add(dphi_comb[it][ih]);
 			bin.str("");
 			bin << prefix << "_p" << it << "_h" << ih;
-			name = "JF_" + bin.str();
+ 			name = "JF_" + bin.str();
 			SubtractBackground(dphi_comb[it][ih], jf_comb[it][ih], name.c_str());
 			jf_comb[it][ih]->Scale(1/ntrig_tot);
 			jf_comb[it][ih]->Write();
@@ -103,6 +125,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 
 	cout << "Subtracting background for " << prefix << " merged pt histograms" << endl;
 	for( int it = 0; it < 2; it++ ){
+		h1_partpt_tot[it]->Write();
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
 			bin.str("");
 			bin << prefix << "_" << it << "_h" << ih;

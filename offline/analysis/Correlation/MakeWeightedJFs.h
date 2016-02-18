@@ -63,6 +63,7 @@ private:
 
 	TH1F* h1_trigpt[NCENT];
 	TH1F* h1_partpt[NCENT][NTRIGBIN];
+	TH1F* h1_partpt_comb[NTRIGBIN];
 	TH1F* dphi_1d[NCENT][NTRIGBIN][NPARTBIN];
 	TH1F* dphi_1d_mix[NCENT][NTRIGBIN][NPARTBIN];
 	TH1F* corr[NCENT][NTRIGBIN][NPARTBIN];
