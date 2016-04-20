@@ -2106,7 +2106,30 @@ void Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, v
   }
 }
 
-float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, float pbin, float tbin)
+float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, int xbin, int tbin)
+{
+  float filltimeweight = 1.;
+  float filltimeflow = 1.;
+
+  float seffcorr = GetHadronEfficiencyCorr(partpt);
+  if( verbosity ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
+  
+  float accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
+
+  if( accw > 0 ) filltimeweight = seffcorr/accw;
+  if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
+
+  // GetFlowWeights returns 1.0 if these are real pairs
+  // Don't apply flow modulation for non Au+Au runs (like dAu)
+  int pbin = GetPtBin(partpt, 0);
+  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,tbin,pbin,dphi)*filltimeweight;
+  else filltimeflow = filltimeweight;
+  //cout << "filltimeflow = " <<filltimeflow <<endl;
+  if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
+  return filltimeflow;
+}
+
+float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, int pbin, int tbin)
 {
   float filltimeweight = 1.;
   float filltimeflow = 1.;
@@ -2115,15 +2138,8 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, fl
   if( verbosity ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
   float accw = GetAcceptance(type, cbin, tbin, pbin, dphi);
-  //cout <<"accw = " << accw <<endl;
-  // float zt = assoc_pt/trig_pt;
-  // float xi = log(1.0/zt);
-  // int xbin = GetXiBin(xi);
-  // float accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
  
-  //  if( verbosity ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
-  //filltimeweight = seffcorr;
   if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
 
   // GetFlowWeights returns 1.0 if these are real pairs
@@ -2147,25 +2163,28 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   //calculate xi weights for filltime 
   //float filltimeflow = GetFilltimeWeightXi(type,dphi,partpt,trigpt,xi);
   int pbin = GetPtBin(partpt, 0);
+  int xbin = GetXiBin(xi);
 
   float filltimeflow = 1.0;
+  float filltimeflowxi = 1.0;
 
   for(unsigned int ipw=0;ipw<hdphi.size();ipw++){
     //cout <<"ipw = " << ipw << endl;
     filltimeflow = GetFilltimeWeight(type,dphi,partpt,pbin,ipw);
+    filltimeflowxi = GetFilltimeWeightXi(type,dphi,partpt,xbin,ipw);
     //cout << "filltimeflow = " << filltimeflow << endl;
     if(weight[ipw]>0) {
       hdphi[ipw]->Fill(dphi,partpt,weight[ipw]*filltimeflow);
       if( hdphi_fold.size()>ipw )
         hdphi_fold[ipw]->Fill(dphifold,partpt,weight[ipw]*filltimeflow);
       if( hdphixi.size()>ipw ){
-        hdphixi[ipw]->Fill(dphi,xi,weight[ipw]*filltimeflow);
+        hdphixi[ipw]->Fill(dphi,xi,weight[ipw]*filltimeflowxi);
       }
       if( hdphizt.size()>ipw ){
         hdphizt[ipw]->Fill(dphi,zt,weight[ipw]*filltimeflow);
       }
       if( hdphixi_fold.size()>ipw ){
-        hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeflow);
+        hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeflowxi);
       }
       if( hdphizt_fold.size()>ipw ){
         hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeflow);
