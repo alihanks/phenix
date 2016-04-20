@@ -14,18 +14,34 @@
 #include <ACluster.h>
 #include <ATrack.h>
 
-const double PI = acos(-1.0);
-const double WEST_LOW_EDGE = -3.0*PI/16.0;
-const double WEST_HIGH_EDGE = 5.0*PI/16.0;
-const double EAST_LOW_EDGE = 11.0*PI/16.0;
-const double EAST_HIGH_EDGE = 19*PI/16.0;
+const float PI = acos(-1.0);
+const float WEST_LOW_EDGE = -3.0*PI/16.0;
+const float WEST_HIGH_EDGE = 5.0*PI/16.0;
+const float EAST_LOW_EDGE = 11.0*PI/16.0;
+const float EAST_HIGH_EDGE = 19*PI/16.0;
 
-inline float CalculateFoldedDphi(float phi1, float phi2)
+inline float CalculateFoldedDphi(float phi1, float phi2)//0-pi
 {
   float dphi = PHAngle(phi1-phi2);
-  if ( dphi < 0 )    dphi+=2*PI;
-  if ( dphi > 2*PI ) dphi-=2*PI;
-  if ( dphi > PI )   dphi=2*PI-dphi;
+  // if ( dphi < 0 )    dphi+=2*PI;
+  // if ( dphi > 2*PI ) dphi-=2*PI;
+  // if ( dphi > PI )   dphi=2*PI-dphi;
+
+  if(dphi < -PI)             dphi += 2*PI;
+  if(dphi < 0 && dphi >= -PI) dphi = fabs(dphi);
+  if(dphi > PI)              dphi = 2*PI - dphi;
+  return dphi;
+}
+
+inline float CalculateDphi(float phi1, float phi2)//-0.5pi - 1.5pi
+{
+  
+  float dphi = PHAngle(phi1-phi2);
+  
+  if(dphi < -0.5*PI) {/*std::cout <<"in CalculateDphi: phi1 = " << phi1 <<"; phi2 = " << phi2 << std::endl; std::cout <<"dphi = " << dphi <<std::endl; std::cout << "dphi<-0.5PI! +=2PI!" << std::endl; */dphi += 2*PI;}
+  if(dphi > 1.5*PI ) {/*std::cout <<"in CalculateDphi: phi1 = " << phi1 <<"; phi2 = " << phi2 << std::endl; std::cout <<"dphi = " << dphi <<std::endl; std::cout << "dphi>1.5PI! -=2PI!" << std::endl;*/ dphi -= 2*PI;}
+  if(fabs(dphi+0.5*PI)<0.00001) {/*std::cout << "out of bound: dphi = " << dphi << std::endl; */dphi += 0.00001;}
+  if(fabs(dphi-1.5*PI)<0.00001) {/*std::cout << "out of bound: dphi = " << dphi << std::endl; */dphi -= 0.00001;}
   return dphi;
 }
 

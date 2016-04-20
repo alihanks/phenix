@@ -5,6 +5,7 @@ ClassImp(ACluster);
 
 ACluster::ACluster() : AParticle(22)
 {
+  _emcClusterContent = NULL;
   _is_ert = true;
   _is_iso = false;
   _is_tagged = false;
@@ -16,6 +17,7 @@ ACluster::ACluster() : AParticle(22)
   _y = -9999;
   _z = -9999;
   _warnmap = 0;
+  _deadmap = 0;
   _ecore = -9999;
   _arm = -1;
   _sec = -1;

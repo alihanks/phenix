@@ -54,6 +54,7 @@ const int N_ZPOS_PBGL = 96;
 const int N_ZPOS_PBSC = 72;
 const int NTRIGBINS = 4;
 const int NPARTBINS = 5;
+const int NXIBINS = 6;
 
 const int DIM = 500;
 
@@ -80,41 +81,54 @@ public:
 
   void SetHadronEffFileName(std::string fn) { _hadeffFilename = fn; }
   void SetPi0EffFileName(std::string fn0, std::string fn1, std::string fn2, std::string fn3) { _pi0effFilename_0 = fn0; _pi0effFilename_1 = fn1; _pi0effFilename_2 = fn2; _pi0effFilename_3 = fn3;}
+  void SetDoFillTime(int doft) { dofilltime = doft; }
   void SetWeightFileNames(std::string fn, std::string fflow) { _accfilename = fn; _flowfilename = fflow; }
   //void SetFlowFileName(std::string fflow) { _flowfilename = fflow; }
   void SetSharkFinFileName(std::string fn) { _sharkfinname = fn;}
   void SetDiagFlag(int flag) { DiagFlag = flag; }
+  //void GetAcceptanceWeightsFold(std::string filename);
+  //void GetAcceptanceWeightsFoldXi(std::string filename);
+  void GetAcceptanceWeights(std::string filename, int isfold);
+  void GetAcceptanceWeightsXi(std::string filename, int isfold);
+
   void Clear();
 
   enum DataSet { Run8dAu, Run10AuAu, Run11AuAu, Run14AuAu, INVALID };
   enum PairType { REAL, MIX, REALPI, MIXPI, DEC, MIXDEC, DIAGNOSTIC };
   DataSet GetDataSet(int RunNumber);
   float Rcut;
+  int cbin;
   
   template<class T, class A> void MakePairs(std::vector<T*> triggers,
                                             std::vector<A*> associated,
                                             PairType type, DataSet dataset,
-                                            TH3F* h3dphi,
-                                            TH3F* h3dphi_fold,
-                              					    TH3F* h3ptxidphi = NULL,
-                          		              TH3F* h3ptxidphi_fold = NULL,
-                              					    TH3F* h3ptztdphi = NULL,
-                              					    TH3F* h3ptztdphi_fold = NULL,
-                              					    std::vector<TH2F*> h2dphi_dec = std::vector<TH2F*>(),
+                                            TH3F* h3dphi = NULL,
+                                            TH3F* h3dphi_fold = NULL,
+                                            TH3F* h3ptxidphi = NULL,
+                                            TH3F* h3ptxidphi_fold = NULL,
+                                            TH3F* h3ptztdphi = NULL,
+                                            TH3F* h3ptztdphi_fold = NULL,
+                                            std::vector<TH2F*> h2dphi_dec = std::vector<TH2F*>(),
                                             std::vector<TH2F*> h2dphi_dec_fold = std::vector<TH2F*>(),
-                              					    std::vector<TH2F*> h2dphixi_dec = std::vector<TH2F*>(),
-                              					    std::vector<TH2F*> h2dphixi_dec_fold = std::vector<TH2F*>(),
-                              					    std::vector<TH2F*> h2dphizt_dec = std::vector<TH2F*>(),
-                              					    std::vector<TH2F*> h2dphizt_dec_fold = std::vector<TH2F*>(),
-                              					    TH2F* h2paircut_bf = NULL,
-                                            TH2F* h2paircut_af = NULL
-                                           )
+                                            std::vector<TH2F*> h2dphixi_dec = std::vector<TH2F*>(),
+                                            std::vector<TH2F*> h2dphixi_dec_fold = std::vector<TH2F*>(),
+                                            std::vector<TH2F*> h2dphizt_dec = std::vector<TH2F*>(),
+                                            std::vector<TH2F*> h2dphizt_dec_fold = std::vector<TH2F*>(),
+                                            TH2F* h2paircut_bf = NULL,
+                                            TH2F* h2paircut_af = NULL,
+                                            TH2F* h2dphi = NULL, 
+                                            TH2F* h2dphi_xi = NULL,
+                                            TH2F* h2dphiaccw = NULL, 
+                                            TH2F* h2dphiaccw_xi = NULL,
+                                            TH3F* h3dphiaccw = NULL, 
+                                            TH3F* h3dphiaccw_xi = NULL,
+                                            TH2F* h2partptxi = NULL
+                                            )
   {
     for(unsigned int it = 0; it < triggers.size(); it++){
       if( dataset==Run8dAu && !triggers[it]->IsIso() ) continue;
       float trig_pt = triggers[it]->Pt();
       float trig_phi = PHAngle(triggers[it]->Phi());
-
       int itrigpt = GetPtBin(trig_pt,1);
       float mindist = 99.;
       float ptofvetotrack = 0.;
@@ -125,21 +139,21 @@ public:
      
       //if( (type==MIX||type==MIXPI) ) std::cout << "Correlation::MakePairs combining " << associated.size() << " associated tracks" << std::endl;
       for(unsigned int ia = 0; ia < associated.size(); ia++){
-      	//if(type == MIXPI) std::cout<<"ia = "<<ia<<std::endl;
-      	float assoc_pt = associated[ia]->Pt();
+        //if(type == MIXPI) std::cout<<"ia = "<<ia<<std::endl;
+        float assoc_pt = associated[ia]->Pt();
         float assoc_phi = associated[ia]->Phi();
         
         if(associated[ia]->Theta()<-99) continue;
         
         //adopted from loopthrutrack in old code -032215 this might not have any effect as the pair cut was implemented when selecting the triggers already
-      	float dist = 99.;
+        float dist = 99.;
         if(assoc_pt>vetoPtCut){
           if(type==REAL) dist=FindTrackDistance((ACluster*)triggers[it], associated[ia]);
           if(type==REALPI) dist=FindTrackDistance((ACluster*)triggers[it]->Daughter1(), associated[ia]);
         }
         if(dist<8) continue;
-
-      	int ipartpt = GetPtBin(assoc_pt,0);
+        
+        int ipartpt = GetPtBin(assoc_pt,0);
 
         // Apply pair cut for mixed pairs
         if( type==MIX||type==MIXPI ) {
@@ -154,62 +168,80 @@ public:
           if( dist < 8.0 && assoc_pt > vetoPtCut ) continue;
           if( h2paircut_af ) h2paircut_af->Fill(itrigpt,ipartpt);
         }
-
+        
         //std::cout<<"MakePairs: pass pair cut"<<std::endl;
         //double deltaphi = CorrectDelPhi(trig_phi-assoc_phi);
+        //std::cout<<"trig_phi-assoc_phi = "<<trig_phi-assoc_phi<<std::endl;
         float deltaphi = PHAngle(trig_phi-assoc_phi);//-050815
+        //float deltaphi = CalculateDphi(assoc_phi,trig_phi);
+	// std::cout<<"deltaphi = "<<deltaphi<<std::endl;
         //double dphifold = CorrectDelPhiFold(trig_phi-assoc_phi);
         //using old code dphi determination -032215
         float dphifold = CalculateFoldedDphi(assoc_phi,trig_phi);
+	// std::cout<<"dphifold = "<<dphifold<<std::endl;
         if (verbosity > 3) std::cout<<"Correlation::MakePairs - " << type << " - deltaphi = "<< deltaphi << ", deltaphiFold = " << dphifold << std::endl;
         if(dphifold<0||dphifold>PI) std::cout<<" dphifold out of bounds "<<std::endl;
         //std::cout<<"Fill!! trigpt = "<<trig_pt<<"; partpt = "<<assoc_pt<<"; trigphi = "<<trig_phi<<"; partphi = "<<assoc_phi<<"; dphifold = "<<dphifold<<std::endl;
         
-        h3dphi->Fill(trig_pt, assoc_pt, deltaphi);
+        //h3dphi->Fill(trig_pt, assoc_pt, deltaphi);	
 	
-      	//fill xi plots with filltime weights
-      	float filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,trig_pt);
-        //fill folded dphi histogram with weights also for testing!
-        if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
-      	
-      	float zt = assoc_pt/trig_pt;
-      	float xi = log(1.0/zt);
-      	
-      	if( h3ptxidphi ) {
-    	    h3ptxidphi->Fill(trig_pt, xi, deltaphi, filltimeflow);
-      	}
-      	if( h3ptztdphi ) {
-    	    h3ptztdphi->Fill(trig_pt, zt, deltaphi, filltimeflow);
-      	}
-      	if( h3ptxidphi_fold ) {
-    	    h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeflow);
-          if( verbosity > 1 ) std::cout<<"h3ptxidphi_fold filled."<<std::endl;
-      	}
-      	if( h3ptztdphi_fold ) {
-    	    h3ptztdphi_fold->Fill(trig_pt, zt, dphifold, filltimeflow);
-          if( verbosity > 1 ) std::cout<<"h3ptztdphi_fold filled."<<std::endl;
-      	}
+        float zt = assoc_pt/trig_pt;
+        float xi = log(1.0/zt);
 
-      	if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
-      	
-      	//******************************************
-      	//*  Make decay photon-h pairs             *
-      	//******************************************
-      	if(type==REALPI ) {
-      	  if (verbosity > 1) std::cout<<"Correlation::MakePairs - making real decay pairs" << std::endl;
-      	  MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),
-                     h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+        //fill xi plots with filltime weights
+        float filltimeflow = 1.;
+	if( dofilltime ){
+	  int tbin = GetPtBin(trig_pt, 1);
+	  int pbin = GetPtBin(assoc_pt, 0);
+	  //std::cout << "tbin = " << tbin << "; pbin = " << pbin << std::endl;
+          filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin);
+	  //std::cout << "filltimeflow = " << filltimeflow <<std::endl;
         }
-        if(type==MIXPI ) {
+	if( h3dphi ) h3dphi->Fill(trig_pt, assoc_pt, deltaphi, filltimeflow);
+
+        if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
+
+	if( h3ptxidphi ) {
+          h3ptxidphi->Fill(trig_pt, xi, deltaphi, filltimeflow);
+	}
+	if( h3ptztdphi ) {
+          h3ptztdphi->Fill(trig_pt, zt, deltaphi, filltimeflow);
+	}
+	if( h3ptxidphi_fold ) {
+          h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeflow);
+	  if( verbosity > 1 ) std::cout<<"h3ptxidphi_fold filled."<<std::endl;
+        }
+	if( h3ptztdphi_fold ) {
+          h3ptztdphi_fold->Fill(trig_pt, zt, dphifold, filltimeflow);
+	  if( verbosity > 1 ) std::cout<<"h3ptztdphi_fold filled."<<std::endl;
+        }
+	//filltime debugging histos
+        if((trig_pt >= 5.) && (trig_pt<7.0)){
+          if( h2_dphi ) h2dphi->Fill(assoc_pt,dphifold);
+          if( h2dphiaccw ) h2dphiaccw->Fill(assoc_pt,dphifold,filltimeflow);
+          if( h3dphiaccw ) h3dphiaccw->Fill(assoc_pt,dphifold,filltimeflow);
+          if( h2dphi_xi ) h2dphi_xi->Fill(xi,dphifold);
+          if( h2dphiaccw_xi ) h2dphiaccw_xi->Fill(xi,dphifold,filltimeflow);
+          if( h3dphiaccw_xi ) h3dphiaccw_xi->Fill(xi,dphifold,filltimeflow);
+          if( h2partptxi ) h2partptxi->Fill(assoc_pt,xi);
+        }
+        if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
+	
+        //******************************************
+        //*  Make decay photon-h pairs             *
+        //******************************************
+	if(type==REALPI ) {
+          if (verbosity > 1) std::cout<<"Correlation::MakePairs - making real decay pairs" << std::endl;
+          MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+        }
+	if(type==MIXPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making mixed decay pairs" << std::endl;
-          MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),
-                     h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+          MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
       }
-        
       if( type==MIX && DiagFlag ) {
-      	h3_mintrackdist_bg_allcent->Fill(mindist,trig_pt, ptofvetotrack);
-      	h3_mintrackdist_bg[cbin]->Fill(mindist,trig_pt, ptofvetotrack);
+        h3_mintrackdist_bg_allcent->Fill(mindist,trig_pt, ptofvetotrack);
+        h3_mintrackdist_bg[cbin]->Fill(mindist,trig_pt, ptofvetotrack);
       }
     }
   }
@@ -217,12 +249,14 @@ public:
 
 private:
   float GetHadronEfficiencyCorr(float pt);
-  void GetAcceptanceWeightsFold(std::string filename);
-  void GetAcceptanceWeights(std::string filename);
-  float GetFilltimeWeight(PairType type, float dphi, float partpt, float trigpt);
+  // void GetAcceptanceWeightsFold(std::string filename);
+  // void GetAcceptanceWeights(std::string filename);
+  float GetFilltimeWeight(PairType type, float dphi, float partpt, float pbin, float tbin);
+  float GetFilltimeWeightXi(PairType type, float dphi, float partpt, float trigpt, float xi);
   double GetAcceptanceFold(PairType type, int cbin, float trigpt, float partpt, float dphi);
-  double GetAcceptance(PairType type, int cbin, float trigpt, float partpt, float dphi);
-  float GetFlowWeights(PairType type, int cbin, float trigpt, float partpt, float dphifold);
+  double GetAcceptance(PairType type, int cbin, int tbin, int pbin, float dphi);
+  double GetAcceptanceXi(PairType type, int cbin, int tbin, int pbin, float dphi);
+  float GetFlowWeights(PairType type, int trigbin, int partbin, float dphifold);
   //void GetXi(int decayflag, int trigptbin, int partptbin, int centbin, float& xi, float& xierr);
   TH1F* MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, std::string hname);
   //void MakeDphiProjection(TH3F* h3, TH1F*& h1, float xmin, float xmax, float ymin, float ymax, std::string hname);
@@ -251,6 +285,7 @@ private:
   float GetNTriggers(TH1F* trigpt, float trigptmin, float trigptmax);
   int GetPtBin(float pt, int istrig);
   int GetCentBin(int centbin);
+  int GetXiBin(float xi);
   float FindTrackDistance(ACluster* clus, ATrack* trk);
   void EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, std::vector<float>& mwweight);
   
@@ -291,10 +326,14 @@ private:
   
   TH1F* IncAcc[4][NTRIGBINS][NPARTBINS];//[cent][ntrig][npart]
   TH1F* Pi0Acc[4][NTRIGBINS][NPARTBINS];
-  TH1F* DecAcc[4][NTRIGBINS][NPARTBINS];
-  TH1F* IncAccFold[4][NTRIGBINS][NPARTBINS];//[cent][ntrig][npart]
-  TH1F* Pi0AccFold[4][NTRIGBINS][NPARTBINS];
-  TH1F* DecAccFold[4][NTRIGBINS][NPARTBINS];
+  TH1F* DecAcc[4][NTRIGBINS+1][NPARTBINS];
+  // TH1F* IncAccFold[4][NTRIGBINS][NPARTBINS];//[cent][ntrig][npart]
+  // TH1F* Pi0AccFold[4][NTRIGBINS][NPARTBINS];
+  // TH1F* DecAccFold[4][NTRIGBINS][NPARTBINS];
+
+  TH1F* IncAccXi[4][NTRIGBINS][NXIBINS];//[cent][ntrig][nxi]
+  TH1F* Pi0AccXi[4][NTRIGBINS][NXIBINS];
+  TH1F* DecAccXi[4][NTRIGBINS+1][NXIBINS];
   
   DataSet data_set;
   unsigned int Cut3x3Map;
@@ -309,7 +348,7 @@ private:
   int RecalFlag;
   float event_z;
   float event_c;
-  int cbin;
+  //int cbin;
   float PC3_NSIGMA;
   float EMC_NSIGMA;
   float vetoPtCut;
@@ -317,7 +356,7 @@ private:
   float zVertexCut;
   float fieldPolarity;
   //int nsvxpart;
-  
+  int dofilltime;  
   // float cluster_pt;
   // float pi0pt;
   float photon_pt_min;
@@ -562,6 +601,45 @@ private:
   TGraphErrors* grpi0eff_2;//40-60%
   TGraphErrors* grpi0eff_3;//60-100%
 
+  //debug tools
+  //for type REAL
+  TH2F* h2_dphi;//x-part pt; y-dphi
+  TH2F* h2_dphi_xi;//x-xi; y-dphi
+  TH2F* h2_dphi_accw;//fill with weights
+  TH2F* h2_dphi_accw_xi;
+  TH3F* h3_dphi_accw;//x-part pt; y-dphi; z-weights
+  TH3F* h3_dphi_accw_xi;//x-xi; y-dphi; z-weights
+  TH2F* h2_partpt_xi;//x-assoc pt; y-xi
+
+  //for type MIX
+  TH2F* h2_dphi_mix;
+  TH2F* h2_dphi_xi_mix;
+  TH2F* h2_dphi_accw_mix;
+  TH2F* h2_dphi_accw_xi_mix;
+  TH3F* h3_dphi_accw_mix;
+  TH3F* h3_dphi_accw_xi_mix;
+  TH2F* h2_partpt_xi_mix;
+
+  //for type REALPI
+  TH2F* h2_dphi_pi0;
+  TH2F* h2_dphi_xi_pi0;
+  TH2F* h2_dphi_accw_pi0;
+  TH2F* h2_dphi_accw_xi_pi0;
+  TH3F* h3_dphi_accw_pi0;
+  TH3F* h3_dphi_accw_xi_pi0;
+  TH2F* h2_partpt_xi_pi0;
+
+  //for type MIXPI
+  TH2F* h2_dphi_pi0_mix;
+  TH2F* h2_dphi_xi_pi0_mix;
+  TH2F* h2_dphi_accw_pi0_mix;
+  TH2F* h2_dphi_accw_xi_pi0_mix;
+  TH3F* h3_dphi_accw_pi0_mix;
+  TH3F* h3_dphi_accw_xi_pi0_mix;
+  TH2F* h2_partpt_xi_pi0_mix;
+
+  TH3F* h3_pt_phi_eta_clus;
+  TH3F* h3_pt_phi_eta_trk;
 };
 
 #endif /* __CORRELATION_H__ */

@@ -10,6 +10,9 @@ AParticle::AParticle(int pid) : TLorentzVector(0,0,0,0) {
   _sec = 9999;
   _sm = 9999;
   _arm = 9999;
+  _x = -9999.;
+  _y = -9999.;
+  _z = -9999.;
   _event = 0;
   _zvtx = 0.;
   _cent = 0.;
