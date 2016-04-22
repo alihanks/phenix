@@ -45,7 +45,8 @@ gammajet_exodus/exec/*
 gammajet_exodus/sharkfins/*
 gammajet_exodus/logfiles/*
 
-offline/CVS/Entries.Log
+offline/CVS/
+offline/AnalysisTrain/CVS/
 offline/AnalysisTrain/Correlation/CVS/
 offline/analysis/CVS/
 offline/AnalysisTrain/Correlation/inputs/
