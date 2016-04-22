@@ -173,12 +173,12 @@ public:
         //double deltaphi = CorrectDelPhi(trig_phi-assoc_phi);
         //std::cout<<"trig_phi-assoc_phi = "<<trig_phi-assoc_phi<<std::endl;
         float deltaphi = PHAngle(trig_phi-assoc_phi);//-050815
+
         float dphifold = CalculateFoldedDphi(assoc_phi,trig_phi);
+        // std::cout<<"dphifold = "<<dphifold<<std::endl;
         if (verbosity > 3) std::cout<<"Correlation::MakePairs - " << type << " - deltaphi = "<< deltaphi << ", deltaphiFold = " << dphifold << std::endl;
         if(dphifold<0||dphifold>PI) std::cout<<" dphifold out of bounds "<<std::endl;
         
-        //h3dphi->Fill(trig_pt, assoc_pt, deltaphi);	
-	
         float zt = assoc_pt/trig_pt;
         float xi = log(1.0/zt);
 
@@ -187,33 +187,35 @@ public:
         float filltimeflowxi = 1.;
 
         if( dofilltime ) {
-      	  int tbin = GetPtBin(trig_pt, 1);
-      	  int pbin = GetPtBin(assoc_pt, 0);
+          int tbin = GetPtBin(trig_pt, 1);
+          int pbin = GetPtBin(assoc_pt, 0);
           int xbin = GetXiBin(xi);
-      	  //std::cout << "tbin = " << tbin << "; pbin = " << pbin << std::endl;
+          //std::cout << "tbin = " << tbin << "; pbin = " << pbin << std::endl;
           filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin);
+	  //std::cout << "filltimeflow = " << filltimeflow << std::endl;
           filltimeflowxi = GetFilltimeWeightXi(type,deltaphi,assoc_pt,xbin,tbin);
+	  //std::cout << "filltimeflowxi = " << filltimeflowxi << std::endl;
         }
 
-      	if( h3dphi ) h3dphi->Fill(trig_pt, assoc_pt, deltaphi, filltimeflow);
+        if( h3dphi ) h3dphi->Fill(trig_pt, assoc_pt, deltaphi, filltimeflow);
 
         if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
 
-      	if( h3ptxidphi ) {
-          h3ptxidphi->Fill(trig_pt, xi, deltaphi, filltimeflow);
-      	}
-      	if( h3ptztdphi ) {
+        if( h3ptxidphi ) {
+          h3ptxidphi->Fill(trig_pt, xi, deltaphi, filltimeflowxi);
+        }
+        if( h3ptztdphi ) {
           h3ptztdphi->Fill(trig_pt, zt, deltaphi, filltimeflow);
-      	}
-      	if( h3ptxidphi_fold ) {
+        }
+        if( h3ptxidphi_fold ) {
           h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeflowxi);
-      	  if( verbosity > 1 ) std::cout<<"h3ptxidphi_fold filled."<<std::endl;
+          if( verbosity > 1 ) std::cout<<"h3ptxidphi_fold filled."<<std::endl;
         }
-      	if( h3ptztdphi_fold ) {
+        if( h3ptztdphi_fold ) {
           h3ptztdphi_fold->Fill(trig_pt, zt, dphifold, filltimeflow);
-      	  if( verbosity > 1 ) std::cout<<"h3ptztdphi_fold filled."<<std::endl;
+          if( verbosity > 1 ) std::cout<<"h3ptztdphi_fold filled."<<std::endl;
         }
-      	//filltime debugging histos
+        //filltime debugging histos
         if((trig_pt >= 5.) && (trig_pt<7.0)){
           if( h2_dphi ) h2dphi->Fill(assoc_pt,dphifold);
           if( h2dphiaccw ) h2dphiaccw->Fill(assoc_pt,dphifold,filltimeflow);
@@ -224,7 +226,7 @@ public:
           if( h2partptxi ) h2partptxi->Fill(assoc_pt,xi);
         }
         if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
-	
+        
         //******************************************
         //*  Make decay photon-h pairs             *
         //******************************************
@@ -253,7 +255,7 @@ private:
   float GetFilltimeWeightXi(PairType type, float dphi, float partpt, int xbin, int tbin);
   double GetAcceptanceFold(PairType type, int cbin, float trigpt, float partpt, float dphi);
   double GetAcceptance(PairType type, int cbin, int tbin, int pbin, float dphi);
-  double GetAcceptanceXi(PairType type, int cbin, int tbin, int pbin, float dphi);
+  double GetAcceptanceXi(PairType type, int cbin, int tbin, int xbin, float dphi);
   float GetFlowWeights(PairType type, int trigbin, int partbin, float dphifold);
   //void GetXi(int decayflag, int trigptbin, int partptbin, int centbin, float& xi, float& xierr);
   TH1F* MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, std::string hname);
