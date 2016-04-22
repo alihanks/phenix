@@ -768,7 +768,7 @@ int Correlation::Init(PHCompositeNode* topNode)
   cout<<"get acc_filename: "<<acc_filename.c_str()<<endl;
 
   GetAcceptanceWeights(acc_filename.c_str(),0);
-  GetAcceptanceWeightsXi(acc_filename.c_str(),0);
+  GetAcceptanceWeightsXi(acc_filename.c_str(),1);
 
   atree = new AMixingTree();
   atree->SetTriggerBranches();
