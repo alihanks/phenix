@@ -2119,7 +2119,8 @@ float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, 
   float seffcorr = GetHadronEfficiencyCorr(partpt);
   if( verbosity ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
-  float accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
+  float accw = 1.0;
+  //accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
 
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
@@ -2143,7 +2144,8 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, in
   float seffcorr = GetHadronEfficiencyCorr(partpt);
   if( verbosity ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
-  float accw = GetAcceptance(type, cbin, tbin, pbin, dphi);
+  float accw = 1.0;
+  //accw = GetAcceptance(type, cbin, tbin, pbin, dphi);
 
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
