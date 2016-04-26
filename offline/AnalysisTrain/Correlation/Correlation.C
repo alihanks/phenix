@@ -768,7 +768,7 @@ int Correlation::Init(PHCompositeNode* topNode)
   cout<<"get acc_filename: "<<acc_filename.c_str()<<endl;
 
   GetAcceptanceWeights(acc_filename.c_str(),0);
-  GetAcceptanceWeightsXi(acc_filename.c_str(),1);
+  GetAcceptanceWeightsXi(acc_filename.c_str(),0);
 
   atree = new AMixingTree();
   atree->SetTriggerBranches();
@@ -2120,7 +2120,7 @@ float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, 
   if( verbosity ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
   float accw = 1.0;
-  //accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
+  accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
 
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
@@ -2145,7 +2145,7 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, in
   if( verbosity ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
   float accw = 1.0;
-  //accw = GetAcceptance(type, cbin, tbin, pbin, dphi);
+  accw = GetAcceptance(type, cbin, tbin, pbin, dphi);
 
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
