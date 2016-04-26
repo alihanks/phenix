@@ -51,7 +51,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 	string name;
 	TH1F* trigpt_combined = new TH1F(*h1_trigpt[0]);
 	name = "h1_trig_pt_" + prefix;
-	trigpt_combined->SetName("h1_trigpt_all");
+	trigpt_combined->SetName(name.c_str());
 	trigpt_combined->Reset();
 	cout << "Merging " << prefix << " 1D dphi centrality histograms" << endl;
 	for( int ic = 0; ic < NCENT; ic++ ) {
