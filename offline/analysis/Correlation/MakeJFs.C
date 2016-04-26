@@ -218,7 +218,7 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     float lphi = CFinc->GetBinCenter(lbin);
     float hphi = CFinc->GetBinCenter(hbin);
     double norm_err = 0;
-    norm = CFinc->IntegralAndError(lbin,hbin,norm_err);
+     norm = CFinc->IntegralAndError(lbin,hbin,norm_err);
     norm = (norm+norm_err)/((double)(hbin-lbin+1));
     cout << "ZYAM norm+err = " << CFinc->Integral(lbin,hbin) << "/(" << hphi << " - " << lphi << ") = " << norm << endl;
     CFinc->SetAxisRange(0.0,TMath::Pi(),"X");
