@@ -94,7 +94,7 @@ template<class T> void SetIso(T* trigger,
     if ( h2_dR ) h2_dR->Fill(dR, dphi);
   }
   if ( h2_iso ) h2_iso->Fill(etot, pt);
-  emin_frac = emin/pt;
+  float emin_frac = emin/pt;
   // Trigger energy IS included in total: check against 110% + background energy in % of trigger pt
   if ( etot < 1*(.1+emin_frac)*pt ) {
     trigger->SetIso(true);
