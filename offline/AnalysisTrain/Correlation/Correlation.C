@@ -224,10 +224,6 @@ int Correlation::Init(PHCompositeNode* topNode)
     Init1DHisto(temp, name.c_str(), "centrality", 2, 0, 2);
     h1_centrality.push_back(temp);
 
-    name = "h2_econe_c" + bin.str();
-    Init2DHisto(temp2, name.c_str(),"E_{T} in cone","E_{T} [GeV]",100,0.,100.,"cone size [rad]",5,0.,0.5);
-    h2_econe.push_back(temp2);
-
     name = "h3_dphi_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
     h3_dphi.push_back(temp3);

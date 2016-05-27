@@ -442,8 +442,6 @@ private:
   std::vector<TH3F*> h3_ptztdphi_pi0_mix;
   std::vector<TH3F*> h3_ptztdphi_pi0_mix_fold;
   
-  std::vector<TH2F*> h2_econe;
-
   TH3D* h3_nhit[N_ARMSECT];
   TH3D* h3_nhit_mywarn[N_ARMSECT];
   
