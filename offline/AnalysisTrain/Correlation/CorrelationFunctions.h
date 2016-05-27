@@ -54,7 +54,7 @@ template<class T> void SetIso(T* trigger,
                               TH3F* h3_etot = NULL,
                               TH2F* h2_dR = NULL,
                               TH2F* h2_iso = NULL,
-                              TH3F* h3_iso_acc = NULL,
+                              TH3F* h3_iso_acc = NULL
                               )
 {
   float pt = trigger->E();
