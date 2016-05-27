@@ -86,10 +86,10 @@ public:
   //void SetFlowFileName(std::string fflow) { _flowfilename = fflow; }
   void SetSharkFinFileName(std::string fn) { _sharkfinname = fn;}
   void SetDiagFlag(int flag) { DiagFlag = flag; }
-  //void GetAcceptanceWeightsFold(std::string filename);
-  //void GetAcceptanceWeightsFoldXi(std::string filename);
-  void GetAcceptanceWeights(std::string filename, int isfold);
-  void GetAcceptanceWeightsXi(std::string filename, int isfold);
+  void GetAcceptanceWeightsFold(std::string filename);
+  void GetAcceptanceWeightsFoldXi(std::string filename);
+  void GetAcceptanceWeights(std::string filename);
+  void GetAcceptanceWeightsXi(std::string filename);
 
   void Clear();
 
@@ -173,34 +173,32 @@ public:
         //double deltaphi = CorrectDelPhi(trig_phi-assoc_phi);
         //std::cout<<"trig_phi-assoc_phi = "<<trig_phi-assoc_phi<<std::endl;
         float deltaphi = PHAngle(trig_phi-assoc_phi);//-050815
-
+        //float deltaphi = CalculateDphi(assoc_phi,trig_phi);
+        //std::cout<<"deltaphi = "<<deltaphi<<std::endl;
+        //double dphifold = CorrectDelPhiFold(trig_phi-assoc_phi);
+        //using old code dphi determination -032215
         float dphifold = CalculateFoldedDphi(assoc_phi,trig_phi);
-        // std::cout<<"dphifold = "<<dphifold<<std::endl;
+        //std::cout<<"dphifold = "<<dphifold<<std::endl;
         if (verbosity > 3) std::cout<<"Correlation::MakePairs - " << type << " - deltaphi = "<< deltaphi << ", deltaphiFold = " << dphifold << std::endl;
         if(dphifold<0||dphifold>PI) std::cout<<" dphifold out of bounds "<<std::endl;
+        //std::cout<<"Fill!! trigpt = "<<trig_pt<<"; partpt = "<<assoc_pt<<"; trigphi = "<<trig_phi<<"; partphi = "<<assoc_phi<<"; dphifold = "<<dphifold<<std::endl;
+        
+        //h3dphi->Fill(trig_pt, assoc_pt, deltaphi);
         
         float zt = assoc_pt/trig_pt;
         float xi = log(1.0/zt);
-
         //fill xi plots with filltime weights
         float filltimeflow = 1.;
         float filltimeflowxi = 1.;
-
-        if( dofilltime ) {
-          int tbin = GetPtBin(trig_pt, 1);
-          int pbin = GetPtBin(assoc_pt, 0);
-          int xbin = GetXiBin(xi);
-          //std::cout << "tbin = " << tbin << "; pbin = " << pbin << std::endl;
-          filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin);
-	  //std::cout << "filltimeflow = " << filltimeflow << std::endl;
-          filltimeflowxi = GetFilltimeWeightXi(type,deltaphi,assoc_pt,xbin,tbin);
-	  //std::cout << "filltimeflowxi = " << filltimeflowxi << std::endl;
+        
+        if( dofilltime ){
+          filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,trig_pt);
+          filltimeflowxi = GetFilltimeWeightXi(type,deltaphi,assoc_pt,trig_pt,xi);
         }
-
         if( h3dphi ) h3dphi->Fill(trig_pt, assoc_pt, deltaphi, filltimeflow);
-
+        //if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold);
         if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
-
+        
         if( h3ptxidphi ) {
           h3ptxidphi->Fill(trig_pt, xi, deltaphi, filltimeflowxi);
         }
@@ -230,11 +228,11 @@ public:
         //******************************************
         //*  Make decay photon-h pairs             *
         //******************************************
-	if(type==REALPI ) {
+        if(type==REALPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making real decay pairs" << std::endl;
           MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
-	if(type==MIXPI ) {
+        if(type==MIXPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making mixed decay pairs" << std::endl;
           MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
@@ -251,12 +249,12 @@ private:
   float GetHadronEfficiencyCorr(float pt);
   // void GetAcceptanceWeightsFold(std::string filename);
   // void GetAcceptanceWeights(std::string filename);
-  float GetFilltimeWeight(PairType type, float dphi, float partpt, int pbin, int tbin);
-  float GetFilltimeWeightXi(PairType type, float dphi, float partpt, int xbin, int tbin);
+  float GetFilltimeWeight(PairType type, float dphi, float partpt, float trigpt);
+  float GetFilltimeWeightXi(PairType type, float dphi, float partpt, float trigpt, float xi);
   double GetAcceptanceFold(PairType type, int cbin, float trigpt, float partpt, float dphi);
-  double GetAcceptance(PairType type, int cbin, int tbin, int pbin, float dphi);
-  double GetAcceptanceXi(PairType type, int cbin, int tbin, int xbin, float dphi);
-  float GetFlowWeights(PairType type, int trigbin, int partbin, float dphifold);
+  double GetAcceptance(PairType type, int cbin, float trigpt, float partpt, float dphi);
+  double GetAcceptanceXi(PairType type, int cbin, float trigpt, float xi, float dphi);
+  float GetFlowWeights(PairType type, int cbin, float trigpt, float partpt, float dphifold);
   //void GetXi(int decayflag, int trigptbin, int partptbin, int centbin, float& xi, float& xierr);
   TH1F* MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, std::string hname);
   //void MakeDphiProjection(TH3F* h3, TH1F*& h1, float xmin, float xmax, float ymin, float ymax, std::string hname);
@@ -326,14 +324,14 @@ private:
   
   TH1F* IncAcc[4][NTRIGBINS][NPARTBINS];//[cent][ntrig][npart]
   TH1F* Pi0Acc[4][NTRIGBINS][NPARTBINS];
-  TH1F* DecAcc[4][NTRIGBINS+1][NPARTBINS];
-  // TH1F* IncAccFold[4][NTRIGBINS][NPARTBINS];//[cent][ntrig][npart]
-  // TH1F* Pi0AccFold[4][NTRIGBINS][NPARTBINS];
-  // TH1F* DecAccFold[4][NTRIGBINS][NPARTBINS];
+  TH1F* DecAcc[4][NTRIGBINS][NPARTBINS];
+  TH1F* IncAccFold[4][NTRIGBINS][NPARTBINS];//[cent][ntrig][npart]
+  TH1F* Pi0AccFold[4][NTRIGBINS][NPARTBINS];
+  TH1F* DecAccFold[4][NTRIGBINS][NPARTBINS];
 
   TH1F* IncAccXi[4][NTRIGBINS][NXIBINS];//[cent][ntrig][nxi]
   TH1F* Pi0AccXi[4][NTRIGBINS][NXIBINS];
-  TH1F* DecAccXi[4][NTRIGBINS+1][NXIBINS];
+  TH1F* DecAccXi[4][NTRIGBINS][NXIBINS];
   
   DataSet data_set;
   unsigned int Cut3x3Map;
