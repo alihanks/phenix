@@ -117,29 +117,6 @@ Correlation::~Correlation()
   if(warnmap) delete warnmap;
   
   if(fhadroneff) delete fhadroneff;
-  // if( fhadeff ){
-  //   fhadeff->Close();
-  //   delete fhadeff;
-  // }
-  
-  
-  // for(int i=0; i<4; i++){
-  //   if(gr_inc_v2[i]) delete gr_inc_v2[i];
-  //   if(gr_dec_v2[i]) delete gr_dec_v2[i];
-  //   if(gr_pi0_v2[i]) delete gr_pi0_v2[i];
-  //   if(gr_had_v2[i]) delete gr_had_v2[i];
-  //   if(gr_inc_v2sys[i]) delete gr_inc_v2sys[i];
-  //   if(gr_dec_v2sys[i]) delete gr_dec_v2sys[i];
-  //   if(gr_pi0_v2sys[i]) delete gr_pi0_v2sys[i];
-  //   if(gr_had_v2sys[i]) delete gr_had_v2sys[i];
-  // }
-
-         
-  // if( v2file ){
-  //   v2file->Close();
-  //   delete v2file;
-  // }
-  
 
   if(grpi0eff_0) delete grpi0eff_0;
   if( fpi0eff_0 ){
@@ -246,6 +223,10 @@ int Correlation::Init(PHCompositeNode* topNode)
     name = "h1_centrality_c" + bin.str();
     Init1DHisto(temp, name.c_str(), "centrality", 2, 0, 2);
     h1_centrality.push_back(temp);
+
+    name = "h2_econe_c" + bin.str();
+    Init2DHisto(temp2, name.c_str(),"E_{T} in cone","E_{T} [GeV]",100,0.,100.,"cone size [rad]",5,0.,0.5);
+    h2_econe.push_back(temp2);
 
     name = "h3_dphi_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 60, -PI/2, 3*PI/2);
@@ -833,19 +814,6 @@ int Correlation::process_event(PHCompositeNode* topNode)
     return 0;
   }
   
-  //using SvxCentralTracks (CNT-based track associated with VTX)
-  // if( data_set == Run11AuAu && useVtx ){
-  //   svxcntlist = findNode::getClass<SvxCentralTrackList>(topNode, "SvxCentralTrackList");
-  //   if(svxcntlist==NULL) {
-  //     cout << PHWHERE << "SvxCentralTrackList not in Node Tree" << endl;
-  //     return EVENT_OK;
-  //   }
-  //   nsvxpart = svxcntlist->get_nCentralTracks();
-    
-  //   svxcluslist = findNode::getClass<SvxClusterList>(topNode, "SvxClusterList");
-  //   if(svxcluslist==NULL) { cerr << PHWHERE << " SvxClusterList node not found." << endl; }
-  // }
-
   event_z = global->getBbcZVertex();
   event_c = global->getCentrality();
   
@@ -993,8 +961,8 @@ int Correlation::process_event(PHCompositeNode* topNode)
     float zemcsub = z1*510.0/sqrt(x1*x1+y1*y1);
     if(fabs(zemcsub)>155.0) continue;
     if( all_clus_vector[iclus]->IsTagged() )
-      SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,h3_cluster_pi0_dR[cbin],h3_cluster_pi0_etot[cbin],h2_cluster_pi0_wdR[cbin],h2_cluster_pi0_etot[cbin],h3_iso_pi0_acc[cbin]);
-    SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,h3_cluster_dR[cbin],h3_cluster_etot[cbin],h2_cluster_wdR[cbin],h2_cluster_etot[cbin],h3_iso_acc[cbin]);
+      SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,econe_min[cbin],h3_cluster_pi0_dR[cbin],h3_cluster_pi0_etot[cbin],h2_cluster_pi0_wdR[cbin],h2_cluster_pi0_etot[cbin],h3_iso_pi0_acc[cbin]);
+    SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,econe_min[cbin],h3_cluster_dR[cbin],h3_cluster_etot[cbin],h2_cluster_wdR[cbin],h2_cluster_etot[cbin],h3_iso_acc[cbin]);
     if( verbosity > 1 ) cout << "Photon isTagged = " << all_clus_vector[iclus]->IsTagged() << " and IsIso = " << all_clus_vector[iclus]->IsIso() << endl;
     
     h1_trig_pt_all[cbin]->Fill(cluster_pt); // Keep track of all photons before tagging rejection (for dAu or p+p)
@@ -1255,7 +1223,7 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
 
       if(api0.Pt() < pi0_pt_min || api0.Pt() > pi0_pt_max) continue;
 
-      SetIso(&api0,lessqualtrk_vector,all_clusters,Rcut);
+      SetIso(&api0,lessqualtrk_vector,all_clusters,Rcut,econe_min[cbin]);
       if( verbosity > 1 )
         cout << "Event " << evt << " - Found pi0 with isolation = " << api0.IsIso() << endl;
       
@@ -1970,7 +1938,6 @@ void Correlation::CalcPbglDisp(const float& m1z, const float& m1y,
 
   returnVals_z_y[0] = fDispZCor;
   returnVals_z_y[1] = fDispYCor;
-
 }
 
 double Correlation::IncidentAngle(const int arm,
@@ -1992,7 +1959,6 @@ double Correlation::IncidentAngle(const int arm,
   else                Phi = -999.;
   
   return Phi;  // in degrees 
-
 }
 
 void Correlation::Init1DHisto(TH1F* &h1, string name, string xtitle, int nxbin, double xmin, double xmax)
@@ -2378,7 +2344,7 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
       }
     }
   }
-*/
+  */
   int tbin = GetPtBin(trigpt,1);
   //cout <<"MakeDecays: tbin = " << tbin << endl;
   int ipw = 0;
@@ -2995,7 +2961,7 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
       for( unsigned int itrig = 0; itrig < photons.size(); itrig++ ) {
         // Want to use fg isolated acceptance but apply additional isolation based on uncorrelated (mixed) particles
         if( photons[itrig]->IsIso() )
-          SetIso(photons[itrig],hadrons,clusters,Rcut,h3_cluster_mix_dR[cbin],h3_cluster_mix_etot[cbin],h2_cluster_mix_wdR[cbin],h2_cluster_mix_etot[cbin],h3_iso_mix_acc[cbin]);
+          SetIso(photons[itrig],hadrons,clusters,Rcut,econe_min[cbin],h3_cluster_mix_dR[cbin],h3_cluster_mix_etot[cbin],h2_cluster_mix_wdR[cbin],h2_cluster_mix_etot[cbin],h3_iso_mix_acc[cbin]);
         h1_trig_pt_inc_mix[cbin]->Fill(photons[itrig]->Pt());
         if( photons[itrig]->IsIso() )
           h1_trig_pt_inc_iso_mix[cbin]->Fill(photons[itrig]->Pt());
@@ -3005,7 +2971,7 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
       for( unsigned int itrig = 0; itrig < pi0s.size(); itrig++ ) {
         // Want to use fg isolated acceptance but apply additional isolation based on uncorrelated (mixed) particles
         if( pi0s[itrig]->IsIso() )
-          SetIso(pi0s[itrig],hadrons,clusters,Rcut);
+          SetIso(pi0s[itrig],hadrons,clusters,Rcut,econe_min[cbin]);
         h1_trig_pt_pi0_mix[cbin]->Fill(pi0s[itrig]->Pt());
         if( pi0s[itrig]->IsIso() )
           h1_trig_pt_pi0_iso_mix[cbin]->Fill(pi0s[itrig]->Pt());

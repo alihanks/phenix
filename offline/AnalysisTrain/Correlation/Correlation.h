@@ -98,6 +98,7 @@ public:
   DataSet GetDataSet(int RunNumber);
   float Rcut;
   int cbin;
+  float econe_min[4];
   
   template<class T, class A> void MakePairs(std::vector<T*> triggers,
                                             std::vector<A*> associated,
@@ -441,6 +442,8 @@ private:
   std::vector<TH3F*> h3_ptztdphi_pi0_mix;
   std::vector<TH3F*> h3_ptztdphi_pi0_mix_fold;
   
+  std::vector<TH2F*> h2_econe;
+
   TH3D* h3_nhit[N_ARMSECT];
   TH3D* h3_nhit_mywarn[N_ARMSECT];
   

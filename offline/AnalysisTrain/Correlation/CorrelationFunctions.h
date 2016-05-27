@@ -49,11 +49,12 @@ template<class T> void SetIso(T* trigger,
                               std::vector<ATrack*> lessqualtrk_vec,
                               std::vector<ACluster*> all_clus_vec,
                               float Rcut = 0.3,
+                              float Emin = 0,
                               TH3F* h3_dR = NULL,
                               TH3F* h3_etot = NULL,
                               TH2F* h2_dR = NULL,
                               TH2F* h2_iso = NULL,
-                              TH3F* h3_iso_acc = NULL
+                              TH3F* h3_iso_acc = NULL,
                               )
 {
   float pt = trigger->E();
@@ -79,6 +80,7 @@ template<class T> void SetIso(T* trigger,
   for ( unsigned int itrk = 0; itrk < lessqualtrk_vec.size(); itrk++ ) {
     float pt1 = lessqualtrk_vec[itrk]->Pt();
     if ( pt1 < 0.2 ) continue;
+    if ( pt1 > 7.0 ) continue;
     float dR = lessqualtrk_vec[itrk]->DeltaR(*(TLorentzVector*)trigger);
     float aeta = lessqualtrk_vec[itrk]->Eta();
     float deta = eta - aeta;
@@ -91,16 +93,14 @@ template<class T> void SetIso(T* trigger,
     if ( h3_etot ) h3_etot->Fill(pt, pt1/pt, dR);
     if ( h2_dR ) h2_dR->Fill(dR, dphi);
   }
-  if ( h2_iso ) h2_iso->Fill(etot/pt, pt);
-  // Trigger energy IS included in total: check against 110%
-  if ( etot < 1.1*pt ) {
+  if ( h2_iso ) h2_iso->Fill(etot, pt);
+  emin_frac = emin/pt;
+  // Trigger energy IS included in total: check against 110% + background energy in % of trigger pt
+  if ( etot < 1*(.1+emin_frac)*pt ) {
     trigger->SetIso(true);
     if ( h3_iso_acc ) h3_iso_acc->Fill(phi, eta, pt);
   }
   else trigger->SetIso(false);
-  // Apply fiducial cut to photon before applying isolation
-  // if( !trigger->IsFiducial() )
-  // trigger->SetIso(false);
 }
 
 template<class T> void ClearVector(std::vector<T*> vec)
