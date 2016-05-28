@@ -66,6 +66,7 @@ Correlation::Correlation(const char* outfile)
   cbin = -1;
   photon_pt_min = 5.0; photon_pt_max = 15.0;
   hadron_pt_min = 0.5; hadron_pt_max = 7.0;
+  econe_min[0] = 0; econe_min[1] = 0; econe_min[2] = 0; econe_min[3] = 0;
   photon_ecore_min = 1.0;
   pi0_pt_min = 4.0; pi0_pt_max = 17.0;
   //useVtx = 0;
