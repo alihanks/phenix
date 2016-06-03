@@ -2268,20 +2268,20 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, fl
   float filltimeflow = 1.;
 
   float seffcorr = GetHadronEfficiencyCorr(partpt);
-  if( verbosity ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
+  if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
   float accw = 1.0;
   //accw = GetAcceptance(type, cbin, trigpt, partpt, dphi);  
   if( verbosity ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   //filltimeweight = seffcorr;
-  if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
+  if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
 
   // GetFlowWeights returns 1.0 if these are real pairs
   // Don't apply flow modulation for non Au+Au runs (like dAu)
   if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,cbin,trigpt,partpt,dphi)*filltimeweight;
   else filltimeflow = filltimeweight;
-  if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
+  if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
 
   return filltimeflow;
 }
@@ -2292,19 +2292,19 @@ float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, 
   float filltimeflow = 1.;
 
   float seffcorr = GetHadronEfficiencyCorr(partpt);
-  if( verbosity ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
+  if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
 
   float accw = 1.0;
   //accw = GetAcceptanceXi(type, cbin, trigpt, xi, dphi);
   if( verbosity ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
-  if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
+  if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
 
   // GetFlowWeights returns 1.0 if these are real pairs
   // Don't apply flow modulation for non Au+Au runs (like dAu)
   if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,cbin,trigpt,partpt,dphi)*filltimeweight;
   else filltimeflow = filltimeweight;
-  if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
+  if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
   return filltimeflow;
 }
 
