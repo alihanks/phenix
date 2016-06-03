@@ -98,7 +98,7 @@ template<class T> void SetIso(T* trigger,
   std::cout << "adding background energy fraction: " << emin_frac << std::endl;
   std::cout << "cutting on etot of " << etot << " > " << 1*(.1+emin_frac)*pt << std::endl;
   // Trigger energy IS included in total: check against 110% + background energy in % of trigger pt
-  if ( etot < 1*(.1+emin_frac)*pt ) {
+  if ( etot < (1.1+emin_frac)*pt ) {
     trigger->SetIso(true);
     if ( h3_iso_acc ) h3_iso_acc->Fill(phi, eta, pt);
   }
