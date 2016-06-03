@@ -49,7 +49,7 @@ template<class T> void SetIso(T* trigger,
                               std::vector<ATrack*> lessqualtrk_vec,
                               std::vector<ACluster*> all_clus_vec,
                               float Rcut = 0.3,
-                              float Emin = 0,
+                              float Emin = 0.0,
                               TH3F* h3_dR = NULL,
                               TH3F* h3_etot = NULL,
                               TH2F* h2_dR = NULL,
@@ -95,6 +95,8 @@ template<class T> void SetIso(T* trigger,
   }
   if ( h2_iso ) h2_iso->Fill(etot, pt);
   float emin_frac = Emin/pt;
+  std::cout << "adding background energy fraction: " << emin_frac << std::endl;
+  std::cout << "cutting on etot of " << etot << " > " << 1*(.1+emin_frac)*pt << std::endl;
   // Trigger energy IS included in total: check against 110% + background energy in % of trigger pt
   if ( etot < 1*(.1+emin_frac)*pt ) {
     trigger->SetIso(true);
