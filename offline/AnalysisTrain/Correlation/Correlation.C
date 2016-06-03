@@ -2295,7 +2295,7 @@ float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, 
   if( verbosity ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
 
   float accw = 1.0;
-  accw = GetAcceptanceXi(type, cbin, trigpt, xi, dphi);
+  //accw = GetAcceptanceXi(type, cbin, trigpt, xi, dphi);
   if( verbosity ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   if( verbosity ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
@@ -2322,7 +2322,6 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   float xi = log(1.0/zt);
 
   //comment this out temporarily to debug decay filltime-051316
-  /*
   for(unsigned int ipw=0;ipw<hdphi.size();ipw++){
     if(weight[ipw]>0) {
       //cout << "weight["<< ipw << "] = " << weight[ipw] << endl;
@@ -2343,7 +2342,8 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
       }
     }
   }
-  */
+  // Using correct weighting for dAu pass - 2016-06-03
+  /*
   int tbin = GetPtBin(trigpt,1);
   //cout <<"MakeDecays: tbin = " << tbin << endl;
   int ipw = 0;
@@ -2363,6 +2363,7 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   hdphizt[3]->Fill(dphi,zt,filltimeflow);
   hdphixi_fold[3]->Fill(dphifold,xi,filltimeflow);
   hdphizt_fold[3]->Fill(dphifold,zt,filltimeflow);
+  */
 }
 
 void Correlation::SetHadronEfficiency(const char* filename)
