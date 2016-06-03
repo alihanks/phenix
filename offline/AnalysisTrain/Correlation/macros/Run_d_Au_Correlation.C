@@ -5,7 +5,7 @@ void Run_d_Au_Correlation(const char* outFile = "test.root")
   std::cout << "Run_d_Au_Correlation: Loading libCorrelation.so returned status = " << status << std::endl;
 
   Correlation *co = new Correlation(outFile);
-  co->Verbosity(1);
+  co->Verbosity(0);
   co->SetDiagFlag(0);
   co->SetNCentBins(10,4);
   co->SetNMixEvents(500);
