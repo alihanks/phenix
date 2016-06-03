@@ -62,6 +62,7 @@ template<class T> void SetIso(T* trigger,
   float eta = trigger->Eta();
 
   float etot = 0;
+  std::cout << "looping over " << all_clus_vec.size() << " and " << lessqualtrk_vec.size() << " tracks to determin cone energy" << std::endl;
   for ( unsigned int iclus = 0; iclus < all_clus_vec.size(); iclus++ )
   {
     float pt1 = all_clus_vec[iclus]->E();
@@ -96,7 +97,7 @@ template<class T> void SetIso(T* trigger,
   if ( h2_iso ) h2_iso->Fill(etot, pt);
   float emin_frac = Emin/pt;
   std::cout << "adding background energy fraction: Emin/pt = " << Emin << "/" << pt << std::endl;
-  std::cout << "cutting on etot of " << etot << " < " << 1*(.1+emin_frac)*pt << Rcut << std::endl;
+  std::cout << "cutting on etot of " << etot << " < " << (1.1+emin_frac)*pt << std::endl;
   // Trigger energy IS included in total: check against 110% + background energy in % of trigger pt
   if ( etot < (1.1+emin_frac)*pt ) {
     trigger->SetIso(true);
