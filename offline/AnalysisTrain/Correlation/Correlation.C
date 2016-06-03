@@ -888,7 +888,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
       if( (armsect==2 && ert_sm==17) || (armsect==3 && (ert_sm==4||ert_sm==10||ert_sm==15||ert_sm==16)) || (armsect==4 && ert_sm==30) || (armsect==7 && ert_sm==15) ) sm_fired = 0;
       if( sm_fired ) {
         acluster.SetTrigger(true);
-        if( verbosity > 0 ) cout << "Photon in sector " << armsect << ", SM " << ert_sm << " fired ERT trigger!" << endl;
+        if( verbosity > 3 ) cout << "Photon in sector " << armsect << ", SM " << ert_sm << " fired ERT trigger!" << endl;
       }
       else acluster.SetTrigger(false);
     }
@@ -960,7 +960,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
     if( all_clus_vector[iclus]->IsTagged() )
       SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,econe_min[cbin],h3_cluster_pi0_dR[cbin],h3_cluster_pi0_etot[cbin],h2_cluster_pi0_wdR[cbin],h2_cluster_pi0_etot[cbin],h3_iso_pi0_acc[cbin]);
     SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,econe_min[cbin],h3_cluster_dR[cbin],h3_cluster_etot[cbin],h2_cluster_wdR[cbin],h2_cluster_etot[cbin],h3_iso_acc[cbin]);
-    if( verbosity > 1 ) cout << "Photon isTagged = " << all_clus_vector[iclus]->IsTagged() << " and IsIso = " << all_clus_vector[iclus]->IsIso() << endl;
+    if( verbosity > 0 ) cout << "Photon isTagged = " << all_clus_vector[iclus]->IsTagged() << " and IsIso = " << all_clus_vector[iclus]->IsIso() << endl;
     
     h1_trig_pt_all[cbin]->Fill(cluster_pt); // Keep track of all photons before tagging rejection (for dAu or p+p)
     // In Run8 reject all tagged photons prior to making pairs...
