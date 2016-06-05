@@ -2271,10 +2271,9 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, fl
   if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
   float accw = 1.0;
-  //accw = GetAcceptance(type, cbin, trigpt, partpt, dphi);  
+  accw = GetAcceptance(type, cbin, trigpt, partpt, dphi);  
   if( verbosity > 1 ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
-  //filltimeweight = seffcorr;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
 
   // GetFlowWeights returns 1.0 if these are real pairs
@@ -2295,7 +2294,7 @@ float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, 
   if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
 
   float accw = 1.0;
-  //accw = GetAcceptanceXi(type, cbin, trigpt, xi, dphi);
+  accw = GetAcceptanceXi(type, cbin, trigpt, xi, dphi);
   if( verbosity > 1 ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
