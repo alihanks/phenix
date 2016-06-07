@@ -345,6 +345,10 @@ int Correlation::Init(PHCompositeNode* topNode)
     Init1DHisto(temp, name.c_str(),"p_{T} [GeV/c]",200,0.,20.);
     h1_trig_pt_all.push_back(temp);
     
+    name = "h1_trig_pt_all_iso_c" + bin.str();
+    Init1DHisto(temp, name.c_str(),"p_{T} [GeV/c]",200,0.,20.);
+    h1_trig_pt_all_iso.push_back(temp);
+    
     name = "h1_trig_pt_inc_c" + bin.str();
     Init1DHisto(temp, name.c_str(),"p_{T} [GeV/c]",200,0.,20.);
     h1_trig_pt_inc.push_back(temp);
@@ -963,6 +967,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
     if( verbosity > 0 ) cout << "Photon isTagged = " << all_clus_vector[iclus]->IsTagged() << " and IsIso = " << all_clus_vector[iclus]->IsIso() << endl;
     
     h1_trig_pt_all[cbin]->Fill(cluster_pt); // Keep track of all photons before tagging rejection (for dAu or p+p)
+    if( all_clus_vector[iclus]->IsIso() ) h1_trig_pt_all_iso[cbin]->Fill(cluster_pt); // Keep track of all photons before tagging rejection (for dAu or p+p)
     // In Run8 reject all tagged photons prior to making pairs...
     if( data_set == Run8dAu && all_clus_vector[iclus]->IsTagged() ) continue;
     

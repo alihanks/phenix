@@ -469,6 +469,7 @@ private:
   TH1F* h1_trig_pt_pi0_mix_tot;
   TH1F* h1_trig_pt_dec_mix_tot;
   std::vector<TH1F*> h1_trig_pt_all;
+  std::vector<TH1F*> h1_trig_pt_all_iso;
   std::vector<TH1F*> h1_trig_pt_inc;//[centbin]
   std::vector<TH1F*> h1_trig_pt_inc_iso;
   std::vector<TH1F*> h1_trig_pt_pi0;
