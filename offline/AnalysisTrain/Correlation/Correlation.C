@@ -1326,7 +1326,7 @@ void Correlation::GetAcceptanceWeightsFold(string filename)//input file is a pre
         name = "h1_dec_acc_fold_c" + bin.str();
         int ymin = bgdec->GetYaxis()->FindBin(part_pt_range[ip]);
         int ymax = bgdec->GetYaxis()->FindBin(part_pt_range[ip+1]);
-        TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax);
+        TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax-1);
         name = "h1_DecAccFold_c" + bin.str();
         DecAccFold[ic][it][ip] = new TH1F(*temp_dec);
         DecAccFold[ic][it][ip]->SetName(name.c_str());
@@ -1402,7 +1402,7 @@ void Correlation::GetAcceptanceWeightsFoldXi(string filename)//input file is a p
         name = "h1_dec_acc_fold_c" + bin.str();
         int ymin = bgdec->GetYaxis()->FindBin(xi_range[ix]);
         int ymax = bgdec->GetYaxis()->FindBin(xi_range[ix+1]);
-        TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax);
+        TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax-1);
         name = "h1_DecAccFold_c" + bin.str();
         DecAccFold[ic][it][ix] = new TH1F(*temp_dec);
         DecAccFold[ic][it][ix]->SetName(name.c_str());
@@ -1480,7 +1480,7 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
         name = "h1_dec_acc_c" + bin.str();
         int ymin = bgdec->GetYaxis()->FindBin(part_pt_range[ip]);
         int ymax = bgdec->GetYaxis()->FindBin(part_pt_range[ip+1]);
-        TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax);
+        TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax-1);
         name = "h1_DecAcc_c" + bin.str();
         DecAcc[ic][it][ip] = new TH1F(*temp_dec);
         DecAcc[ic][it][ip]->SetName(name.c_str());
@@ -1558,7 +1558,7 @@ void Correlation::GetAcceptanceWeightsXi(string filename)//input file is a previ
         name = "h1_dec_acc_xi_c" + bin.str();
         int ymin = bgdec->GetYaxis()->FindBin(xi_range[ix]);
         int ymax = bgdec->GetYaxis()->FindBin(xi_range[ix+1]);
-        TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax);
+        TH1F* temp_dec = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax-1);
         name = "h1_DecAccXi_c" + bin.str();
         DecAccXi[ic][it][ix] = new TH1F(*temp_dec);
         DecAccXi[ic][it][ix]->SetName(name.c_str());
@@ -1581,6 +1581,7 @@ double Correlation::GetAcceptanceFold(PairType type, int cbin, float trigpt, flo
   int tbin = GetPtBin(trigpt, 1);
   int pbin = GetPtBin(partpt, 0);
   double acc = 1.;
+  if(tbin < 0 || pbin < 0) return 1.0;
 
   if(type == REAL || type == MIX){
     int phibin = IncAccFold[cbin][tbin][pbin]->FindBin(dphi);
@@ -1597,6 +1598,7 @@ double Correlation::GetAcceptanceFold(PairType type, int cbin, float trigpt, flo
     //cout<<"dec -- dphi = "<<dphi<<"; phibin = "<<phibin<<endl;
     acc = DecAccFold[cbin][tbin][pbin]->GetBinContent(phibin);
   }
+  
   return acc;
 }
 
@@ -1607,7 +1609,8 @@ double Correlation::GetAcceptance(PairType type, int cbin, float trigpt, float p
   int pbin = GetPtBin(partpt, 0);
   double acc = 1.;
   int phibin = 1;
-
+  if(tbin < 0 || pbin < 0) return 1.0;
+  
   if(type == REAL || type == MIX){
     phibin = IncAcc[cbin][tbin][pbin]->FindBin(dphi);
     //cout<<"dphi = "<<dphi<<"; phibin = "<<phibin<<endl;
@@ -1623,6 +1626,7 @@ double Correlation::GetAcceptance(PairType type, int cbin, float trigpt, float p
     //cout<<"dphi = "<<dphi<<"; phibin = "<<phibin<<endl;
     acc = DecAcc[cbin][tbin][pbin]->GetBinContent(phibin);
   }
+  
   return acc;
 }
 
@@ -1633,6 +1637,7 @@ double Correlation::GetAcceptanceXi(PairType type, int cbin, float trigpt, float
   
   double acc = 1.;
   int phibin = 1;
+  if(tbin < 0 || xbin < 0) return 1.0;
   
   if(type == REAL || type == MIX){
     phibin = IncAccXi[cbin][tbin][xbin]->FindBin(dphi);
@@ -1646,6 +1651,7 @@ double Correlation::GetAcceptanceXi(PairType type, int cbin, float trigpt, float
     phibin = DecAccXi[cbin][tbin][xbin]->FindBin(dphi);
     acc = DecAccXi[cbin][tbin][xbin]->GetBinContent(phibin);
   }
+  
   return acc;
 }
 
@@ -1659,6 +1665,7 @@ float Correlation::GetFlowWeights(PairType type, int cbin, float trigpt, float p
 
   int tbin = GetPtBin(trigpt, 1);
   int pbin = GetPtBin(partpt, 0);  
+  if(tbin<0 || pbin<0) return 1.0;
 
   float flowweight = (1+trig_v2[typebin][cbin][tbin]*part_v2[cbin][pbin]*cos(2*dphifold));
   //cout<<"flowweight = "<< flowweight << endl;
@@ -2173,7 +2180,7 @@ bool Correlation::PassMatchingCut(ATrack* atrk, float pc3nsig, float emcnsig)
 
 int Correlation::GetPtBin(float pt, int istrig)
 {
-  int ipt = 0;
+  int ipt = -1;
   if(istrig){
     if(pt>=5.0 && pt<7.0) ipt = 0;
     if(pt>=7.0 && pt<9.0) ipt = 1;
@@ -2275,16 +2282,17 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, fl
   float seffcorr = GetHadronEfficiencyCorr(partpt);
   if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
-  float accw = 1.0;
-  accw = GetAcceptance(type, cbin, trigpt, partpt, dphi);  
-  if( verbosity > 1 ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
-  if( accw > 0 ) filltimeweight = seffcorr/accw;
+  // float accw = 1.0;
+  // accw = GetAcceptance(type, cbin, trigpt, partpt, dphi);  
+  // if( verbosity > 1 ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
+  // if( accw > 0 ) filltimeweight = seffcorr/accw;
+  filltimeweight = seffcorr;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
 
   // GetFlowWeights returns 1.0 if these are real pairs
   // Don't apply flow modulation for non Au+Au runs (like dAu)
-  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,cbin,trigpt,partpt,dphi)*filltimeweight;
-  else filltimeflow = filltimeweight;
+  //  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,cbin,trigpt,partpt,dphi)*filltimeweight;
+  /*else*/ filltimeflow = filltimeweight;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
 
   return filltimeflow;
@@ -2326,6 +2334,7 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   float xi = log(1.0/zt);
 
   //comment this out temporarily to debug decay filltime-051316
+  /*
   for(unsigned int ipw=0;ipw<hdphi.size();ipw++){
     if(weight[ipw]>0) {
       //cout << "weight["<< ipw << "] = " << weight[ipw] << endl;
@@ -2347,9 +2356,10 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
     }
   }
   // Using correct weighting for dAu pass - 2016-06-03
-  /*
+  */
   int tbin = GetPtBin(trigpt,1);
-  //cout <<"MakeDecays: tbin = " << tbin << endl;
+  // cout <<"MakeDecays: tbin = " << tbin << endl;
+  if(tbin < 0) return;
   int ipw = 0;
   if(tbin < 3) ipw = tbin;
   else ipw = tbin+1;
@@ -2367,7 +2377,7 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   hdphizt[3]->Fill(dphi,zt,filltimeflow);
   hdphixi_fold[3]->Fill(dphifold,xi,filltimeflow);
   hdphizt_fold[3]->Fill(dphifold,zt,filltimeflow);
-  */
+  
 }
 
 void Correlation::SetHadronEfficiency(const char* filename)
@@ -3035,4 +3045,3 @@ int Correlation::CheckPool(int nenpart, int j, int pooldepth, int size, int& nlo
   }
   return j;
 }
-
