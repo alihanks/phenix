@@ -56,7 +56,7 @@ void MakeRgammaEff(const char* Rgamma_input, const char* trigger_input)
 		h1_trigpt_all[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 		name = "h1_trig_pt_inc" + bin.str();
 		h1_trigpt[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
-		name = "h1_trig_pt_inc_iso" + bin.str();
+		name = "h1_trig_pt_all_iso" + bin.str();
 		h1_trigpt_iso[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
 		name = "h1_trig_pt_dec" + bin.str();
 		h1_trigpt_dec[ic] = new TH1D(*(TH1D*)infile->Get(name.c_str()));
