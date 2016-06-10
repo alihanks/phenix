@@ -231,7 +231,7 @@ double MakeWeightedJFs::GetNTrigs(int type, int bin, TH1F* histo)
 		return histo->Integral(lbin,hbin);
 	}
 	if( type ) {
-		if(type<4)
+		if(bin<4)
 			return histo->GetBinContent(bin+1);
 		else
 			return histo->GetBinContent(bin+2);
