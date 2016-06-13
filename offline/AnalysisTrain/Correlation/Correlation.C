@@ -2281,7 +2281,7 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, in
   if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
   float accw = 1.0;
-  //accw = GetAcceptance(type, cbin, tbin, pbin, dphi);  
+  accw = GetAcceptance(type, cbin, tbin, pbin, dphi);  
   if( verbosity > 1 ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   else filltimeweight = 0.;
@@ -2307,7 +2307,7 @@ float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, 
   if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
 
   float accw = 1.0;
-  //accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
+  accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
   if( verbosity > 1 ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   else filltimeweight = 0.;
