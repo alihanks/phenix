@@ -1271,8 +1271,8 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
 void Correlation::GetAcceptanceWeightsFold(string filename)//input file is a previous taxi output, use h3_dphi_mix_fold_c* to do acc. corr.
 {
   cout << "In GetAcceptanceWeightsFold" <<endl;
-  double trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
-  double part_pt_range[NPARTBINS+1] = {0.5,1.0,2.0,3.0,5.0,7.0};
+  float trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
+  float part_pt_range[NPARTBINS+1] = {0.5,1.0,2.0,3.0,5.0,7.0};
   ostringstream bin;
   string name;
   
@@ -1347,8 +1347,8 @@ void Correlation::GetAcceptanceWeightsFold(string filename)//input file is a pre
 void Correlation::GetAcceptanceWeightsFoldXi(string filename)//input file is a previous taxi output, use h3_ptxidphi_mix_fold_c* to do acc. corr.
 {
   cout << "In GetAcceptanceWeightsFold" <<endl;
-  double trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
-  double xi_range[NXIBINS+1] = {0.0,0.4,0.8,1.2,1.6,2.0,2.4};
+  float trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
+  float xi_range[NXIBINS+1] = {0.0,0.4,0.8,1.2,1.6,2.0,2.4};
   ostringstream bin;
   string name;
   
@@ -1423,8 +1423,8 @@ void Correlation::GetAcceptanceWeightsFoldXi(string filename)//input file is a p
 void Correlation::GetAcceptanceWeights(string filename)//input file is a previous taxi output, use h3_dphi_mix_c* to do acc. corr.
 {
   cout << "In GetAcceptanceWeights" <<endl;
-  double trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
-  double part_pt_range[NPARTBINS+1] = {0.5,1.0,2.0,3.0,5.0,7.0};
+  float trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
+  float part_pt_range[NPARTBINS+1] = {0.5,1.0,2.0,3.0,5.0,7.0};
   ostringstream bin;
   string name;
   
@@ -1501,8 +1501,8 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
 void Correlation::GetAcceptanceWeightsXi(string filename)//input file is a previous taxi output using h3_ptxidphi_mix_c* to do acc. corr.
 {
   cout << "In GetAcceptanceWeightsXi" <<endl;
-  double trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
-  double xi_range[NXIBINS+1] = {0.0,0.4,0.8,1.2,1.6,2.0,2.4};
+  float trig_pt_range[NTRIGBINS+1] = {5.0,7.0,9.0,12.0,15.0};
+  float xi_range[NXIBINS+1] = {0.0,0.4,0.8,1.2,1.6,2.0,2.4};
   ostringstream bin;
   string name;
   
@@ -1581,7 +1581,7 @@ double Correlation::GetAcceptanceFold(PairType type, int cbin, float trigpt, flo
   int tbin = GetPtBin(trigpt, 1);
   int pbin = GetPtBin(partpt, 0);
   double acc = 1.;
-  if(tbin < 0 || pbin < 0) return 1.0;
+  if(tbin < 0 || pbin < 0) return 0.;
 
   if(type == REAL || type == MIX){
     int phibin = IncAccFold[cbin][tbin][pbin]->FindBin(dphi);
@@ -1602,14 +1602,12 @@ double Correlation::GetAcceptanceFold(PairType type, int cbin, float trigpt, flo
   return acc;
 }
 
-double Correlation::GetAcceptance(PairType type, int cbin, float trigpt, float partpt, float dphi)
+double Correlation::GetAcceptance(PairType type, int cbin, int tbin, int pbin, float dphi)
 {
   //cout<<"GetAcceptance..."<<endl;
-  int tbin = GetPtBin(trigpt, 1);
-  int pbin = GetPtBin(partpt, 0);
   double acc = 1.;
   int phibin = 1;
-  if(tbin < 0 || pbin < 0) return 1.0;
+  if(tbin < 0 || pbin < 0) return 0.;
   
   if(type == REAL || type == MIX){
     phibin = IncAcc[cbin][tbin][pbin]->FindBin(dphi);
@@ -1630,14 +1628,14 @@ double Correlation::GetAcceptance(PairType type, int cbin, float trigpt, float p
   return acc;
 }
 
-double Correlation::GetAcceptanceXi(PairType type, int cbin, float trigpt, float xi, float dphi)
+double Correlation::GetAcceptanceXi(PairType type, int cbin, int tbin, int xbin, float dphi)
 {
-  int tbin = GetPtBin(trigpt, 1);
-  int xbin = GetXiBin(xi);
+  // int tbin = GetPtBin(trigpt, 1);
+  // int xbin = GetXiBin(xi);
   
   double acc = 1.;
   int phibin = 1;
-  if(tbin < 0 || xbin < 0) return 1.0;
+  if(tbin < 0 || xbin < 0) return 0.;
   
   if(type == REAL || type == MIX){
     phibin = IncAccXi[cbin][tbin][xbin]->FindBin(dphi);
@@ -1655,18 +1653,16 @@ double Correlation::GetAcceptanceXi(PairType type, int cbin, float trigpt, float
   return acc;
 }
 
-float Correlation::GetFlowWeights(PairType type, int cbin, float trigpt, float partpt, float dphifold)
+float Correlation::GetFlowWeights(PairType type, int tbin, int pbin, float dphifold)
 {
+  if(tbin<0 || pbin<0) return 0.;
+  
   int typebin = -1;
   if( type == MIX ) typebin = 0;
   if( type == MIXPI ) typebin = 1;
   if( type == MIXDEC) typebin = 2;
   if( typebin < 0 ) return 1.0;  // only return flow modulation for mixed pairs
-
-  int tbin = GetPtBin(trigpt, 1);
-  int pbin = GetPtBin(partpt, 0);  
-  if(tbin<0 || pbin<0) return 1.0;
-
+  
   float flowweight = (1+trig_v2[typebin][cbin][tbin]*part_v2[cbin][pbin]*cos(2*dphifold));
   //cout<<"flowweight = "<< flowweight << endl;
   return flowweight;
@@ -2274,8 +2270,10 @@ void Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, v
   }
 }
 
-float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, float trigpt)
+float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, int pbin, int tbin)
 {
+  if(tbin<0 || pbin<0) return 0.;
+
   float filltimeweight = 1.;
   float filltimeflow = 1.;
 
@@ -2283,22 +2281,25 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, fl
   if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
   float accw = 1.0;
-  accw = GetAcceptance(type, cbin, trigpt, partpt, dphi);  
+  //accw = GetAcceptance(type, cbin, tbin, pbin, dphi);  
   if( verbosity > 1 ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
+  else filltimeweight = 0.;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
 
   // GetFlowWeights returns 1.0 if these are real pairs
   // Don't apply flow modulation for non Au+Au runs (like dAu)
-  //  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,cbin,trigpt,partpt,dphi)*filltimeweight;
+  //if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,tbin,pbin,dphi)*filltimeweight;
   /*else*/ filltimeflow = filltimeweight;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
 
   return filltimeflow;
 }
 
-float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, float trigpt, float xi)
+float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, int xbin, int tbin)
 {
+  if(tbin<0 || xbin<0) return 0.;
+
   float filltimeweight = 1.;
   float filltimeflow = 1.;
 
@@ -2306,15 +2307,16 @@ float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, 
   if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
 
   float accw = 1.0;
-  accw = GetAcceptanceXi(type, cbin, trigpt, xi, dphi);
+  //accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
   if( verbosity > 1 ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
+  else filltimeweight = 0.;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeweight << endl;
 
   // GetFlowWeights returns 1.0 if these are real pairs
   // Don't apply flow modulation for non Au+Au runs (like dAu)
-  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,cbin,trigpt,partpt,dphi)*filltimeweight;
-  else filltimeflow = filltimeweight;
+  //if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,tbin,pbin,dphi)*filltimeweight;
+  /*else */filltimeflow = filltimeweight;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
   return filltimeflow;
 }
@@ -2327,14 +2329,15 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   if( verbosity > 1) cout<<"MakeDecays: type = "<<type<<endl;
 
   //calculate xi weights for filltime 
-  float filltimeflow = GetFilltimeWeight(type,dphi,partpt,trigpt);
-  
+    
   float zt = partpt/trigpt;
   float xi = log(1.0/zt);
 
-  //comment this out temporarily to debug decay filltime-051316
-  /*
+  int pbin = GetPtBin(partpt, 0);
+  float filltimeflow = 1.0;
+ 
   for(unsigned int ipw=0;ipw<hdphi.size();ipw++){
+    filltimeflow = GetFilltimeWeight(type,dphi,partpt,pbin,ipw);
     if(weight[ipw]>0) {
       //cout << "weight["<< ipw << "] = " << weight[ipw] << endl;
       hdphi[ipw]->Fill(dphi,partpt,weight[ipw]*filltimeflow);
@@ -2355,7 +2358,7 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
     }
   }
   // Using correct weighting for dAu pass - 2016-06-03
-  */
+  /*
   int tbin = GetPtBin(trigpt,1);
   // cout <<"MakeDecays: tbin = " << tbin << endl;
   if(tbin < 0) return;
@@ -2376,7 +2379,7 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   hdphizt[3]->Fill(dphi,zt,filltimeflow);
   hdphixi_fold[3]->Fill(dphifold,xi,filltimeflow);
   hdphizt_fold[3]->Fill(dphifold,zt,filltimeflow);
-  
+  */
 }
 
 void Correlation::SetHadronEfficiency(const char* filename)

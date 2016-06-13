@@ -193,8 +193,11 @@ public:
         float filltimeflowxi = 1.;
         
         if( dofilltime ){
-          filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,trig_pt);
-          filltimeflowxi = GetFilltimeWeightXi(type,deltaphi,assoc_pt,trig_pt,xi);
+	  int tbin = GetPtBin(trig_pt, 1);
+	  int pbin = GetPtBin(assoc_pt, 0);
+	  int xbin = GetXiBin(xi);
+          filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin);
+	  filltimeflowxi = GetFilltimeWeightXi(type,deltaphi,assoc_pt,xbin,tbin);
         }
         if( h3dphi ) h3dphi->Fill(trig_pt, assoc_pt, deltaphi, filltimeflow);
         //if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold);
@@ -250,12 +253,12 @@ private:
   float GetHadronEfficiencyCorr(float pt);
   // void GetAcceptanceWeightsFold(std::string filename);
   // void GetAcceptanceWeights(std::string filename);
-  float GetFilltimeWeight(PairType type, float dphi, float partpt, float trigpt);
-  float GetFilltimeWeightXi(PairType type, float dphi, float partpt, float trigpt, float xi);
+  float GetFilltimeWeight(PairType type, float dphi, float partpt, int pbin, int tbin);
+  float GetFilltimeWeightXi(PairType type, float dphi, float partpt, int xbin, int tbin);
   double GetAcceptanceFold(PairType type, int cbin, float trigpt, float partpt, float dphi);
-  double GetAcceptance(PairType type, int cbin, float trigpt, float partpt, float dphi);
-  double GetAcceptanceXi(PairType type, int cbin, float trigpt, float xi, float dphi);
-  float GetFlowWeights(PairType type, int cbin, float trigpt, float partpt, float dphifold);
+  double GetAcceptance(PairType type, int cbin, int tbin, int pbin, float dphi);
+  double GetAcceptanceXi(PairType type, int cbin, int tbin, int xbin, float dphi);
+  float GetFlowWeights(PairType type, int tbin, int pbin, float dphifold);
   //void GetXi(int decayflag, int trigptbin, int partptbin, int centbin, float& xi, float& xierr);
   TH1F* MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, std::string hname);
   //void MakeDphiProjection(TH3F* h3, TH1F*& h1, float xmin, float xmax, float ymin, float ymax, std::string hname);
