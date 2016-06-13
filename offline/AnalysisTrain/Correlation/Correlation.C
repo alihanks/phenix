@@ -910,7 +910,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
     all_clus_vector.push_back(acluster.clone());
   }
   if( verbosity > 2 ) cout << "Found " << all_clus_vector.size() << " raw clusters" << endl;
- 
+  
   //******************************************************
   //*   Select decay photon sample and construct pi0s.   *
   //******************************************************
@@ -1073,7 +1073,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
 
   //inclusive photon-hadron delta phi dists.
   //MakePairs(clus_vector,trk_vector,REAL,data_set,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi[cbin],h3_ptztdphi_fold[cbin]);
-
+  
   MakePairs(clus_vector,trk_vector,REAL,data_set,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi[cbin],h3_ptztdphi_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),NULL,NULL,h2_dphi,h2_dphi_xi,h2_dphi_accw,h2_dphi_accw_xi,h3_dphi_accw,h3_dphi_accw_xi,h2_partpt_xi);
   
   //checking background effect on pair dphi distribution.
@@ -1081,13 +1081,13 @@ int Correlation::process_event(PHCompositeNode* topNode)
   //MakePairs(clus_vector,trk_vector_1sig,DIAGNOSTIC,data_set,h3_dphi_1sig[cbin],h3_dphi_fold_1sig[cbin]);
   //pc3 matching cut at 2 sigma. 
   //MakePairs(clus_vector,trk_vector_2sig,DIAGNOSTIC,data_set,h3_dphi_2sig[cbin],h3_dphi_fold_2sig[cbin]);
-
+  
   //****************************************
   //*   Make pi0-h foreground pairs        *
   //****************************************  
   //MakePairs(pi0_vector,trk_vector,REALPI,data_set,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec[cbin],h2_dphizt_dec_fold[cbin]);
   MakePairs(pi0_vector,trk_vector,REALPI,data_set,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec[cbin],h2_dphizt_dec_fold[cbin],NULL,NULL,h2_dphi_pi0,h2_dphi_xi_pi0,h2_dphi_accw_pi0,h2_dphi_accw_xi_pi0,h3_dphi_accw_pi0,h3_dphi_accw_xi_pi0,h2_partpt_xi_pi0);
-
+  
   atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());
   if( data_set == Run8dAu ) {
     AddMBEvent(data_set);
@@ -2281,7 +2281,7 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, in
   if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
   
   float accw = 1.0;
-  //accw = GetAcceptance(type, cbin, tbin, pbin, dphi);  
+  accw = GetAcceptance(type, cbin, tbin, pbin, dphi);  
   if( verbosity > 1 ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   else filltimeweight = 0.;
@@ -2289,8 +2289,8 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, in
 
   // GetFlowWeights returns 1.0 if these are real pairs
   // Don't apply flow modulation for non Au+Au runs (like dAu)
-  //if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,tbin,pbin,dphi)*filltimeweight;
-  /*else*/ filltimeflow = filltimeweight;
+  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,tbin,pbin,dphi)*filltimeweight;
+  else filltimeflow = filltimeweight;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
 
   return filltimeflow;
@@ -2307,7 +2307,7 @@ float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, 
   if( verbosity > 1 ) cout << PHWHERE << "seffcorr = " << seffcorr << endl;
 
   float accw = 1.0;
-  //accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
+  accw = GetAcceptanceXi(type, cbin, tbin, xbin, dphi);
   if( verbosity > 1 ) cout << PHWHERE << "accw at dphi = " << dphi << " for decay: " << accw << endl;
   if( accw > 0 ) filltimeweight = seffcorr/accw;
   else filltimeweight = 0.;
@@ -2315,8 +2315,9 @@ float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, 
 
   // GetFlowWeights returns 1.0 if these are real pairs
   // Don't apply flow modulation for non Au+Au runs (like dAu)
-  //if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,tbin,pbin,dphi)*filltimeweight;
-  /*else */filltimeflow = filltimeweight;
+  int pbin = GetPtBin(partpt,0);
+  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,tbin,pbin,dphi)*filltimeweight;
+  else filltimeflow = filltimeweight;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
   return filltimeflow;
 }
@@ -2334,23 +2335,29 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   float xi = log(1.0/zt);
 
   int pbin = GetPtBin(partpt, 0);
+  int xbin = GetXiBin(xi);
   float filltimeflow = 1.0;
+  float filltimeflowxi = 1.0;
  
   for(unsigned int ipw=0;ipw<hdphi.size();ipw++){
-    filltimeflow = GetFilltimeWeight(type,dphi,partpt,pbin,ipw);
+    int tbin = ipw;
+    if(ipw>3) tbin = ipw - 1;
+    filltimeflow = GetFilltimeWeight(type,dphi,partpt,pbin,tbin);
+    filltimeflowxi = GetFilltimeWeightXi(type,dphi,partpt,xbin,tbin);
     if(weight[ipw]>0) {
       //cout << "weight["<< ipw << "] = " << weight[ipw] << endl;
       hdphi[ipw]->Fill(dphi,partpt,weight[ipw]*filltimeflow);
-      if( hdphi_fold.size()>ipw )
+      if( hdphi_fold.size()>ipw ){
         hdphi_fold[ipw]->Fill(dphifold,partpt,weight[ipw]*filltimeflow);
+      }
       if( hdphixi.size()>ipw ){
-        hdphixi[ipw]->Fill(dphi,xi,weight[ipw]*filltimeflow);
+        hdphixi[ipw]->Fill(dphi,xi,weight[ipw]*filltimeflowxi);
       }
       if( hdphizt.size()>ipw ){
         hdphizt[ipw]->Fill(dphi,zt,weight[ipw]*filltimeflow);
       }
       if( hdphixi_fold.size()>ipw ){
-        hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeflow);
+        hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeflowxi);
       }
       if( hdphizt_fold.size()>ipw ){
         hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeflow);

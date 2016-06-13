@@ -192,13 +192,16 @@ public:
         float filltimeflow = 1.;
         float filltimeflowxi = 1.;
         
-        if( dofilltime ){
+	if( dofilltime ){
 	  int tbin = GetPtBin(trig_pt, 1);
 	  int pbin = GetPtBin(assoc_pt, 0);
 	  int xbin = GetXiBin(xi);
           filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin);
 	  filltimeflowxi = GetFilltimeWeightXi(type,deltaphi,assoc_pt,xbin,tbin);
+	  // std::cout << "filltimeflow = " << filltimeflow << std::endl;
+	  // std::cout << "filltimeflowxi = " << filltimeflowxi << std::endl;
         }
+	
         if( h3dphi ) h3dphi->Fill(trig_pt, assoc_pt, deltaphi, filltimeflow);
         //if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold);
         if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
@@ -228,15 +231,15 @@ public:
           if( h2partptxi ) h2partptxi->Fill(assoc_pt,xi);
         }
         if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
-        
-        //******************************************
+	//******************************************
         //*  Make decay photon-h pairs             *
         //******************************************
         if(type==REALPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making real decay pairs" << std::endl;
           MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+	  //std::cout << "after makedecays" << std::endl;
         }
-        if(type==MIXPI ) {
+	if(type==MIXPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making mixed decay pairs" << std::endl;
           MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
