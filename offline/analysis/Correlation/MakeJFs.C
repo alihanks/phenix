@@ -19,7 +19,6 @@
 
 using namespace std;
 
-<<<<<<< MakeJFs.C
 MakeJFs::MakeJFs(int type, int centbin, int trigbin, 
                  int partbin, TH1F *CFinc, 
                  double meanpart, double ntrigbg, 
@@ -27,20 +26,10 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
                  int nFits, int useMSMP, 
                  TH1F*& CFflowZYAM, 
                  TH1F*& CFjetZYAM)
-=======
-MakeJFs::MakeJFs(int type, int centbin, int trigbin, 
-                 int partbin, TH1D *CFinc, 
-                 double meanpart, double ntrigbg, 
-                 TFile* fin, const string v2input, 
-                 int nFits, int useMSMP, 
-                 TH1D*& CFflowZYAM, 
-                 TH1D*& CFjetZYAM)
->>>>>>> 1.3
 {
   //type == 0: inclusive photon
   //type == 1: pi0
   //type == 2: dec
-<<<<<<< MakeJFs.C
   if(useMSMP<2)  SetV2(v2input);
   else {
     inc_v2[centbin][trigbin] = 0;
@@ -48,19 +37,12 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     dec_v2[centbin][trigbin] = 0;
     hadron_v2[centbin][partbin] = 0;
   }
-=======
-  if(useMSMP<2)  SetV2(v2input);
->>>>>>> 1.3
   if(type==0) trigv2 = inc_v2[centbin][trigbin];
   if(type==1) trigv2 = pi0_v2[centbin][trigbin];
   if(type==2) trigv2 = dec_v2[centbin][trigbin];
   partv2 = hadron_v2[centbin][partbin];
   c2 = trigv2 * partv2;
-<<<<<<< MakeJFs.C
   //cout << "set flow constant c2 = " << c2 << endl;
-=======
-  cout << "set flow constant c2 = " << c2 << endl;
->>>>>>> 1.3
 
   int nbins = CFinc->GetNbinsX();
   //cout<<"# of bins in CFinc: "<<nbins<<endl;
@@ -89,15 +71,9 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
       CFflowZYAM->SetBinError(ibin, 0.0); 
     }
   }
-<<<<<<< MakeJFs.C
   //CFflowZYAM->Sumw2();
   //cout<<"about to subtract bg..."<<endl;
   if(useMSMP==0){
-=======
-  //CFflowZYAM->Sumw2();
-  cout<<"about to subtract bg..."<<endl;
-  if(useMSMP==0){
->>>>>>> 1.3
     cout<<"using ZYAM method.........."<<endl;
     //********************************************
     //        Fit the CF                         *
@@ -224,7 +200,6 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     cout<<"norm = "<<norm<<endl;
     fcent->Close();
   }
-<<<<<<< MakeJFs.C
   else if (useMSMP==2) {
     CFinc->SetAxisRange(0.9,1.6,"X");
     int lbin = CFinc->GetMinimumBin()-1;//CFinc->FindBin(1.1);
@@ -249,27 +224,13 @@ MakeJFs::MakeJFs(int type, int centbin, int trigbin,
     CFinc->SetAxisRange(0.0,TMath::Pi(),"X");
   }
 
-=======
-  else if (useMSMP==2) {
-    int lbin = CFinc->FindBin(1.0);
-    int hbin = CFinc->FindBin(1.5);
-    norm = CFinc->Integral(lbin,hbin);
-    norm = norm/((double)(hbin-lbin+1));
-    cout << "ZYAM norm = " << CFinc->Integral(lbin,hbin) << "/(" << hbin << " - " << lbin << ") = " << norm << endl;
-  }
-
->>>>>>> 1.3
   CFflowZYAM->Scale(norm);
 
   CFjetZYAM = new TH1F(*(TH1F*)CFinc);
   CFjetZYAM->Add(CFflowZYAM, -1.0);
-<<<<<<< MakeJFs.C
 
   //delete CFflowZYAM;
   //cout << "testing yield: " << CFjetZYAM->GetBinContent(5) << endl;
-=======
-
->>>>>>> 1.3
 }
 
 void MakeJFs::InitHistos(TH1F* CFflow, string name)
@@ -561,13 +522,8 @@ if(type == 0) ZVTXCENTTR = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_trig_inc")
 else ZVTXCENTTR = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_trig_pi0"));
 TH2D *ZVTXCENTPA = new TH2D(*(TH2D*) finput->Get("h2_ptvscent_part"));
 
-<<<<<<< MakeJFs.C
 TH1F *TRIGGERCENT = new TH1F(*(TH1F*) ZVTXCENTTR->ProjectionY());
 TH1F *PARTNERCENT = new TH1F(*(TH1F*) ZVTXCENTPA->ProjectionY());
-=======
-TH1D *TRIGGERCENT = new TH1D(*(TH1D*) ZVTXCENTTR->ProjectionY());
-TH1D *PARTNERCENT = new TH1D(*(TH1D*) ZVTXCENTPA->ProjectionY());
->>>>>>> 1.3
 
 TRIGGERCENT->Sumw2();
 PARTNERCENT->Sumw2();

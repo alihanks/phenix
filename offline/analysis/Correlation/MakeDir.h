@@ -1,11 +1,7 @@
 #ifndef __MAKEDIR_H__
 #define __MAKEDIR_H__
 
-<<<<<<< MakeDir.h
 #include <MakeWeightedJFs.h>
-=======
-#include <MakeCFs.h>
->>>>>>> 1.2
 #include <TMath.h>
 #include <string>
 #include <sstream>

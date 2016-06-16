@@ -1,8 +1,4 @@
-<<<<<<< MakeDir.C
 #include <MakeDir.h>
-=======
-#include "MakeDir.h"
->>>>>>> 1.2
 
 #include <TFile.h>
 #include <TH1.h>
