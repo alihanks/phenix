@@ -17,6 +17,14 @@ class TCanvas;
 class TLegend;
 class TLatex;
 
+<<<<<<< MakeJFs.h
+=======
+//const double PI = TMath::Pi();
+// const int NCENTBINS = 4;
+// const int NTRIGBINS = 4;
+// const int NPARTBINS = 5;
+
+>>>>>>> 1.2
 class MakeJFs
 {
 public:

@@ -48,14 +48,13 @@ gammajet_exodus/logfiles/*
 offline/CVS/
 offline/AnalysisTrain/CVS/
 offline/AnalysisTrain/Correlation/CVS/
+offline/AnalysisTrain/Correlation/Warnmap/
+offline/AnalysisTrain/Correlation/macros/
+offline/analysis/Correlation/macros/
 offline/analysis/CVS/
 offline/AnalysisTrain/Correlation/inputs/
 offline/AnalysisTrain/combinesimple/inputs/
 offline/AnalysisTrain/combinesimple/hpwrk/
-*.sublime-project
+offline/AnalysisTrain/Correlation/gammah.sublime*
 
-*.sublime-workspace
-
-*.sublime-workspace
-
-phenix.sublime-workspace
+*.sublime*
