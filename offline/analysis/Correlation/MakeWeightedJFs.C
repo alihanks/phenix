@@ -273,8 +273,12 @@ void MakeWeightedJFs::MakeJetFunction(int data_type, int type, TH1F* dphi, TH1F*
 {
 	ostringstream name;
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
-	if(data_type)
-	  SubtractBackground(dphi, correlation, name.str());
+	if(data_type) {
+	  double norm = GetZYAMNorm(dphi);
+	  double bg_norm = GetZyamNorm(dphi_mix);
+	  norm = norm/bg_norm;
+	  SubtractBackground(dphi, dphi_mix, norm, correlation, name.str());
+	}
 	else{
 	  float xi = 0.;
 	  float xierr = 0.;
@@ -301,11 +305,8 @@ void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string
 
 double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
 {
-	dphi->SetAxisRange(0.9,1.4,"X");
-	int bin = dphi->GetMinimumBin();
-	dphi->SetAxisRange(0.0,TMath::Pi(),"X");
-	int lbin = bin-2;//CFinc->FindBin(1.1);
-	int hbin = bin+2;
+	int lbin = dphi->FindBin(0.9);
+	int hbin = dphi->FindBin(1.4);
 	double norm = dphi->Integral(lbin,hbin);
 	norm = norm/((double)(hbin-lbin+1));
 
