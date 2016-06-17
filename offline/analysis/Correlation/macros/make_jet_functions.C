@@ -1,5 +1,6 @@
 // type = 0 for pt bins, 1 for xi, 2 for zt
-void make_jet_function(int type, const char* fin = "dAu_merged.root", const char* fout = "test_corr.root")
+// data_type = 0 for AuAu and = 1 for dAu
+void make_jet_function(int type, int data_type, const char* fin = "dAu_merged.root", const char* fout = "test_corr.root")
 {
   gSystem->Load("libCorrelationPlots.so");
 
@@ -19,7 +20,6 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
     part_bins.push_back(1.22); part_bins.push_back(0.81); part_bins.push_back(0.41); part_bins.push_back(0.0); part_bins.push_back(0.0);
   }
 
-  int isdAu = 1;
   MakeWeightedJFs* jet_functions = new MakeWeightedJFs(fin,fout);
   jet_functions->SetTriggerBinning(trig_bins);
   jet_functions->SetPartnerBinning(part_bins);
@@ -35,7 +35,7 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
   jet_functions->SetTriggerName(trig_name.str());
   jet_functions->SetDphiNames(dphi_name.str(),dphi_mix_name.str());
   jet_functions->SetTypeName("inc");
-  jet_functions->GetHistos(0,isdAu);
+  jet_functions->GetHistos(0,data_type);
 
   trig_name.str(""); dphi_name.str(""); dphi_mix_name.str("");
 	trig_name << "h1_trig_pt_pi0_iso";
@@ -47,7 +47,7 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
   jet_functions->SetTriggerName(trig_name.str());
   jet_functions->SetDphiNames(dphi_name.str(),dphi_mix_name.str());
   jet_functions->SetTypeName("pi0");
-  jet_functions->GetHistos(0,isdAu);
+  jet_functions->GetHistos(0,data_type);
 
   trig_name.str(""); dphi_name.str(""); dphi_mix_name.str("");
 	trig_name << "h1_trig_pt_dec_iso";
@@ -59,7 +59,7 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
   jet_functions->SetTriggerName(trig_name.str());
   jet_functions->SetDphiNames(dphi_name.str(),dphi_mix_name.str());
   jet_functions->SetTypeName("dec");
-  jet_functions->GetHistos(1,isdAu);
+  jet_functions->GetHistos(1,data_type);
 
   cout<<"finish making CFs for type "<<type<<endl;
 }
