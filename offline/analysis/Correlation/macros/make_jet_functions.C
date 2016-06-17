@@ -8,7 +8,7 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
   suffix << "_fold";
 
   vector<double> trig_bins;
-  trig_bins.push_back(5.0); trig_bins.push_back(7.0); trig_bins.push_back(9.0); trig_bins.push_back(12.0); trig_bins.push_back(15.0);
+  trig_bins.push_back(5.1); trig_bins.push_back(7.1); trig_bins.push_back(9.0); trig_bins.push_back(12.0); trig_bins.push_back(15.0);
   vector<double> part_bins;
   if( type == 0 ) {
     part_bins.push_back(0.5); part_bins.push_back(1.0); part_bins.push_back(2.0); part_bins.push_back(3.0);
@@ -19,10 +19,12 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
     part_bins.push_back(1.22); part_bins.push_back(0.81); part_bins.push_back(0.41); part_bins.push_back(0.0); part_bins.push_back(0.0);
   }
 
+  int isdAu = 1;
   MakeWeightedJFs* jet_functions = new MakeWeightedJFs(fin,fout);
   jet_functions->SetTriggerBinning(trig_bins);
   jet_functions->SetPartnerBinning(part_bins);
   jet_functions->XiBinning = type%2;
+  jet_functions->Nmix = 500;
 
   trig_name << "h1_trig_pt_inc_iso";
   if( type == 0 ) dphi_name << "h3_dphi";
@@ -33,7 +35,7 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
   jet_functions->SetTriggerName(trig_name.str());
   jet_functions->SetDphiNames(dphi_name.str(),dphi_mix_name.str());
   jet_functions->SetTypeName("inc");
-  jet_functions->GetHistos(0);
+  jet_functions->GetHistos(0,isdAu);
 
   trig_name.str(""); dphi_name.str(""); dphi_mix_name.str("");
 	trig_name << "h1_trig_pt_pi0_iso";
@@ -45,7 +47,7 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
   jet_functions->SetTriggerName(trig_name.str());
   jet_functions->SetDphiNames(dphi_name.str(),dphi_mix_name.str());
   jet_functions->SetTypeName("pi0");
-  jet_functions->GetHistos(0);
+  jet_functions->GetHistos(0,isdAu);
 
   trig_name.str(""); dphi_name.str(""); dphi_mix_name.str("");
 	trig_name << "h1_trig_pt_dec_iso";
@@ -57,7 +59,7 @@ void make_jet_function(int type, const char* fin = "dAu_merged.root", const char
   jet_functions->SetTriggerName(trig_name.str());
   jet_functions->SetDphiNames(dphi_name.str(),dphi_mix_name.str());
   jet_functions->SetTypeName("dec");
-  jet_functions->GetHistos(1);
+  jet_functions->GetHistos(1,isdAu);
 
   cout<<"finish making CFs for type "<<type<<endl;
 }
