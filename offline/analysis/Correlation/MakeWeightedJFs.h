@@ -40,7 +40,7 @@ public:
 
 private:
 
-	void Get1DOutputHistos(int type, data_type, int cbin);
+	void Get1DOutputHistos(int type, int data_type, int cbin);
 	void GetMergedHistos(int type, int data_type);
 	void MakeDphiFrom3D(TH1F* trigpt, int data_type, int cbin);
 	void MakeDphiFrom2D(TH1F* trigpt, int data_type, int cbin);
