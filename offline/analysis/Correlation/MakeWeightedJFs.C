@@ -285,7 +285,6 @@ void MakeWeightedJFs::MakeJetFunction(int data_type, int type, TH1F* dphi, TH1F*
 	if(!type) GetCutOffCorr(it);
 	correlation->Scale(1.0/cutoffcorr);
 	float binwidth = correlation->GetBinWidth(1);
-	cout << "binwidth = " << binwidth << endl;
 	correlation->Scale(1/binwidth);
 	correlation->Scale(1/ntrigs);
 }
@@ -302,7 +301,7 @@ void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string
 
 double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
 {
-	dphi->SetAxisRange(1.0,1.6,"X");
+	dphi->SetAxisRange(0.9,1.4,"X");
 	int bin = dphi->GetMinimumBin();
 	dphi->SetAxisRange(0.0,TMath::Pi(),"X");
 	int lbin = bin-2;//CFinc->FindBin(1.1);
