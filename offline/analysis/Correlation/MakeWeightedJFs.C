@@ -9,6 +9,7 @@
 #include <TLegend.h>
 #include <TLatex.h>
 #include <TVirtualPad.h>
+#include <TGraphErrors.h>
 
 using namespace std;
 
@@ -29,7 +30,7 @@ void MakeWeightedJFs::GetHistos(int type)
 	GetMergedHistos(type);
 }
 
-void MakeWeightedJFs::Get1DOutputHistos(int type, int cbin)
+void MakeWeightedJFs::Get1DOutputHistos(int type, int cbin)//0-inc,pi0; 1-dec
 {
 	ostringstream bin;
 	string name, mix_name;
@@ -172,9 +173,11 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 			MakeDphiProjection(temp3D,dphi_1d[cbin][it][ih],trig_pt[it], trig_pt[it+1], part_pt[ih], part_pt[ih+1],name);
 			MakeDphiProjection(temp3D_mix, dphi_1d_mix[cbin][it][ih], trig_pt[it], trig_pt[it+1], part_pt[ih], part_pt[ih+1], name_mix);
 			dphi_1d[cbin][it][ih]->Write();
+			dphi_1d_mix[cbin][it][ih]->Scale(1.0/Nmix);
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
+			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
+			outfile->cd();
 			corr[cbin][it][ih]->Write();
 		}
 	}
@@ -214,9 +217,11 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 			Make2DDphiProjection(temp2D,dphi_1d[cbin][it][ih], part_pt[ih], part_pt[ih+1],name);
 			Make2DDphiProjection(temp2D_mix,dphi_1d_mix[cbin][it][ih], part_pt[ih], part_pt[ih+1],name_mix);
 			dphi_1d[cbin][it][ih]->Write();
+			dphi_1d_mix[cbin][it][ih]->Scale(1.0/Nmix);
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(dphi_1d[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
+			MakeJetFunction(isdAu, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
+			outfile->cd();
 			corr[cbin][it][ih]->Write();
 		}
 	}
@@ -265,11 +270,24 @@ void MakeWeightedJFs::Make2DDphiProjection(TH2F* h3, TH1F*& h1,double ymin, doub
 	h1->SetName(hname.c_str());
 }
 
-void MakeWeightedJFs::MakeJetFunction(TH1F* dphi, TH1F*& correlation, double ntrigs, int it, int ih, int cbin)
+void MakeWeightedJFs::MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin)
 {
 	ostringstream name;
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
-	SubtractBackground(dphi, correlation, name.str());
+	if(isdAu)
+	  SubtractBackground(dphi, correlation, name.str());
+	else{
+	  float xi = 0.;
+	  float xierr = 0.;
+	  GetXi(type, it, ih, cbin, xi, xierr);
+	  SubtractBackground(dphi, dphi_mix, xi, correlation, name.str());
+	}
+	float cutoffcorr = 1.;
+	if(!type) GetCutOffCorr(it);
+	correlation->Scale(1.0/cutoffcorr);
+	float binwidth = correlation->GetBinWidth(1);
+	cout << "binwidth = " << binwidth << endl;
+	correlation->Scale(1/binwidth);
 	correlation->Scale(1/ntrigs);
 }
 
@@ -295,3 +313,49 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
 
 	return norm;
 }
+
+//for AuAu, use absolute normalization to determine bg level
+ void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F* background, float norm, TH1F*& signal, string name)
+{
+  signal = new TH1F(*foreground);
+  signal->SetName(name.c_str());
+  signal->Add(background, -1.0*norm);
+}
+
+void MakeWeightedJFs::GetXi(int type, int trigptbin, int partptbin, int centbin, float & xi, float & xierr)
+{
+  cout<<" get xi correction "<<endl;
+
+  char xifilename[1000];
+  //testing what is used in filltime method
+  if(trigptbin>3){
+    if (!type) sprintf(xifilename,"/direct/phenix+u/workarea/mjuszkie/run7_QM09/my_xi/xi_corr_inc_%i_5.root",trigptbin-1);
+    else sprintf(xifilename,"/direct/phenix+u/workarea/mjuszkie/run7_QM09/my_xi/xi_corr_pi0_%i_5.root",trigptbin-1);
+  }
+  else{
+    if (!type) sprintf(xifilename,"/direct/phenix+u/workarea/mjuszkie/run7_QM09/my_xi/xi_corr_pi0_%i_5.root",trigptbin);
+    else sprintf(xifilename,"/direct/phenix+u/workarea/mjuszkie/run7_QM09/my_xi/xi_corr_pi0_%i_5.root",trigptbin);
+  }
+
+  cout << "xi file: " << xifilename <<endl;
+  TFile *fxicorr;
+  fxicorr=new TFile(xifilename);
+
+  TGraphErrors *gxicorr=(TGraphErrors*)fxicorr->Get("XICORRLARGEBIN");
+
+  double xivalue, dum;
+  gxicorr->GetPoint(centbin,dum,xivalue);
+
+  xi = xivalue;
+  if(xi==0) cout << "warning xi equals zero!!!!!" <<endl;
+  xierr = gxicorr->GetErrorY(centbin)/xi;
+
+  cout << "XXXXXXXXXXXXXXXXXXXXX xi corr is    ====>"  << xi  <<  "<==== " << xierr << endl;
+}
+
+float MakeWeightedJFs::GetCutOffCorr(int trig_bin)//values from view_xi_dir_filltime.C
+{
+  float cutoff_corr[4]={0.99964,0.997983,0.98095,0.961687};
+  return cutoff_corr[trig_bin];
+}
+
