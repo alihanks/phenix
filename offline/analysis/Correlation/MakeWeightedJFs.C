@@ -275,7 +275,7 @@ void MakeWeightedJFs::MakeJetFunction(int data_type, int type, TH1F* dphi, TH1F*
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
 	if(data_type) {
 	  double norm = GetZYAMNorm(dphi);
-	  double bg_norm = GetZyamNorm(dphi_mix);
+	  double bg_norm = GetZYAMNorm(dphi_mix);
 	  norm = norm/bg_norm;
 	  SubtractBackground(dphi, dphi_mix, norm, correlation, name.str());
 	}
