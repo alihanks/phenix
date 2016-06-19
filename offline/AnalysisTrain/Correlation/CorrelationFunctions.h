@@ -68,7 +68,10 @@ template<class T> void SetIso(T* trigger,
     float pt1 = all_clus_vec[iclus]->E();
     if ( pt1 < 0.2 ) continue;
     float dR = all_clus_vec[iclus]->DeltaR(*(TLorentzVector*)trigger);
-    float dphi = CalculateFoldedDphi(all_clus_vec[iclus]->Phi(), phi);
+    float aeta = all_clus_vec[iclus]->Eta();
+    float deta = eta - aeta;
+    float dphi = PHAngle(all_clus_vec[iclus]->Phi() - phi);
+    dR = sqrt(dphi*dphi + deta*deta);
     // if ( dR < 0.0001 ) continue;
 
     if ( dR < Rcut ) etot += pt1;
@@ -85,7 +88,7 @@ template<class T> void SetIso(T* trigger,
     float dR = lessqualtrk_vec[itrk]->DeltaR(*(TLorentzVector*)trigger);
     float aeta = lessqualtrk_vec[itrk]->Eta();
     float deta = eta - aeta;
-    float dphi = CalculateFoldedDphi(lessqualtrk_vec[itrk]->Phi(), phi);
+    float dphi = PHAngle(lessqualtrk_vec[itrk]->Phi() - phi);
     dR = sqrt(dphi*dphi + deta*deta);
 
     if ( dR < Rcut ) etot += pt1;
