@@ -2342,11 +2342,12 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   for(unsigned int ipw=0;ipw<hdphi.size();ipw++){
     int tbin = ipw;
     if(ipw>3) tbin = ipw - 1;
+    float seffcorr = GetHadronEfficiencyCorr(partpt);
     filltimeflow = GetFilltimeWeight(type,dphi,partpt,pbin,tbin);
     filltimeflowxi = GetFilltimeWeightXi(type,dphi,partpt,xbin,tbin);
     if(weight[ipw]>0) {
       //cout << "weight["<< ipw << "] = " << weight[ipw] << endl;
-      hdphi[ipw]->Fill(dphi,partpt,weight[ipw]*filltimeflow);
+      hdphi[ipw]->Fill(dphi,partpt,weight[ipw]*seffcorr);
       if( hdphi_fold.size()>ipw ){
         hdphi_fold[ipw]->Fill(dphifold,partpt,weight[ipw]*filltimeflow);
       }
