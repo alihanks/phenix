@@ -175,7 +175,7 @@ public:
         if (verbosity > 3) std::cout<<"Correlation::MakePairs - " << type << " - deltaphi = "<< deltaphi << ", deltaphiFold = " << dphifold << std::endl;
         if(dphifold<0||dphifold>PI) std::cout<<" dphifold out of bounds "<<std::endl;
         
-        float seffcorr = GetHadronEfficiencyCorr(partpt);
+        float seffcorr = GetHadronEfficiencyCorr(assoc_pt);
         if( h3dphi ) h3dphi->Fill(trig_pt, assoc_pt, deltaphi, seffcorr);
         
         float zt = assoc_pt/trig_pt;
