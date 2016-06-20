@@ -830,9 +830,6 @@ int Correlation::process_event(PHCompositeNode* topNode)
   else fieldPolarity = -1.0;
 
   // For looking at triggered data
-  TriggerHelper trig_help(topNode);
-  int fire_4x4c_bbc = trig_help.trigScaled("ERTLL1_4x4c&BBCLL1");
-  if( verbosity > 2 ) cout << "Checked trigger bit for 4x4c - " << fire_4x4c_bbc << endl;
   ErtOut* ertout = findNode::getClass<ErtOut>(topNode, "ErtOut");
   const int trigmode_4x4b = 1; // see $OFFLINE_MAIN/include/ErtOutv1.h
 
@@ -888,8 +885,13 @@ int Correlation::process_event(PHCompositeNode* topNode)
       int ert_sm = (acluster.GetArm()==1&&acluster.GetSec()<2) ? acluster.GetIypos()/12*8 + acluster.GetIzpos()/12 : acluster.GetIypos()/12*6 + acluster.GetIzpos()/12;
       if( verbosity > 1 ) cout << "Photon in SM " << ert_sm << endl;
       int sm_fired = 0;
-      if( ertout ) sm_fired = ertout->get_ERTbit(trigmode_4x4b, acluster.GetArm(), acluster.GetSec(), ert_sm);
-      if( (armsect==2 && ert_sm==17) || (armsect==3 && (ert_sm==4||ert_sm==10||ert_sm==15||ert_sm==16)) || (armsect==4 && ert_sm==30) || (armsect==7 && ert_sm==15) ) sm_fired = 0;
+      // set trigger bit if fired ERT4x4 a,b, or c
+      if( ertout ) 
+        if( ertout->get_ERTbit(0, acluster.GetArm(), acluster.GetSec(), ert_sm) ||
+            ertout->get_ERTbit(1, acluster.GetArm(), acluster.GetSec(), ert_sm) )
+          //  ertout->get_ERTbit(2, acluster.GetArm(), acluster.GetSec(), ert_sm) ) 
+          sm_fired = 1;
+      //if( (armsect==2 && ert_sm==17) || (armsect==3 && (ert_sm==4||ert_sm==10||ert_sm==15||ert_sm==16)) || (armsect==4 && ert_sm==30) || (armsect==7 && ert_sm==15) ) sm_fired = 0;
       if( sm_fired ) {
         acluster.SetTrigger(true);
         if( verbosity > 3 ) cout << "Photon in sector " << armsect << ", SM " << ert_sm << " fired ERT trigger!" << endl;
