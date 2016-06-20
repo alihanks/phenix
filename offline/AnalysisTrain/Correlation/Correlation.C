@@ -2365,19 +2365,19 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
       float sumtrigweight = 0.0;
       int ipi0zemc = GetPi0ZEMCBin(pizero);
       for(int ixidecbin=0; ixidecbin<nXibins; ixidecbin++){
-	//cout << "ixidecbin = " << ixidecbin << endl;
-	sumtrigweight += GetDecayXiWeights(hdphixi[ipw],tbin,ixidecbin,ipi0zemc,trigpt,partpt);
+      	//cout << "ixidecbin = " << ixidecbin << endl;
+      	sumtrigweight += GetDecayXiWeights(hdphixi[ipw],tbin,ixidecbin,ipi0zemc,trigpt,partpt);
       }
       //cout << "sumtrigweight = " << sumtrigweight << endl;
 
       float fineweightave = 0.0;
       for(int ixidecbin=0; ixidecbin<nXibins; ixidecbin++){
-	fineweightave = GetDecayXiWeights(hdphixi[ipw],tbin,ixidecbin,ipi0zemc,trigpt,partpt);
-	if(sumtrigweight>0) fineweightave *= weight[ipw]/sumtrigweight;
+      	fineweightave = GetDecayXiWeights(hdphixi[ipw],tbin,ixidecbin,ipi0zemc,trigpt,partpt);
+      	if(sumtrigweight>0) fineweightave *= weight[ipw]/sumtrigweight;
 		
-	//cout << "fineweightave*filltimeflowxi = " << fineweightave*filltimeflowxi << endl;
-	hdphixi[ipw]->Fill(dphi,xi,fineweightave*seffcorr);
-	hdphixi_fold[ipw]->Fill(dphifold,xi,fineweightave*filltimeflowxi);
+      	//cout << "fineweightave*filltimeflowxi = " << fineweightave*filltimeflowxi << endl;
+      	hdphixi[ipw]->Fill(dphi,xi,fineweightave*seffcorr);
+      	hdphixi_fold[ipw]->Fill(dphifold,xi,fineweightave*filltimeflowxi);
       }
     }
   }

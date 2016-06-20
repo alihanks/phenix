@@ -175,8 +175,11 @@ public:
         if (verbosity > 3) std::cout<<"Correlation::MakePairs - " << type << " - deltaphi = "<< deltaphi << ", deltaphiFold = " << dphifold << std::endl;
         if(dphifold<0||dphifold>PI) std::cout<<" dphifold out of bounds "<<std::endl;
         
+        // Fill acceptance histograms with efficiency correction weighting
         float seffcorr = GetHadronEfficiencyCorr(assoc_pt);
         if( h3dphi ) h3dphi->Fill(trig_pt, assoc_pt, deltaphi, seffcorr);
+        if( h3ptxidphi ) h3ptxidphi->Fill(trig_pt, xi, deltaphi, seffcorr);
+        if( h3ptztdphi ) h3ptztdphi->Fill(trig_pt, zt, deltaphi, seffcorr);
         
         float zt = assoc_pt/trig_pt;
         float xi = log(1.0/zt);
@@ -194,12 +197,6 @@ public:
         
         if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
         
-        if( h3ptxidphi ) {
-          h3ptxidphi->Fill(trig_pt, xi, deltaphi, filltimeflowxi);
-        }
-        if( h3ptztdphi ) {
-          h3ptztdphi->Fill(trig_pt, zt, deltaphi, filltimeflow);
-        }
         if( h3ptxidphi_fold ) {
           h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeflowxi);
           if( verbosity > 1 ) std::cout<<"h3ptxidphi_fold filled."<<std::endl;
@@ -219,17 +216,17 @@ public:
           if( h2partptxi ) h2partptxi->Fill(assoc_pt,xi);
         }
         if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
-	//******************************************
+      	//******************************************
         //*  Make decay photon-h pairs             *
         //******************************************
         if(type==REALPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making real decay pairs" << std::endl;
-	  MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+        	  MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
 	
         if(type==MIXPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making mixed decay pairs" << std::endl;
-	  MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+        	  MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
       }
       if( type==MIX && DiagFlag ) {
