@@ -175,15 +175,15 @@ public:
         if (verbosity > 3) std::cout<<"Correlation::MakePairs - " << type << " - deltaphi = "<< deltaphi << ", deltaphiFold = " << dphifold << std::endl;
         if(dphifold<0||dphifold>PI) std::cout<<" dphifold out of bounds "<<std::endl;
         
+        float zt = assoc_pt/trig_pt;
+        float xi = log(1.0/zt);
+
         // Fill acceptance histograms with efficiency correction weighting
         float seffcorr = GetHadronEfficiencyCorr(assoc_pt);
         if( h3dphi ) h3dphi->Fill(trig_pt, assoc_pt, deltaphi, seffcorr);
         if( h3ptxidphi ) h3ptxidphi->Fill(trig_pt, xi, deltaphi, seffcorr);
         if( h3ptztdphi ) h3ptztdphi->Fill(trig_pt, zt, deltaphi, seffcorr);
         
-        float zt = assoc_pt/trig_pt;
-        float xi = log(1.0/zt);
-
         float filltimeflow = 1.;
         float filltimeflowxi = 1.;
         
