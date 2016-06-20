@@ -31,8 +31,6 @@
 // #include <ConversionVeto.h>
 #include <RunHeader.h>
 #include <EventHeader.h>
-#include <TriggerHelper.h>
-#include <TrigLvl1.h>
 #include <ErtOut.h>
 
 #include <TOAD.h>
@@ -831,7 +829,6 @@ int Correlation::process_event(PHCompositeNode* topNode)
 
   // For looking at triggered data
   ErtOut* ertout = findNode::getClass<ErtOut>(topNode, "ErtOut");
-  const int trigmode_4x4b = 1; // see $OFFLINE_MAIN/include/ErtOutv1.h
 
   AEvent aevent;
   MakeEventObject(global, &aevent);
