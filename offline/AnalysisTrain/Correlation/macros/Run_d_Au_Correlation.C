@@ -22,7 +22,7 @@ void Run_d_Au_Correlation(const char* outFile = "test.root")
   co->SetWarnmaps(warnmaps,map_cuts);
   co->SetZVertexCut(30.0);
   co->Rcut = 0.4;
-  co->econe_min[0] = 0.56; co->econe_min[1] = 0.46; co->econe_min[2] = 0.39; co->econe_min[3] = 0.32;
+  co->econe_min[0] = 0.45; co->econe_min[1] = 0.33; co->econe_min[2] = 0.24; co->econe_min[3] = 0.15;
 
   Fun4AllServer *se = Fun4AllServer::instance();
 
