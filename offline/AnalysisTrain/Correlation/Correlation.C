@@ -910,7 +910,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
     all_clus_vector.push_back(acluster.clone());
   }
   if( verbosity > 2 ) cout << "Found " << all_clus_vector.size() << " raw clusters" << endl;
-  
+
   //******************************************************
   //*   Select decay photon sample and construct pi0s.   *
   //******************************************************
@@ -1087,7 +1087,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
   //****************************************  
   //MakePairs(pi0_vector,trk_vector,REALPI,data_set,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec[cbin],h2_dphizt_dec_fold[cbin]);
   MakePairs(pi0_vector,trk_vector,REALPI,data_set,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec[cbin],h2_dphizt_dec_fold[cbin],NULL,NULL,h2_dphi_pi0,h2_dphi_xi_pi0,h2_dphi_accw_pi0,h2_dphi_accw_xi_pi0,h3_dphi_accw_pi0,h3_dphi_accw_xi_pi0,h2_partpt_xi_pi0);
-  
+ 
   atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());
   if( data_set == Run8dAu ) {
     AddMBEvent(data_set);
@@ -2240,7 +2240,7 @@ float Correlation::FindTrackDistance(ACluster* clus, ATrack* trk)
 void Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, vector<float>& mwweight)
 {
   float pi0trigpt = pi0trigger->Pt();
-  float pi0trigpz = pi0trigger->Pz();
+  //  float pi0trigpz = pi0trigger->Pz();
   
   float pi0trigeff = 0.;
   if(cbin == 0) pi0trigeff = grpi0eff_0->Eval(pi0trigpt); 
@@ -2251,13 +2251,14 @@ void Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, v
   int trigptbin = hshark_large[0][0]->FindBin(pi0trigpt);
   if(trigptbin>400) trigptbin=400;
   
-  float pi0zemc = 510.0*pi0trigpz/pi0trigpt+zvertex;
-  int ipi0zemc = (int)TMath::Floor((pi0zemc+165.0)/10.);
-  if(ipi0zemc<0||ipi0zemc>32){
-    if(verbosity > 2) cout<<" zemc out of range "<<pi0zemc<<" bin = "<<ipi0zemc<<endl;
-  }
-  if(ipi0zemc<0)ipi0zemc=0;
-  if(ipi0zemc>32)ipi0zemc=32; 
+  int ipi0zemc = GetPi0ZEMCBin(pi0trigger);
+  // float pi0zemc = 510.0*pi0trigpz/pi0trigpt+zvertex;
+  // int ipi0zemc = (int)TMath::Floor((pi0zemc+165.0)/10.);
+  // if(ipi0zemc<0||ipi0zemc>32){
+  //   if(verbosity > 2) cout<<" zemc out of range "<<pi0zemc<<" bin = "<<ipi0zemc<<endl;
+  // }
+  // if(ipi0zemc<0)ipi0zemc=0;
+  // if(ipi0zemc>32)ipi0zemc=32; 
   
   for(int idecl=0;idecl<5;idecl++){
     
@@ -2322,7 +2323,7 @@ float Correlation::GetFilltimeWeightXi(PairType type, float dphi, float partpt, 
   return filltimeflow;
 }
 
-void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight,
+void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float partpt, float trigpt, APiZero* pizero, std::vector<float> weight,
                              std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, 
                              std::vector<TH2F*> hdphixi, std::vector<TH2F*> hdphixi_fold,
                              std::vector<TH2F*> hdphizt, std::vector<TH2F*> hdphizt_fold)                     
@@ -2338,10 +2339,11 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
   int xbin = GetXiBin(xi);
   float filltimeflow = 1.0;
   float filltimeflowxi = 1.0;
- 
+
   for(unsigned int ipw=0;ipw<hdphi.size();ipw++){
     int tbin = ipw;
-    if(ipw>3) tbin = ipw - 1;
+    if(ipw == 3) continue;
+    if(ipw > 3) tbin = ipw - 1;
     float seffcorr = GetHadronEfficiencyCorr(partpt);
     filltimeflow = GetFilltimeWeight(type,dphi,partpt,pbin,tbin);
     filltimeflowxi = GetFilltimeWeightXi(type,dphi,partpt,xbin,tbin);
@@ -2351,43 +2353,34 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
       if( hdphi_fold.size()>ipw ){
         hdphi_fold[ipw]->Fill(dphifold,partpt,weight[ipw]*filltimeflow);
       }
-      if( hdphixi.size()>ipw ){
-        hdphixi[ipw]->Fill(dphi,xi,weight[ipw]*filltimeflowxi);
-      }
       if( hdphizt.size()>ipw ){
         hdphizt[ipw]->Fill(dphi,zt,weight[ipw]*filltimeflow);
-      }
-      if( hdphixi_fold.size()>ipw ){
-        hdphixi_fold[ipw]->Fill(dphifold,xi,weight[ipw]*filltimeflowxi);
       }
       if( hdphizt_fold.size()>ipw ){
         hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeflow);
       }
+
+      int nXibins = hdphixi[ipw]->GetNbinsY();
+      //cout << "nXibins = " << nXibins << endl;
+      float sumtrigweight = 0.0;
+      int ipi0zemc = GetPi0ZEMCBin(pizero);
+      for(int ixidecbin=0; ixidecbin<nXibins; ixidecbin++){
+	//cout << "ixidecbin = " << ixidecbin << endl;
+	sumtrigweight += GetDecayXiWeights(hdphixi[ipw],tbin,ixidecbin,ipi0zemc,trigpt,partpt);
+      }
+      //cout << "sumtrigweight = " << sumtrigweight << endl;
+
+      float fineweightave = 0.0;
+      for(int ixidecbin=0; ixidecbin<nXibins; ixidecbin++){
+	fineweightave = GetDecayXiWeights(hdphixi[ipw],tbin,ixidecbin,ipi0zemc,trigpt,partpt);
+	if(sumtrigweight>0) fineweightave *= weight[ipw]/sumtrigweight;
+		
+	//cout << "fineweightave*filltimeflowxi = " << fineweightave*filltimeflowxi << endl;
+	hdphixi[ipw]->Fill(dphi,xi,fineweightave*seffcorr);
+	hdphixi_fold[ipw]->Fill(dphifold,xi,fineweightave*filltimeflowxi);
+      }
     }
   }
-  // Using correct weighting for dAu pass - 2016-06-03
-  /*
-  int tbin = GetPtBin(trigpt,1);
-  // cout <<"MakeDecays: tbin = " << tbin << endl;
-  if(tbin < 0) return;
-  int ipw = 0;
-  if(tbin < 3) ipw = tbin;
-  else ipw = tbin+1;
-  //cout << "ipw = " << ipw << endl; 
-  hdphi[ipw]->Fill(dphi,partpt,filltimeflow);
-  hdphi_fold[ipw]->Fill(dphifold,partpt,filltimeflow);
-  hdphixi[ipw]->Fill(dphi,xi,filltimeflow);
-  hdphizt[ipw]->Fill(dphi,zt,filltimeflow);
-  hdphixi_fold[ipw]->Fill(dphifold,xi,filltimeflow);
-  hdphizt_fold[ipw]->Fill(dphifold,zt,filltimeflow);
-
-  hdphi[3]->Fill(dphi,partpt,filltimeflow);
-  hdphi_fold[3]->Fill(dphifold,partpt,filltimeflow);
-  hdphixi[3]->Fill(dphi,xi,filltimeflow);
-  hdphizt[3]->Fill(dphi,zt,filltimeflow);
-  hdphixi_fold[3]->Fill(dphifold,xi,filltimeflow);
-  hdphizt_fold[3]->Fill(dphifold,zt,filltimeflow);
-  */
 }
 
 void Correlation::SetHadronEfficiency(const char* filename)
@@ -2563,6 +2556,8 @@ void Correlation::SetSharkFin(const char* filename)
   
   for(int izemc=0;izemc<33;izemc++){
     char sharkname[100];
+    sprintf(sharkname,"PTpi_PTgam_%d",izemc);
+    ptpivsptgam[izemc]=(TH2D*)fshark_exodus->Get(sharkname);
     
     for(int idecl=0;idecl<5;idecl++){
       sprintf(sharkname,"hshark_large_%d_%d",idecl,izemc);
@@ -3054,4 +3049,56 @@ int Correlation::CheckPool(int nenpart, int j, int pooldepth, int size, int& nlo
     }
   }
   return j;
+}
+
+float Correlation::GetDecayXiWeights(TH2F* hdphixi, int itdec, int ixibin, int ipi0zemc, float trigpt, float partpt)//to get weights in xi-binned histograms for decays
+{
+  //cout << "In GetDecayXiWeights: " << endl;
+  float decxibw = hdphixi->GetBinWidth(1);
+  //cout << "decxibw = " << decxibw << endl;
+
+  int trigbinbounds[5] = {5, 7, 9, 12, 15};
+
+  float fineweightave=0.;
+
+  float xidec = hdphixi->GetYaxis()->GetBinCenter(ixibin+1);
+  float xideclo = xidec - decxibw/2.;
+  float xidechi = xidec + decxibw/2.;
+  //cout << "xideclo = " << xideclo << "; xidechi = " << xidechi << endl;
+
+  float ptdeclo = fabs(partpt*exp(xideclo));
+  float ptdechi = fabs(partpt*exp(xidechi));
+  //cout << "ptdeclo = " << ptdeclo << "; ptdechi = " << ptdechi << endl;
+
+  if(ptdechi < trigbinbounds[itdec] || ptdeclo > trigbinbounds[itdec+1]) {/*cout << "outside trigbinbounds!" << endl; */return 0.0;}
+  if(ptdeclo < trigbinbounds[itdec]) ptdeclo = trigbinbounds[itdec];
+  if(ptdechi > trigbinbounds[itdec+1]) ptdechi = trigbinbounds[itdec+1];
+  
+  int ipdecbinlo = ptpivsptgam[ipi0zemc]->GetYaxis()->FindBin(ptdeclo);       
+  int ipdecbinhi = ptpivsptgam[ipi0zemc]->GetYaxis()->FindBin(ptdechi);       
+  //cout << "ipdecbinlo = " << ipdecbinlo << "; ipdecbinhi = " << ipdecbinhi << endl;
+
+  int trigptbin_shark = hshark_large[0][0]->FindBin(trigpt);
+  for(int idecbin=ipdecbinlo;idecbin<ipdecbinhi;idecbin++)
+    fineweightave+=ptpivsptgam[ipi0zemc]->GetBinContent(trigptbin_shark,idecbin);
+  
+  //take into account the phase space for decay
+  fineweightave*=(ptdechi-ptdeclo);
+  //cout << "in GetDecayXiWeights: fineweightave = " << fineweightave << endl;
+  return fineweightave;
+}
+
+int Correlation::GetPi0ZEMCBin(APiZero* pizero)
+{
+  float pt = pizero->Pt();
+  float pz = pizero->Pz();
+  float zvertex = pizero->GetZvtx();
+
+  float pi0zemc = 510.0*pz/pt+zvertex;
+  int ipi0zemc = (int)TMath::Floor((pi0zemc+165.0)/10.);
+
+  if(ipi0zemc<0)ipi0zemc=0;
+  if(ipi0zemc>32)ipi0zemc=32; 
+
+  return ipi0zemc;   
 }

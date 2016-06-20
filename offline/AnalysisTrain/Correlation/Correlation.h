@@ -184,14 +184,14 @@ public:
         float filltimeflow = 1.;
         float filltimeflowxi = 1.;
         
-      	if( dofilltime ){
-      	  int tbin = GetPtBin(trig_pt, 1);
-      	  int pbin = GetPtBin(assoc_pt, 0);
-      	  int xbin = GetXiBin(xi);
+        if( dofilltime ){
+          int tbin = GetPtBin(trig_pt, 1);
+          int pbin = GetPtBin(assoc_pt, 0);
+          int xbin = GetXiBin(xi);
           filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin);
-      	  filltimeflowxi = GetFilltimeWeightXi(type,deltaphi,assoc_pt,xbin,tbin);
+          filltimeflowxi = GetFilltimeWeightXi(type,deltaphi,assoc_pt,xbin,tbin);
         }
-	
+        
         if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
         
         if( h3ptxidphi ) {
@@ -219,17 +219,17 @@ public:
           if( h2partptxi ) h2partptxi->Fill(assoc_pt,xi);
         }
         if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
-
-      	//******************************************
+	//******************************************
         //*  Make decay photon-h pairs             *
         //******************************************
         if(type==REALPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making real decay pairs" << std::endl;
-          MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+	  MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
-      	if(type==MIXPI ) {
+	
+        if(type==MIXPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making mixed decay pairs" << std::endl;
-          MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+	  MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
       }
       if( type==MIX && DiagFlag ) {
@@ -279,11 +279,13 @@ private:
   int GetPtBin(float pt, int istrig);
   int GetCentBin(int centbin);
   int GetXiBin(float xi);
+  int GetPi0ZEMCBin(APiZero* pizero);
   float FindTrackDistance(ACluster* clus, ATrack* trk);
   void EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, std::vector<float>& mwweight);
   
-  void MakeDecays(PairType type, float dphi, float dphifold, float partpt, float trigpt, std::vector<float> weight, std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi, std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt, std::vector<TH2F*> hdphizt_fold);
-  
+  void MakeDecays(PairType type, float dphi, float dphifold, float partpt, float trigpt, APiZero* pi0, std::vector<float> weight, std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi, std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt, std::vector<TH2F*> hdphizt_fold);
+  float GetDecayXiWeights(TH2F* hdphixi, int itdec, int ixibin, int ipi0zemc, float trigpt, float partpt);
+
   void AddMBEvent(DataSet data_set);
   
   void InitHistos();
@@ -554,6 +556,7 @@ private:
   std::vector<TH3F*> h3_mintrackdist_fg;
   std::vector<TH3F*> h3_mintrackdist_bg;
   TH1D* hshark_large[5][33];
+  TH2D* ptpivsptgam[33];
  
   std::vector<std::vector<TH2F*> > h2_dphi_dec;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_fold;
