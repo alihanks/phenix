@@ -170,7 +170,7 @@ public:
           if( h2paircut_af ) h2paircut_af->Fill(itrigpt,ipartpt);
         }
         
-        float deltaphi = PHAngle(trig_phi-assoc_phi);//-050815
+        float deltaphi = CalculateDphi(trig_phi,assoc_phi);//-050815
         float dphifold = CalculateFoldedDphi(assoc_phi,trig_phi);
         if (verbosity > 3) std::cout<<"Correlation::MakePairs - " << type << " - deltaphi = "<< deltaphi << ", deltaphiFold = " << dphifold << std::endl;
         if(dphifold<0||dphifold>PI) std::cout<<" dphifold out of bounds "<<std::endl;
