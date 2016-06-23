@@ -2352,13 +2352,13 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
       if( hdphi_fold.size()>ipw ){
         hdphi_fold[ipw]->Fill(dphifold,partpt,weight[ipw]*filltimeflow);
       }
-      if( hdphizt.size()>ipw ){
-        hdphizt[ipw]->Fill(dphi,zt,weight[ipw]*filltimeflow);
+      if( hdphizt.size()>ipw ){		
+      	hdphizt[ipw]->Fill(dphi,zt,weight[ipw]*filltimeflow);		
+      }		
+      if( hdphizt_fold.size()>ipw ){		
+      	hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeflow);		
       }
-      if( hdphizt_fold.size()>ipw ){
-        hdphizt_fold[ipw]->Fill(dphifold,zt,weight[ipw]*filltimeflow);
-      }
-
+      //getting weights for xi-binned histograms
       int nXibins = hdphixi[ipw]->GetNbinsY();
       //cout << "nXibins = " << nXibins << endl;
       float sumtrigweight = 0.0;
@@ -2375,9 +2375,31 @@ void Correlation::MakeDecays(PairType type, float dphi, float dphifold, float pa
       	if(sumtrigweight>0) fineweightave *= weight[ipw]/sumtrigweight;
 		
       	//cout << "fineweightave*filltimeflowxi = " << fineweightave*filltimeflowxi << endl;
-      	hdphixi[ipw]->Fill(dphi,xi,fineweightave*seffcorr);
-      	hdphixi_fold[ipw]->Fill(dphifold,xi,fineweightave*filltimeflowxi);
+      	if (hdphixi.size()>ipw) hdphixi[ipw]->Fill(dphi,xi,fineweightave*seffcorr);
+      	if (hdphixi_fold.size()>ipw) hdphixi_fold[ipw]->Fill(dphifold,xi,fineweightave*filltimeflowxi);
       }
+      /*
+      //getting weights for zt-binned histograms
+      int nZtbins = hdphizt[ipw]->GetNbinsY();
+      cout << "nZtbins = " << nZtbins << endl;
+      sumtrigweight = 0.0;
+      
+      for(int iztdecbin=0; iztdecbin<nZtbins; iztdecbin++){
+      	cout << "iztdecbin = " << iztdecbin << endl;
+      	sumtrigweight += GetDecayXiWeights(0,hdphizt[ipw],tbin,iztdecbin,ipi0zemc,trigpt,partpt);
+      }
+      //cout << "sumtrigweight = " << sumtrigweight << endl;
+
+      fineweightave = 0.0;
+      for(int iztdecbin=0; iztdecbin<nZtbins; iztdecbin++){
+      	fineweightave = GetDecayXiWeights(0,hdphizt[ipw],tbin,iztdecbin,ipi0zemc,trigpt,partpt);
+      	if(sumtrigweight>0) fineweightave *= weight[ipw]/sumtrigweight;
+		
+      	//cout << "fineweightave*filltimeflowxi = " << fineweightave*filltimeflowxi << endl;
+      	if (hdphizt.size()>ipw) hdphizt[ipw]->Fill(dphi,zt,fineweightave*seffcorr);
+      	if (hdphizt_fold.size()>ipw) hdphizt_fold[ipw]->Fill(dphifold,zt,fineweightave*filltimeflowxi);
+      }
+*/
     }
   }
 }
@@ -3053,7 +3075,7 @@ int Correlation::CheckPool(int nenpart, int j, int pooldepth, int size, int& nlo
 float Correlation::GetDecayXiWeights(TH2F* hdphixi, int itdec, int ixibin, int ipi0zemc, float trigpt, float partpt)//to get weights in xi-binned histograms for decays
 {
   //cout << "In GetDecayXiWeights: " << endl;
-  float decxibw = hdphixi->GetBinWidth(1);
+  float decxibw = hdphixi->GetYaxis()->GetBinWidth(1);
   //cout << "decxibw = " << decxibw << endl;
 
   int trigbinbounds[5] = {5, 7, 9, 12, 15};
@@ -3067,9 +3089,9 @@ float Correlation::GetDecayXiWeights(TH2F* hdphixi, int itdec, int ixibin, int i
 
   float ptdeclo = fabs(partpt*exp(xideclo));
   float ptdechi = fabs(partpt*exp(xidechi));
-  //cout << "ptdeclo = " << ptdeclo << "; ptdechi = " << ptdechi << endl;
+  // cout << "ptdeclo = " << ptdeclo << "; ptdechi = " << ptdechi << endl;
 
-  if(ptdechi < trigbinbounds[itdec] || ptdeclo > trigbinbounds[itdec+1]) {/*cout << "outside trigbinbounds!" << endl; */return 0.0;}
+  if(ptdechi < trigbinbounds[itdec] || ptdeclo > trigbinbounds[itdec+1]) return 0.0;
   if(ptdeclo < trigbinbounds[itdec]) ptdeclo = trigbinbounds[itdec];
   if(ptdechi > trigbinbounds[itdec+1]) ptdechi = trigbinbounds[itdec+1];
   
@@ -3098,6 +3120,6 @@ int Correlation::GetPi0ZEMCBin(APiZero* pizero)
 
   if(ipi0zemc<0)ipi0zemc=0;
   if(ipi0zemc>32)ipi0zemc=32; 
-
+  
   return ipi0zemc;   
 }
