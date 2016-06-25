@@ -1562,8 +1562,8 @@ float Correlation::GetFlowWeights(PairType type, int tbin, int pbin, float dphif
 
 TH1F* Correlation::MakeDphiProjection2D(TH2F* h2, float ymin, float ymax, float norm) 
 {
-  int min = bgdec->GetYaxis()->FindBin(ymin);
-  int max = bgdec->GetYaxis()->FindBin(ymax);
+  int min = h2->GetYaxis()->FindBin(ymin);
+  int max = h2->GetYaxis()->FindBin(ymax);
   TH1F* proj_hist = (TH1F*)h2->ProjectionX("proj",min,max-1);
   proj_hist->Scale(norm/proj_hist->Integral("width"));
 
