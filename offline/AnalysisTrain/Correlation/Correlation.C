@@ -1538,35 +1538,6 @@ double Correlation::GetAcceptance(PairType type, int cbin, int tbin, int pbin, f
   return acc;
 }
 
-double Correlation::GetAcceptanceXi(PairType type, int cbin, int tbin, int xbin, float dphi)
-{
-  //cout<<"In GetAcceptanceXi..."<<endl;
-  double acc = 1.;
-  int phibin = 1;
-  if(tbin < 0 || xbin < 0) return 0.;
-  
-  if(type == REAL || type == MIX){
-    phibin = IncAccXi[cbin][tbin][xbin]->FindBin(dphi);
-    //cout<<"dphi = "<<dphi<<"; phibin = "<<phibin<<endl;
-    if(phibin < 1 || phibin > 60) acc = 0.;
-    else acc = IncAccXi[cbin][tbin][xbin]->GetBinContent(phibin);
-  }
-  if(type == REALPI || type == MIXPI){
-    phibin = Pi0AccXi[cbin][tbin][xbin]->FindBin(dphi);
-    //cout<<"dphi = "<<dphi<<"; phibin = "<<phibin<<endl;
-    if(phibin < 1 || phibin > 60) acc = 0.;
-    else acc = Pi0AccXi[cbin][tbin][xbin]->GetBinContent(phibin);
-  }
-  if(type == DEC || type == MIXDEC){
-    phibin = DecAccXi[cbin][tbin][xbin]->FindBin(dphi);
-    //cout<<"dphi = "<<dphi<<"; phibin = "<<phibin<<endl;
-    if(phibin < 1 || phibin > 60) acc = 0.;
-    else acc = DecAccXi[cbin][tbin][xbin]->GetBinContent(phibin);
-  }
-  
-  return acc;
-}
-
 float Correlation::GetFlowWeights(PairType type, int tbin, int pbin, float dphifold)
 {
   if(tbin<0 || pbin<0) return 0.;
@@ -1582,11 +1553,11 @@ float Correlation::GetFlowWeights(PairType type, int tbin, int pbin, float dphif
   return flowweight;
 }
 
-void Corelation::MakeDphiProjection2D(TH2F* h2, float ymin, float ymax, float norm) 
+TH1F* Corelation::MakeDphiProjection2D(TH2F* h2, float ymin, float ymax, float norm) 
 {
-  int ymin = bgdec->GetYaxis()->FindBin(part_pt_range[ip]);
-  int ymax = bgdec->GetYaxis()->FindBin(part_pt_range[ip+1]);
-  TH1F* proj_hist = (TH1F*)bgdec->ProjectionX(name.c_str(),ymin,ymax-1);
+  int min = bgdec->GetYaxis()->FindBin(ymin);
+  int max = bgdec->GetYaxis()->FindBin(ymax);
+  TH1F* proj_hist = (TH1F*)bgdec->ProjectionX("proj",min,max-1);
   proj_hist->Scale(norm/proj_hist->Integral("width"));
 
   return proj_hist;
