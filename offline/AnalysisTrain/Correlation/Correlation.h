@@ -239,7 +239,7 @@ private:
   float GetHadronEfficiencyCorr(float pt);
   float GetFilltimeWeight(PairType type, float dphi, float partpt, int pbin, int tbin, int isxi, int isiso);
   double GetAcc(TH1F* hist, float dphi);
-  double GetAcceptance(PairType type, int cbin, int tbin, int pbin, float dphi);
+  double GetAcceptance(PairType type, int cbin, int tbin, int pbin, float dphi, int isxi, int isiso);
   float GetFlowWeights(PairType type, int tbin, int pbin, float dphifold);
   //void GetXi(int decayflag, int trigptbin, int partptbin, int centbin, float& xi, float& xierr);
   TH1F* MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, float norm);
@@ -571,15 +571,16 @@ private:
  
   std::vector<std::vector<TH2F*> > h2_dphi_dec;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_iso;
+  std::vector<std::vector<TH2F*> > h2_dphi_dec_mix;
+  std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_mix;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_fold;
+  std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_fold;
+  std::vector<std::vector<TH2F*> > h2_dphi_dec_mix_fold;
+  std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_mix_fold;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_iso;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_fold;
-  std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_fold;
-  std::vector<std::vector<TH2F*> > h2_dphi_dec_mix;
-  std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_mix;
-  std::vector<std::vector<TH2F*> > h2_dphi_dec_mix_fold;
-  std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_mix_fold;
+  std::vector<std::vector<TH2F*> > h2_dphixi_dec_iso_fold;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_mix;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_iso_mix;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_mix_fold;

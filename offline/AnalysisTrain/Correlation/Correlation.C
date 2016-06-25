@@ -1337,7 +1337,7 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
     //dec weighting
     vector<float> mwweight;
     for(int n=0; n<5; n++) mwweight.push_back(0.0);
-    EvalDecWeights(pi0_vector[i],event_z,cbin,mwweight,0);
+    EvalDecWeights(pi0_vector[i],event_z,cbin,mwweight);
     pi0_vector[i]->SetDecayWeights(mwweight);
 
     //dec trigger counting
@@ -1389,8 +1389,8 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
 
     for( int it = 0; it < NTRIGBINS; it++ ){
       int tbin = it;
-      if( it>=3) tbin = it+1
-      bin.str("");  bin << tbin << "_c" << ic;
+      if( it>=3) tbin = it+1;
+      bin.str(""); bin << tbin << "_c" << ic;
       name = "h2_dphi_dec_mix_p" + bin.str();
       TH2F* bgdec = (TH2F*)fin->Get(name.c_str());
       name = "h2_dphi_dec_iso_mix_p" + bin.str();
@@ -1478,7 +1478,7 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
 double Correlation::GetAcc(TH1F* hist, float dphi)
 {
   double acc = 0;
-  phibin = hist->FindBin(dphi);
+  int phibin = hist->FindBin(dphi);
   if(phibin < 1 || phibin > 60) acc = 0.;
   else acc = hist->GetBinContent(phibin);
   return acc;  
@@ -1488,7 +1488,6 @@ double Correlation::GetAcceptance(PairType type, int cbin, int tbin, int pbin, f
 {
   //cout<<"In GetAcceptance..."<<endl;
   double acc = 1.;
-  int phibin = 1;
   if(tbin < 0 || pbin < 0) return 0.;
   
   if(type == REAL || type == MIX) {
