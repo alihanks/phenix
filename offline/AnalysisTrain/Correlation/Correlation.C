@@ -1505,7 +1505,7 @@ double Correlation::GetAcceptance(PairType type, int cbin, int tbin, int pbin, f
     }
   }
 
-  if(type == REALPI || type == MIXPI)
+  if(type == REALPI || type == MIXPI) {
     if( isxi ) {
       if( isiso )
         acc = GetAcc(Pi0AccXiIso[cbin][tbin][pbin],dphi);
