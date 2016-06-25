@@ -676,7 +676,6 @@ int Correlation::Init(PHCompositeNode* topNode)
   h2_dphizt_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphizt_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphizt_dec_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
-  h2_dphizt_dec_iso_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphizt_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
 
   for(int ic=0; ic<NCBINS; ic++){
@@ -1174,16 +1173,16 @@ int Correlation::process_event(PHCompositeNode* topNode)
   //***********************************************
 
   //inclusive photon-hadron delta phi dists.
-  MakePairs(clus_vector,trk_vector,REAL,data_set,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi[cbin],h3_ptztdphi_fold[cbin]);
+  MakePairs(clus_vector,trk_vector,REAL,data_set,0,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi[cbin],h3_ptztdphi_fold[cbin]);
   if( DiagFlag ) MakePairs(clus_vector,trk_vector,REAL,data_set,0,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi[cbin],h3_ptztdphi_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),NULL,NULL,h2_dphi,h2_dphi_xi,h2_dphi_accw,h2_dphi_accw_xi,h3_dphi_accw,h3_dphi_accw_xi,h2_partpt_xi);
   MakePairs(clus_vector,trk_vector,REAL,data_set,1,h3_dphi_iso[cbin],h3_dphi_iso_fold[cbin],h3_ptxidphi_iso[cbin],h3_ptxidphi_iso_fold[cbin],NULL,NULL);
     
   //****************************************
   //*   Make pi0-h foreground pairs        *
   //****************************************  
-  MakePairs(pi0_vector,trk_vector,REALPI,data_set,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec[cbin],h2_dphizt_dec_fold[cbin]);
+  MakePairs(pi0_vector,trk_vector,REALPI,data_set,0,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec[cbin],h2_dphizt_dec_fold[cbin]);
   if( DiagFlag ) MakePairs(pi0_vector,trk_vector,REALPI,data_set,0,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec[cbin],h2_dphizt_dec_fold[cbin],NULL,NULL,h2_dphi_pi0,h2_dphi_xi_pi0,h2_dphi_accw_pi0,h2_dphi_accw_xi_pi0,h3_dphi_accw_pi0,h3_dphi_accw_xi_pi0,h2_partpt_xi_pi0);
-  MakePairs(pi0_vector,trk_vector,REALPI,data_set,1,h3_dphi_pi0_iso[cbin],h3_dphi_pi0_iso_fold[cbin],h3_ptxidphi_pi0_iso[cbin],h3_ptxidphi_pi0_iso_fold[cbin],NULL,NULL,h2_dphi_dec_iso[cbin],h2_dphi_dec_iso_fold[cbin],h2_dphixi_dec_iso[cbin],h2_dphixi_dec_iso_fold[cbin],NULL,NULL);
+  MakePairs(pi0_vector,trk_vector,REALPI,data_set,1,h3_dphi_pi0_iso[cbin],h3_dphi_pi0_iso_fold[cbin],h3_ptxidphi_pi0_iso[cbin],h3_ptxidphi_pi0_iso_fold[cbin],NULL,NULL,h2_dphi_dec_iso[cbin],h2_dphi_dec_iso_fold[cbin],h2_dphixi_dec_iso[cbin],h2_dphixi_dec_iso_fold[cbin]);
 
   atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());
   if( data_set == Run8dAu ) {
@@ -1558,15 +1557,14 @@ float Correlation::GetFlowWeights(PairType type, int tbin, int pbin, float dphif
   if( typebin < 0 ) return 1.0;  // only return flow modulation for mixed pairs
   
   float flowweight = (1+trig_v2[typebin][cbin][tbin]*part_v2[cbin][pbin]*cos(2*dphifold));
-  //cout<<"flowweight = "<< flowweight << endl;
   return flowweight;
 }
 
-TH1F* Corelation::MakeDphiProjection2D(TH2F* h2, float ymin, float ymax, float norm) 
+TH1F* Correlation::MakeDphiProjection2D(TH2F* h2, float ymin, float ymax, float norm) 
 {
   int min = bgdec->GetYaxis()->FindBin(ymin);
   int max = bgdec->GetYaxis()->FindBin(ymax);
-  TH1F* proj_hist = (TH1F*)bgdec->ProjectionX("proj",min,max-1);
+  TH1F* proj_hist = (TH1F*)h2->ProjectionX("proj",min,max-1);
   proj_hist->Scale(norm/proj_hist->Integral("width"));
 
   return proj_hist;
@@ -2895,7 +2893,7 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
         MakePairs(pi0s,hadrons,MIXPI,data_set,0,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix[cbin],h2_dphizt_dec_mix_fold[cbin]);
       }
       MakePairs(photons,hadrons,MIX,data_set,1,h3_dphi_iso_mix[cbin],h3_dphi_iso_mix_fold[cbin],h3_ptxidphi_iso_mix[cbin],h3_ptxidphi_iso_mix_fold[cbin],NULL,NULL);     
-      MakePairs(pi0s,hadrons,MIXPI,data_set,1,h3_dphi_pi0_iso_mix[cbin],h3_dphi_pi0_iso_mix_fold[cbin],h3_ptxidphi_pi0_iso_mix[cbin],h3_ptxidphi_pi0_iso_mix_fold[cbin],NULL,NULL,h2_dphi_dec_iso_mix[cbin],h2_dphi_dec_iso_mix_fold[cbin],h2_dphixi_dec_iso_mix[cbin],h2_dphixi_dec_iso_mix_fold[cbin],NULL,NULL);
+      MakePairs(pi0s,hadrons,MIXPI,data_set,1,h3_dphi_pi0_iso_mix[cbin],h3_dphi_pi0_iso_mix_fold[cbin],h3_ptxidphi_pi0_iso_mix[cbin],h3_ptxidphi_pi0_iso_mix_fold[cbin],NULL,NULL,h2_dphi_dec_iso_mix[cbin],h2_dphi_dec_iso_mix_fold[cbin],h2_dphixi_dec_iso_mix[cbin],h2_dphixi_dec_iso_mix_fold[cbin]);
 
       //for(unsigned int i=0; i<hadrons.size(); i++) delete hadrons[i];
       //hadrons.clear();
