@@ -1059,8 +1059,8 @@ int Correlation::process_event(PHCompositeNode* topNode)
     float zemcsub = z1*510.0/sqrt(x1*x1+y1*y1);
     if(fabs(zemcsub)>155.0) continue;
     if( all_clus_vector[iclus]->IsTagged() )
-      SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,econe_min[cbin],h3_cluster_pi0_dR[cbin],h3_cluster_pi0_etot[cbin],h2_cluster_pi0_wdR[cbin],h2_cluster_pi0_etot[cbin],h3_iso_pi0_acc[cbin]);
-    SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,econe_min[cbin],h3_cluster_dR[cbin],h3_cluster_etot[cbin],h2_cluster_wdR[cbin],h2_cluster_etot[cbin],h3_iso_acc[cbin]);
+      SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,econe_min[cbin],h3_cluster_pi0_dR[cbin],h3_cluster_pi0_etot[cbin],h2_cluster_pi0_wdR[cbin],h2_cluster_pi0_etot[cbin],NULL);
+    SetIso(all_clus_vector[iclus],lessqualtrk_vector,all_clus_vector,Rcut,econe_min[cbin],h3_cluster_dR[cbin],h3_cluster_etot[cbin],h2_cluster_wdR[cbin],h2_cluster_etot[cbin],NULL);
     if( verbosity > 0 ) cout << "Photon isTagged = " << all_clus_vector[iclus]->IsTagged() << " and IsIso = " << all_clus_vector[iclus]->IsIso() << endl;
     
     h1_trig_pt_all[cbin]->Fill(cluster_pt); // Keep track of all photons before tagging rejection (for dAu or p+p)
@@ -2862,7 +2862,7 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
       for( unsigned int itrig = 0; itrig < photons.size(); itrig++ ) {
         // Want to use fg isolated acceptance but apply additional isolation based on uncorrelated (mixed) particles
         if( photons[itrig]->IsIso() )
-          SetIso(photons[itrig],hadrons,clusters,Rcut,econe_min[cbin],h3_cluster_mix_dR[cbin],h3_cluster_mix_etot[cbin],h2_cluster_mix_wdR[cbin],h2_cluster_mix_etot[cbin],h3_iso_mix_acc[cbin]);
+          SetIso(photons[itrig],hadrons,clusters,Rcut,econe_min[cbin],h3_cluster_mix_dR[cbin],h3_cluster_mix_etot[cbin],h2_cluster_mix_wdR[cbin],h2_cluster_mix_etot[cbin],NULL);
         h1_trig_pt_inc_mix[cbin]->Fill(photons[itrig]->Pt());
         if( photons[itrig]->IsIso() )
           h1_trig_pt_inc_iso_mix[cbin]->Fill(photons[itrig]->Pt());
