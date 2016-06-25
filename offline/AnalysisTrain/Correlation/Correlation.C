@@ -656,19 +656,28 @@ int Correlation::Init(PHCompositeNode* topNode)
   Init2DHisto(h2_aftpaircut_pi0,"h2_aftpaircut_pi0","p_{T,#gamma} bin",4,-0.5,3.5,"p_{T,h} bin",5,-0.5,4.5);
 
   h2_dphi_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphi_dec_iso = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
-  h2_dphixi_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
-  h2_dphixi_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
-  h2_dphizt_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
-  h2_dphizt_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_iso_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphi_dec_iso_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphi_dec_iso_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+
+  h2_dphixi_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphixi_dec_iso = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphixi_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphixi_dec_iso_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphixi_dec_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphixi_dec_iso_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphixi_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphixi_dec_iso_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+
+  h2_dphizt_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphizt_dec_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphizt_dec_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphizt_dec_iso_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphizt_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
-  h2_dphi_dec_mix_iso_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
 
   for(int ic=0; ic<NCBINS; ic++){
     for(int ipt=0; ipt<5; ipt++){
