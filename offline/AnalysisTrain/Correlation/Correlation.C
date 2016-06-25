@@ -722,10 +722,6 @@ int Correlation::Init(PHCompositeNode* topNode)
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "zt",40,0.0,2.0);
       h2_dphizt_dec_fold[ic].push_back(temp2);
 
-      name = "h2_dphi_dec_iso_fold_p" + bin.str();
-      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
-      h2_dphi_dec_iso_fold[ic].push_back(temp2);
-
       name = "h2_dphi_dec_mix_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 60, -PI/2, 3*PI/2, "p_{T, h} [GeV/c]",100,0.0,10.0);
       h2_dphi_dec_mix[ic].push_back(temp2);
@@ -1417,28 +1413,34 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
         temp = MakeDphiProjection(bginc,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],norm);        
         IncAcc[ic][it][ip] = new TH1F(*temp);
         IncAcc[ic][it][ip]->SetName(name.c_str());
-        name = "h1_IncAccIso_c" + bin.str();
-        temp = MakeDphiProjection(bginc_iso,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],norm);        
-        IncAccIso[ic][it][ip] = new TH1F(*temp);
-        IncAccIso[ic][it][ip]->SetName(name.c_str());
+        if( bginc_iso ) {
+          name = "h1_IncAccIso_c" + bin.str();
+          temp = MakeDphiProjection(bginc_iso,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],norm);        
+          IncAccIso[ic][it][ip] = new TH1F(*temp);
+          IncAccIso[ic][it][ip]->SetName(name.c_str());
+        }
 
         name = "h1_Pi0Acc_c" + bin.str();
         temp = MakeDphiProjection(bgpi0,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],norm);
         Pi0Acc[ic][it][ip] = new TH1F(*temp);
         Pi0Acc[ic][it][ip]->SetName(name.c_str());
-        name = "h1_Pi0AccIso_c" + bin.str();
-        temp = MakeDphiProjection(bgpi0_iso,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],norm);
-        Pi0AccIso[ic][it][ip] = new TH1F(*temp);
-        Pi0AccIso[ic][it][ip]->SetName(name.c_str());
-        
+        if( bgpi0_iso ) {
+          name = "h1_Pi0AccIso_c" + bin.str();
+          temp = MakeDphiProjection(bgpi0_iso,trig_pt_range[it],trig_pt_range[it+1],part_pt_range[ip],part_pt_range[ip+1],norm);
+          Pi0AccIso[ic][it][ip] = new TH1F(*temp);
+          Pi0AccIso[ic][it][ip]->SetName(name.c_str());
+        }
+
         name = "h1_DecAcc_c" + bin.str();
         temp = MakeDphiProjection2D(bgdec,part_pt_range[ip],part_pt_range[ip+1],norm);
         DecAcc[ic][it][ip] = new TH1F(*temp);
         DecAcc[ic][it][ip]->SetName(name.c_str());
-        name = "h1_DecAccIso_c" + bin.str();
-        temp = MakeDphiProjection2D(bgdec_iso,part_pt_range[ip],part_pt_range[ip+1],norm);
-        DecAccIso[ic][it][ip] = new TH1F(*temp);
-        DecAccIso[ic][it][ip]->SetName(name.c_str());
+        if( bgdec_iso ) {
+          name = "h1_DecAccIso_c" + bin.str();
+          temp = MakeDphiProjection2D(bgdec_iso,part_pt_range[ip],part_pt_range[ip+1],norm);
+          DecAccIso[ic][it][ip] = new TH1F(*temp);
+          DecAccIso[ic][it][ip]->SetName(name.c_str());
+        }
       }
 
       for( int ix = 0; ix < NXIBINS; ix++ ){
@@ -1448,28 +1450,34 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
         temp = MakeDphiProjection(bginc_xi,trig_pt_range[it],trig_pt_range[it+1],xi_range[ix],xi_range[ix+1],norm);
         IncAccXi[ic][it][ix] = new TH1F(*temp);
         IncAccXi[ic][it][ix]->SetName(name.c_str());
-        name = "h1_IncAccXiIso_c" + bin.str();
-        TH1F* temp = MakeDphiProjection(bginc_xi_iso,trig_pt_range[it],trig_pt_range[it+1],xi_range[ix],xi_range[ix+1],norm);
-        IncAccXiIso[ic][it][ix] = new TH1F(*temp);
-        IncAccXiIso[ic][it][ix]->SetName(name.c_str());
+        if( bginc_xi_iso ) {
+          name = "h1_IncAccXiIso_c" + bin.str();
+          TH1F* temp = MakeDphiProjection(bginc_xi_iso,trig_pt_range[it],trig_pt_range[it+1],xi_range[ix],xi_range[ix+1],norm);
+          IncAccXiIso[ic][it][ix] = new TH1F(*temp);
+          IncAccXiIso[ic][it][ix]->SetName(name.c_str());
+        }
         
         name = "h1_Pi0AccXi_c" + bin.str();
         temp = MakeDphiProjection(bgpi0_xi,trig_pt_range[it],trig_pt_range[it+1],xi_range[ix],xi_range[ix+1],norm);        
         Pi0AccXi[ic][it][ix] = new TH1F(*temp);
         Pi0AccXi[ic][it][ix]->SetName(name.c_str());
-        name = "h1_Pi0AccXiIso_c" + bin.str();
-        temp = MakeDphiProjection(bgpi0_xi_iso,trig_pt_range[it],trig_pt_range[it+1],xi_range[ix],xi_range[ix+1],norm);        
-        Pi0AccXiIso[ic][it][ix] = new TH1F(*temp);
-        Pi0AccXiIso[ic][it][ix]->SetName(name.c_str());
+        if( bgpi0_xi_iso ) {
+          name = "h1_Pi0AccXiIso_c" + bin.str();
+          temp = MakeDphiProjection(bgpi0_xi_iso,trig_pt_range[it],trig_pt_range[it+1],xi_range[ix],xi_range[ix+1],norm);        
+          Pi0AccXiIso[ic][it][ix] = new TH1F(*temp);
+          Pi0AccXiIso[ic][it][ix]->SetName(name.c_str());
+        }
 
         name = "h1_DecAccXi_c" + bin.str();
         temp = MakeDphiProjection2D(bgdec_xi,xi_range[ix],xi_range[ix+1],norm);
         DecAccXi[ic][it][ix] = new TH1F(*temp);
         DecAccXi[ic][it][ix]->SetName(name.c_str());
-        name = "h1_DecAccXiIso_c" + bin.str();
-        temp = MakeDphiProjection2D(bgdec_xi_iso,xi_range[ix],xi_range[ix+1],norm);
-        DecAccXiIso[ic][it][ix] = new TH1F(*temp);
-        DecAccXiIso[ic][it][ix]->SetName(name.c_str());
+        if( bgdec_xi_iso ) {
+          name = "h1_DecAccXiIso_c" + bin.str();
+          temp = MakeDphiProjection2D(bgdec_xi_iso,xi_range[ix],xi_range[ix+1],norm);
+          DecAccXiIso[ic][it][ix] = new TH1F(*temp);
+          DecAccXiIso[ic][it][ix]->SetName(name.c_str());
+        }
       }
 
       delete bgdec; delete bgdec_iso; delete bgdec_xi; delete bgdec_xi_iso;
@@ -1486,8 +1494,9 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
 double Correlation::GetAcc(TH1F* hist, float dphi)
 {
   double acc = 0;
+  if( !hist ) return 0;
   int phibin = hist->FindBin(dphi);
-  if(phibin < 1 || phibin > 60) acc = 0.;
+  if(phibin < 1 || phibin > hist->GetNbinsX() ) return 0;
   else acc = hist->GetBinContent(phibin);
   return acc;  
 }
