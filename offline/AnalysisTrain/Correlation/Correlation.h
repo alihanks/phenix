@@ -103,6 +103,7 @@ public:
   template<class T, class A> void MakePairs(std::vector<T*> triggers,
                                             std::vector<A*> associated,
                                             PairType type, DataSet dataset,
+                                            int use_iso = 1,
                                             TH3F* h3dphi = NULL,
                                             TH3F* h3dphi_fold = NULL,
                                             TH3F* h3ptxidphi = NULL,
@@ -127,7 +128,7 @@ public:
                                             )
   {
     for(unsigned int it = 0; it < triggers.size(); it++){
-      if( dataset==Run8dAu && !triggers[it]->IsIso() ) continue;
+      if( dataset==Run8dAu && !triggers[it]->IsIso() && use_iso ) continue;
       float trig_pt = triggers[it]->Pt();
       float trig_phi = PHAngle(triggers[it]->Phi());
       int itrigpt = GetPtBin(trig_pt,1);
@@ -191,8 +192,8 @@ public:
           int tbin = GetPtBin(trig_pt, 1);
           int pbin = GetPtBin(assoc_pt, 0);
           int xbin = GetXiBin(xi);
-          filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin);
-          filltimeflowxi = GetFilltimeWeightXi(type,deltaphi,assoc_pt,xbin,tbin);
+          filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin,0,use_iso);
+          filltimeflowxi = GetFilltimeWeight(type,deltaphi,assoc_pt,xbin,tbin,1,use_iso);
         }
         
         if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
@@ -206,7 +207,7 @@ public:
           if( verbosity > 1 ) std::cout<<"h3ptztdphi_fold filled."<<std::endl;
         }
         //filltime debugging histos
-        if((trig_pt >= 5.) && (trig_pt<7.0)){
+        if((trig_pt >= 5.) && (trig_pt<7.0) && DiagFlag ){
           if( h2_dphi ) h2dphi->Fill(assoc_pt,dphifold);
           if( h2dphiaccw ) h2dphiaccw->Fill(assoc_pt,dphifold,filltimeflow);
           if( h3dphiaccw ) h3dphiaccw->Fill(assoc_pt,dphifold,filltimeflow);
@@ -221,12 +222,12 @@ public:
         //******************************************
         if(type==REALPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making real decay pairs" << std::endl;
-                  MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+                  MakeDecays(DEC,use_iso,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
         
         if(type==MIXPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making mixed decay pairs" << std::endl;
-                  MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+                  MakeDecays(MIXDEC,use_iso,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
       }
       if( type==MIX && DiagFlag ) {
@@ -239,22 +240,16 @@ public:
 
 private:
   float GetHadronEfficiencyCorr(float pt);
-  // void GetAcceptanceWeightsFold(std::string filename);
-  // void GetAcceptanceWeights(std::string filename);
-  float GetFilltimeWeight(PairType type, float dphi, float partpt, int pbin, int tbin);
-  float GetFilltimeWeightXi(PairType type, float dphi, float partpt, int xbin, int tbin);
-  double GetAcceptanceFold(PairType type, int cbin, float trigpt, float partpt, float dphi);
+  float GetFilltimeWeight(PairType type, float dphi, float partpt, int pbin, int tbin, int isxi, int isiso);
   double GetAcceptance(PairType type, int cbin, int tbin, int pbin, float dphi);
-  double GetAcceptanceXi(PairType type, int cbin, int tbin, int xbin, float dphi);
   float GetFlowWeights(PairType type, int tbin, int pbin, float dphifold);
   //void GetXi(int decayflag, int trigptbin, int partptbin, int centbin, float& xi, float& xierr);
-  TH1F* MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, std::string hname);
-  //void MakeDphiProjection(TH3F* h3, TH1F*& h1, float xmin, float xmax, float ymin, float ymax, std::string hname);
+  TH1F* MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, float norm);
+  TH1F* MakeDphiProjection2D(TH2F* h2, float ymin, float ymax, float norm);
   void MakeAccHistos(TH1F* h1in, TH1F* h1out);
   int IsPbGl(int armsect){ return ((armsect==4||armsect==5)? 1 : 0); }
   int VetoTracks(ACluster* aclus, std::vector<ATrack*> lessqualtrk_vector);
   int VetoTracks(ACluster* aclus, std::vector<ATrack*> lessqualtrk_vector, float& mindist, float& vetopt);
-  //bool IsGoodTower(ACluster* aclus, std::string filename);
   bool IsGoodTower(ACluster* aclus);
   bool IsGoodCluster(ACluster* aclus, DataSet dataset);
   bool IsGoodTrack(ATrack* trk, DataSet dataset);
@@ -280,7 +275,7 @@ private:
   float FindTrackDistance(ACluster* clus, ATrack* trk);
   void EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, std::vector<float>& mwweight);
   
-  void MakeDecays(PairType type, float dphi, float dphifold, float partpt, float trigpt, APiZero* pi0, std::vector<float> weight, std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi, std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt, std::vector<TH2F*> hdphizt_fold);
+  void MakeDecays(PairType type, int isiso, float dphi, float dphifold, float partpt, float trigpt, APiZero* pi0, std::vector<float> weight, std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi, std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt, std::vector<TH2F*> hdphizt_fold);
   float GetDecayXiWeights(int decxibw, int itdec, float xidec, int ipi0zemc, float trigpt, float partpt);
 
   void AddMBEvent(DataSet data_set);
@@ -319,13 +314,16 @@ private:
   TH1F* IncAcc[4][NTRIGBINS][NPARTBINS];//[cent][ntrig][npart]
   TH1F* Pi0Acc[4][NTRIGBINS][NPARTBINS];
   TH1F* DecAcc[4][NTRIGBINS][NPARTBINS];
-  TH1F* IncAccFold[4][NTRIGBINS][NPARTBINS];//[cent][ntrig][npart]
-  TH1F* Pi0AccFold[4][NTRIGBINS][NPARTBINS];
-  TH1F* DecAccFold[4][NTRIGBINS][NPARTBINS];
+  TH1F* IncAccIso[4][NTRIGBINS][NPARTBINS];//[cent][ntrig][npart]
+  TH1F* Pi0AccIso[4][NTRIGBINS][NPARTBINS];
+  TH1F* DecAccIso[4][NTRIGBINS][NPARTBINS];
 
   TH1F* IncAccXi[4][NTRIGBINS][NXIBINS];//[cent][ntrig][nxi]
   TH1F* Pi0AccXi[4][NTRIGBINS][NXIBINS];
   TH1F* DecAccXi[4][NTRIGBINS][NXIBINS];
+  TH1F* IncAccXiIso[4][NTRIGBINS][NXIBINS];//[cent][ntrig][nxi]
+  TH1F* Pi0AccXiIso[4][NTRIGBINS][NXIBINS];
+  TH1F* DecAccXiIso[4][NTRIGBINS][NXIBINS];
   
   DataSet data_set;
   unsigned int Cut3x3Map;
@@ -403,37 +401,53 @@ private:
   TH1F* h1_trigger[N_ARMSECT];//ert trigger
   
   std::vector<TH3F*> h3_dphi;
-  std::vector<TH3F*> h3_dphi_1sig;
-  std::vector<TH3F*> h3_dphi_2sig;
+  std::vector<TH3F*> h3_dphi_iso;
   std::vector<TH3F*> h3_dphi_mix;
-  std::vector<TH3F*> h3_dphi_pi0;
-  std::vector<TH3F*> h3_dphi_pi0_mix;
-  std::vector<TH3F*> h3_dphi_pi0_bg;
-  std::vector<TH3F*> h3_dphi_pi0_bg_mix;
-  
+  std::vector<TH3F*> h3_dphi_iso_mix;
   std::vector<TH3F*> h3_dphi_fold;
+  std::vector<TH3F*> h3_dphi_mix_fold;
+  std::vector<TH3F*> h3_dphi_iso_mix_fold;
+  std::vector<TH3F*> h3_dphi_pi0;
+  std::vector<TH3F*> h3_dphi_pi0_iso;
+  std::vector<TH3F*> h3_dphi_pi0_mix;
+  std::vector<TH3F*> h3_dphi_pi0_iso_mix;
+  std::vector<TH3F*> h3_dphi_pi0_fold;
+  std::vector<TH3F*> h3_dphi_pi0_iso_fold;
+  std::vector<TH3F*> h3_dphi_pi0_mix_fold;
+  std::vector<TH3F*> h3_dphi_pi0_iso_mix_fold;
+  
   std::vector<TH3F*> h3_ptxidphi;
+  std::vector<TH3F*> h3_ptxidphi_iso;
   std::vector<TH3F*> h3_ptxidphi_fold;
+  std::vector<TH3F*> h3_ptxidphi_iso_fold;
+  std::vector<TH3F*> h3_ptxidphi_mix;
+  std::vector<TH3F*> h3_ptxidphi_iso_mix;
+  std::vector<TH3F*> h3_ptxidphi_mix_fold;
+  std::vector<TH3F*> h3_ptxidphi_iso_mix_fold;
+  std::vector<TH3F*> h3_ptxidphi_pi0;
+  std::vector<TH3F*> h3_ptxidphi_pi0_iso;
+  std::vector<TH3F*> h3_ptxidphi_pi0_fold;
+  std::vector<TH3F*> h3_ptxidphi_pi0_iso_fold;
+  std::vector<TH3F*> h3_ptxidphi_pi0_mix;
+  std::vector<TH3F*> h3_ptxidphi_pi0_iso_mix;
+  std::vector<TH3F*> h3_ptxidphi_pi0_mix_fold;
+  std::vector<TH3F*> h3_ptxidphi_pi0_iso_mix_fold;
+
   std::vector<TH3F*> h3_ptztdphi;
   std::vector<TH3F*> h3_ptztdphi_fold;
-  std::vector<TH3F*> h3_dphi_fold_1sig;
-  std::vector<TH3F*> h3_dphi_fold_2sig;
-  std::vector<TH3F*> h3_dphi_mix_fold;
-  std::vector<TH3F*> h3_ptxidphi_mix;
-  std::vector<TH3F*> h3_ptxidphi_mix_fold;
   std::vector<TH3F*> h3_ptztdphi_mix;
   std::vector<TH3F*> h3_ptztdphi_mix_fold;
-  std::vector<TH3F*> h3_dphi_mix_iso_fold;
-  std::vector<TH3F*> h3_dphi_pi0_fold;
-  std::vector<TH3F*> h3_ptxidphi_pi0;
-  std::vector<TH3F*> h3_ptxidphi_pi0_fold;
   std::vector<TH3F*> h3_ptztdphi_pi0;
   std::vector<TH3F*> h3_ptztdphi_pi0_fold;
-  std::vector<TH3F*> h3_dphi_pi0_mix_fold;
-  std::vector<TH3F*> h3_ptxidphi_pi0_mix;
-  std::vector<TH3F*> h3_ptxidphi_pi0_mix_fold;
   std::vector<TH3F*> h3_ptztdphi_pi0_mix;
   std::vector<TH3F*> h3_ptztdphi_pi0_mix_fold;
+
+  std::vector<TH3F*> h3_dphi_pi0_bg;
+  std::vector<TH3F*> h3_dphi_pi0_bg_mix;
+  std::vector<TH3F*> h3_dphi_1sig;
+  std::vector<TH3F*> h3_dphi_2sig;
+  std::vector<TH3F*> h3_dphi_fold_1sig;
+  std::vector<TH3F*> h3_dphi_fold_2sig;
   
   TH3D* h3_nhit[N_ARMSECT];
   TH3D* h3_nhit_mywarn[N_ARMSECT];
@@ -469,6 +483,7 @@ private:
   std::vector<TH1F*> h1_trig_pt_pi0_iso;
   std::vector<TH1F*> h1_trig_pt_dec;
   std::vector<TH1F*> h1_trig_pt_dec_iso;
+  std::vector<TH1F*> h1_trig_pt_dec_niso;
                   
   std::vector<TH1F*> h1_part_pt;
   std::vector<TH1F*> h1_trig_pt_inc_mix;
