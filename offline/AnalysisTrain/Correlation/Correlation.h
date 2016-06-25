@@ -170,8 +170,8 @@ public:
           if( h2paircut_af ) h2paircut_af->Fill(itrigpt,ipartpt);
         }
         
-        float deltaphi = CalculateDphi(trig_phi,assoc_phi);//-050815
-        float dphifold = CalculateFoldedDphi(assoc_phi,trig_phi);
+        float deltaphi = CalculateDphi(trig_phi,assoc_phi);
+        float dphifold = CalculateFoldedDphi(trig_phi,assoc_phi);
         if (verbosity > 3) std::cout<<"Correlation::MakePairs - " << type << " - deltaphi = "<< deltaphi << ", deltaphiFold = " << dphifold << std::endl;
         if(dphifold<0||dphifold>PI) std::cout<<" dphifold out of bounds "<<std::endl;
         
@@ -216,17 +216,17 @@ public:
           if( h2partptxi ) h2partptxi->Fill(assoc_pt,xi);
         }
         if(type==REAL&&DiagFlag) h3_EoverP[cbin]->Fill(assoc_pt,associated[ia]->GetEcore()/assoc_pt,dphifold);
-      	//******************************************
+        //******************************************
         //*  Make decay photon-h pairs             *
         //******************************************
         if(type==REALPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making real decay pairs" << std::endl;
-        	  MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+                  MakeDecays(DEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
-	
+        
         if(type==MIXPI ) {
           if (verbosity > 1) std::cout<<"Correlation::MakePairs - making mixed decay pairs" << std::endl;
-        	  MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
+                  MakeDecays(MIXDEC,deltaphi,dphifold,assoc_pt,trig_pt,(APiZero*)triggers[it],((APiZero*)triggers[it])->GetDecayWeights(),h2dphi_dec,h2dphi_dec_fold,h2dphixi_dec,h2dphixi_dec_fold,h2dphizt_dec,h2dphizt_dec_fold);
         }
       }
       if( type==MIX && DiagFlag ) {
