@@ -147,14 +147,17 @@ Correlation::~Correlation()
         delete IncAcc[ic][it][ip];
         delete Pi0Acc[ic][it][ip];
         delete DecAcc[ic][it][ip];
-        delete IncAccFold[ic][it][ip];
-        delete Pi0AccFold[ic][it][ip];
-        delete DecAccFold[ic][it][ip];
+        delete IncAccIso[ic][it][ip];
+        delete Pi0AccIso[ic][it][ip];
+        delete DecAccIso[ic][it][ip];
       }
       for(int ix=0; ix<6; ix++){
         delete IncAccXi[ic][it][ix];
         delete Pi0AccXi[ic][it][ix];
         delete DecAccXi[ic][it][ix];
+        delete IncAccXiIso[ic][it][ix];
+        delete Pi0AccXiIso[ic][it][ix];
+        delete DecAccXiIso[ic][it][ix];
       }
     }
   }
@@ -1164,14 +1167,14 @@ int Correlation::process_event(PHCompositeNode* topNode)
   //inclusive photon-hadron delta phi dists.
   MakePairs(clus_vector,trk_vector,REAL,data_set,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi[cbin],h3_ptztdphi_fold[cbin]);
   if( DiagFlag ) MakePairs(clus_vector,trk_vector,REAL,data_set,0,h3_dphi[cbin],h3_dphi_fold[cbin],h3_ptxidphi[cbin],h3_ptxidphi_fold[cbin],h3_ptztdphi[cbin],h3_ptztdphi_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),NULL,NULL,h2_dphi,h2_dphi_xi,h2_dphi_accw,h2_dphi_accw_xi,h3_dphi_accw,h3_dphi_accw_xi,h2_partpt_xi);
-  MakePairs(clus_vector,trk_vector,REAL,data_set,1,h3_dphi_iso[cbin],h3_dphi_iso_fold[cbin],h3_ptxidphi_iso[cbin],h3_ptxidphi_iso_fold[cbin],h3_ptztdphi_iso[cbin],h3_ptztdphi_iso_fold[cbin]);
+  MakePairs(clus_vector,trk_vector,REAL,data_set,1,h3_dphi_iso[cbin],h3_dphi_iso_fold[cbin],h3_ptxidphi_iso[cbin],h3_ptxidphi_iso_fold[cbin],NULL,NULL);
     
   //****************************************
   //*   Make pi0-h foreground pairs        *
   //****************************************  
   MakePairs(pi0_vector,trk_vector,REALPI,data_set,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec[cbin],h2_dphizt_dec_fold[cbin]);
   if( DiagFlag ) MakePairs(pi0_vector,trk_vector,REALPI,data_set,0,h3_dphi_pi0[cbin],h3_dphi_pi0_fold[cbin],h3_ptxidphi_pi0[cbin],h3_ptxidphi_pi0_fold[cbin],h3_ptztdphi_pi0[cbin],h3_ptztdphi_pi0_fold[cbin],h2_dphi_dec[cbin],h2_dphi_dec_fold[cbin],h2_dphixi_dec[cbin],h2_dphixi_dec_fold[cbin],h2_dphizt_dec[cbin],h2_dphizt_dec_fold[cbin],NULL,NULL,h2_dphi_pi0,h2_dphi_xi_pi0,h2_dphi_accw_pi0,h2_dphi_accw_xi_pi0,h3_dphi_accw_pi0,h3_dphi_accw_xi_pi0,h2_partpt_xi_pi0);
-  MakePairs(pi0_vector,trk_vector,REALPI,data_set,1,h3_dphi_pi0_iso[cbin],h3_dphi_pi0_iso_fold[cbin],h3_ptxidphi_pi0_iso[cbin],h3_ptxidphi_pi0_iso_fold[cbin],h3_ptztdphi_pi0_iso[cbin],h3_ptztdphi_pi0_iso_fold[cbin],h2_dphi_dec_iso[cbin],h2_dphi_dec_iso_fold[cbin],h2_dphixi_dec_iso[cbin],h2_dphixi_dec_iso_fold[cbin],h2_dphizt_dec_iso[cbin],h2_dphizt_dec_iso_fold[cbin]);
+  MakePairs(pi0_vector,trk_vector,REALPI,data_set,1,h3_dphi_pi0_iso[cbin],h3_dphi_pi0_iso_fold[cbin],h3_ptxidphi_pi0_iso[cbin],h3_ptxidphi_pi0_iso_fold[cbin],NULL,NULL,h2_dphi_dec_iso[cbin],h2_dphi_dec_iso_fold[cbin],h2_dphixi_dec_iso[cbin],h2_dphixi_dec_iso_fold[cbin],NULL,NULL);
 
   atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());
   if( data_set == Run8dAu ) {
@@ -2904,12 +2907,16 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
       pooldepth++;
       if( verbosity>3 ) cout<<"pooldepth = "<<pooldepth<<endl;
 
-      MakePairs(photons,hadrons,MIX,data_set,0,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix[cbin],h3_ptztdphi_mix_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc,h2_dphi_mix,h2_dphi_xi_mix,h2_dphi_accw_mix,h2_dphi_accw_xi_mix,h3_dphi_accw_mix,h3_dphi_accw_xi_mix,h2_partpt_xi_mix);
-     
-      MakePairs(pi0s,hadrons,MIXPI,data_set,0,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix[cbin],h2_dphizt_dec_mix_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0,h2_dphi_pi0_mix,h2_dphi_xi_pi0_mix,h2_dphi_accw_pi0_mix,h2_dphi_accw_xi_pi0_mix,h3_dphi_accw_pi0_mix,h3_dphi_accw_xi_pi0_mix,h2_partpt_xi_pi0_mix);
-      
-      MakePairs(photons,hadrons,MIX,data_set,1,h3_dphi_iso_mix[cbin],h3_dphi_iso_mix_fold[cbin],h3_ptxidphi_iso_mix[cbin],h3_ptxidphi_iso_mix_fold[cbin],h3_ptztdphi_iso_mix[cbin],h3_ptztdphi_iso_mix_fold[cbin]);     
-      MakePairs(pi0s,hadrons,MIXPI,data_set,1,h3_dphi_pi0_iso_mix[cbin],h3_dphi_pi0_iso_mix_fold[cbin],h3_ptxidphi_pi0_iso_mix[cbin],h3_ptxidphi_pi0_iso_mix_fold[cbin],h3_ptztdphi_pi0_iso_mix[cbin],h3_ptztdphi_pi0_iso_mix_fold[cbin],h2_dphi_dec_iso_mix[cbin],h2_dphi_dec_iso_mix_fold[cbin],h2_dphixi_dec_iso_mix[cbin],h2_dphixi_dec_iso_mix_fold[cbin],h2_dphizt_dec_iso_mix[cbin],h2_dphizt_dec_iso_mix_fold[cbin]);
+      if( DiagFlag ) {
+        MakePairs(photons,hadrons,MIX,data_set,0,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix[cbin],h3_ptztdphi_mix_fold[cbin],vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),vector<TH2F*>(),h2_bfpaircut_inc,h2_aftpaircut_inc,h2_dphi_mix,h2_dphi_xi_mix,h2_dphi_accw_mix,h2_dphi_accw_xi_mix,h3_dphi_accw_mix,h3_dphi_accw_xi_mix,h2_partpt_xi_mix);
+        MakePairs(pi0s,hadrons,MIXPI,data_set,0,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix[cbin],h2_dphizt_dec_mix_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0,h2_dphi_pi0_mix,h2_dphi_xi_pi0_mix,h2_dphi_accw_pi0_mix,h2_dphi_accw_xi_pi0_mix,h3_dphi_accw_pi0_mix,h3_dphi_accw_xi_pi0_mix,h2_partpt_xi_pi0_mix);
+      }
+      else {
+        MakePairs(photons,hadrons,MIX,data_set,0,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix[cbin],h3_ptztdphi_mix_fold[cbin]);
+        MakePairs(pi0s,hadrons,MIXPI,data_set,0,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix[cbin],h2_dphizt_dec_mix_fold[cbin]);
+      }
+      MakePairs(photons,hadrons,MIX,data_set,1,h3_dphi_iso_mix[cbin],h3_dphi_iso_mix_fold[cbin],h3_ptxidphi_iso_mix[cbin],h3_ptxidphi_iso_mix_fold[cbin],NULL,NULL);     
+      MakePairs(pi0s,hadrons,MIXPI,data_set,1,h3_dphi_pi0_iso_mix[cbin],h3_dphi_pi0_iso_mix_fold[cbin],h3_ptxidphi_pi0_iso_mix[cbin],h3_ptxidphi_pi0_iso_mix_fold[cbin],NULL,NULL,h2_dphi_dec_iso_mix[cbin],h2_dphi_dec_iso_mix_fold[cbin],h2_dphixi_dec_iso_mix[cbin],h2_dphixi_dec_iso_mix_fold[cbin],NULL,NULL);
 
       //for(unsigned int i=0; i<hadrons.size(); i++) delete hadrons[i];
       //hadrons.clear();

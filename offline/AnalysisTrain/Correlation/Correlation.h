@@ -86,10 +86,7 @@ public:
   //void SetFlowFileName(std::string fflow) { _flowfilename = fflow; }
   void SetSharkFinFileName(std::string fn) { _sharkfinname = fn;}
   void SetDiagFlag(int flag) { DiagFlag = flag; }
-  void GetAcceptanceWeightsFold(std::string filename);
-  void GetAcceptanceWeightsFoldXi(std::string filename);
   void GetAcceptanceWeights(std::string filename);
-  void GetAcceptanceWeightsXi(std::string filename);
 
   void Clear();
 
@@ -241,6 +238,7 @@ public:
 private:
   float GetHadronEfficiencyCorr(float pt);
   float GetFilltimeWeight(PairType type, float dphi, float partpt, int pbin, int tbin, int isxi, int isiso);
+  double GetAcc(TH1F* hist, float dphi);
   double GetAcceptance(PairType type, int cbin, int tbin, int pbin, float dphi);
   float GetFlowWeights(PairType type, int tbin, int pbin, float dphifold);
   //void GetXi(int decayflag, int trigptbin, int partptbin, int centbin, float& xi, float& xierr);
@@ -405,6 +403,7 @@ private:
   std::vector<TH3F*> h3_dphi_mix;
   std::vector<TH3F*> h3_dphi_iso_mix;
   std::vector<TH3F*> h3_dphi_fold;
+  std::vector<TH3F*> h3_dphi_iso_fold;
   std::vector<TH3F*> h3_dphi_mix_fold;
   std::vector<TH3F*> h3_dphi_iso_mix_fold;
   std::vector<TH3F*> h3_dphi_pi0;
@@ -571,19 +570,25 @@ private:
   TH2D* ptpivsptgam[33];
  
   std::vector<std::vector<TH2F*> > h2_dphi_dec;
+  std::vector<std::vector<TH2F*> > h2_dphi_dec_iso;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_fold;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec;
+  std::vector<std::vector<TH2F*> > h2_dphixi_dec_iso;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_fold;
-  std::vector<std::vector<TH2F*> > h2_dphizt_dec;
-  std::vector<std::vector<TH2F*> > h2_dphizt_dec_fold;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_fold;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_mix;
+  std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_mix;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_mix_fold;
+  std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_mix_fold;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_mix;
+  std::vector<std::vector<TH2F*> > h2_dphixi_dec_iso_mix;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_mix_fold;
+  std::vector<std::vector<TH2F*> > h2_dphixi_dec_iso_mix_fold;
+
+  std::vector<std::vector<TH2F*> > h2_dphizt_dec;
+  std::vector<std::vector<TH2F*> > h2_dphizt_dec_fold;
   std::vector<std::vector<TH2F*> > h2_dphizt_dec_mix;
   std::vector<std::vector<TH2F*> > h2_dphizt_dec_mix_fold;
-  std::vector<std::vector<TH2F*> > h2_dphi_dec_mix_iso_fold;
 
   std::string _accfilename;
   //std::string _xifilename;
