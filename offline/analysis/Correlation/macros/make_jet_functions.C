@@ -28,9 +28,9 @@ void make_jet_function(int type, int data_type, int do_iso, const char* fin = "d
   jet_functions->XiBinning = type%2;
   jet_functions->Nmix = 500;
 
-  trig_name << "h1_trig_pt_inc" << iso;
-  if( type == 0 ) dphi_name << "h3_dphi" << iso;
-  if( type == 1 ) dphi_name << "h3_ptxidphi" << iso;
+  trig_name << "h1_trig_pt_inc" << iso.str();
+  if( type == 0 ) dphi_name << "h3_dphi" << iso.str();
+  if( type == 1 ) dphi_name << "h3_ptxidphi" << iso.str();
   dphi_mix_name << dphi_name.str() << "_mix";
   dphi_name << suffix.str();  dphi_mix_name << suffix.str();
 
@@ -40,9 +40,9 @@ void make_jet_function(int type, int data_type, int do_iso, const char* fin = "d
   jet_functions->GetHistos(0,data_type);
 
   trig_name.str(""); dphi_name.str(""); dphi_mix_name.str("");
-	trig_name << "h1_trig_pt_pi0_iso";
-  if( type == 0 ) dphi_name << "h3_dphi_pi0" << iso;
-  if( type == 1 ) dphi_name << "h3_ptxidphi_pi0" << iso;
+	trig_name << "h1_trig_pt_pi0" << iso.str();
+  if( type == 0 ) dphi_name << "h3_dphi_pi0" << iso.str();
+  if( type == 1 ) dphi_name << "h3_ptxidphi_pi0" << iso.str();
 	dphi_mix_name << dphi_name.str() << "_mix";
   dphi_name << suffix.str();  dphi_mix_name << suffix.str();
 
@@ -52,9 +52,9 @@ void make_jet_function(int type, int data_type, int do_iso, const char* fin = "d
   jet_functions->GetHistos(0,data_type);
 
   trig_name.str(""); dphi_name.str(""); dphi_mix_name.str("");
-	trig_name << "h1_trig_pt_dec_iso";
-  if( type == 0 ) dphi_name << "h2_dphi_dec" << iso;
-  if( type == 1 ) dphi_name << "h2_dphixi_dec" << iso;
+	trig_name << "h1_trig_pt_dec" << iso.str();
+  if( type == 0 ) dphi_name << "h2_dphi_dec" << iso.str();
+  if( type == 1 ) dphi_name << "h2_dphixi_dec" << iso.str();
 	dphi_mix_name << dphi_name.str() << "_mix";
   dphi_name << suffix.str();  dphi_mix_name << suffix.str();
 
