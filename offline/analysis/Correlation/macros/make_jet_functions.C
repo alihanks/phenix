@@ -11,7 +11,7 @@ void make_jet_function(int type, int data_type, int do_iso, const char* fin = "d
   if( do_iso ) iso << "_iso";
 
   vector<double> trig_bins;
-  trig_bins.push_back(5.1); trig_bins.push_back(7.1); trig_bins.push_back(9.0); trig_bins.push_back(12.0); trig_bins.push_back(15.0);
+  trig_bins.push_back(5.0); trig_bins.push_back(7.0); trig_bins.push_back(9.0); trig_bins.push_back(12.0); trig_bins.push_back(15.0);
   vector<double> part_bins;
   if( type == 0 ) {
     part_bins.push_back(0.61); part_bins.push_back(1.01); part_bins.push_back(2.01); part_bins.push_back(3.01);
