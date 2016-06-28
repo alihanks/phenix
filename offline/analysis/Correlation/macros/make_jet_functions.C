@@ -1,12 +1,14 @@
 // type = 0 for pt bins, 1 for xi, 2 for zt
 // data_type = 0 for AuAu and = 1 for dAu
-void make_jet_function(int type, int data_type, const char* fin = "dAu_merged.root", const char* fout = "test_corr.root")
+void make_jet_function(int type, int data_type, int do_iso, const char* fin = "dAu_merged.root", const char* fout = "test_corr.root")
 {
   gSystem->Load("libCorrelationPlots.so");
 
   ostringstream trig_name, dphi_name, dphi_mix_name;
-  ostringstream suffix;
+  ostringstream suffix; ostringstream iso;
   suffix << "_fold";
+  iso.str("");
+  if( do_iso ) iso << "_iso";
 
   vector<double> trig_bins;
   trig_bins.push_back(5.1); trig_bins.push_back(7.1); trig_bins.push_back(9.0); trig_bins.push_back(12.0); trig_bins.push_back(15.0);
@@ -26,9 +28,9 @@ void make_jet_function(int type, int data_type, const char* fin = "dAu_merged.ro
   jet_functions->XiBinning = type%2;
   jet_functions->Nmix = 500;
 
-  trig_name << "h1_trig_pt_inc_iso";
-  if( type == 0 ) dphi_name << "h3_dphi_iso";
-  if( type == 1 ) dphi_name << "h3_ptxidphi_iso";
+  trig_name << "h1_trig_pt_inc" << iso;
+  if( type == 0 ) dphi_name << "h3_dphi" << iso;
+  if( type == 1 ) dphi_name << "h3_ptxidphi" << iso;
   dphi_mix_name << dphi_name.str() << "_mix";
   dphi_name << suffix.str();  dphi_mix_name << suffix.str();
 
@@ -39,8 +41,8 @@ void make_jet_function(int type, int data_type, const char* fin = "dAu_merged.ro
 
   trig_name.str(""); dphi_name.str(""); dphi_mix_name.str("");
 	trig_name << "h1_trig_pt_pi0_iso";
-  if( type == 0 ) dphi_name << "h3_dphi_pi0_iso";
-  if( type == 1 ) dphi_name << "h3_ptxidphi_pi0_iso";
+  if( type == 0 ) dphi_name << "h3_dphi_pi0" << iso;
+  if( type == 1 ) dphi_name << "h3_ptxidphi_pi0" << iso;
 	dphi_mix_name << dphi_name.str() << "_mix";
   dphi_name << suffix.str();  dphi_mix_name << suffix.str();
 
@@ -51,8 +53,8 @@ void make_jet_function(int type, int data_type, const char* fin = "dAu_merged.ro
 
   trig_name.str(""); dphi_name.str(""); dphi_mix_name.str("");
 	trig_name << "h1_trig_pt_dec_iso";
-  if( type == 0 ) dphi_name << "h2_dphi_dec_iso";
-  if( type == 1 ) dphi_name << "h2_dphixi_dec_iso";
+  if( type == 0 ) dphi_name << "h2_dphi_dec" << iso;
+  if( type == 1 ) dphi_name << "h2_dphixi_dec" << iso;
 	dphi_mix_name << dphi_name.str() << "_mix";
   dphi_name << suffix.str();  dphi_mix_name << suffix.str();
 
