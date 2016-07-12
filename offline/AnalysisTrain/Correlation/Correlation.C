@@ -1286,7 +1286,7 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
     for( unsigned int jclus = 0; jclus < all_clusters.size(); jclus++ ){
       if(jclus == iclus) continue;     
       float ecore2 = all_clusters[jclus]->GetEcore();
-      if(ecore2<1.0 || ecore1<ecore2 || ecore1==ecore2) continue;
+      if(ecore2<0.5 || ecore1==ecore2) continue;
       
       float sume12 = ecore1 + ecore2;
       if(sume12 < 4.0) continue;
@@ -1313,7 +1313,11 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
       else h2_pi0mass_PbSc->Fill(api0.Pt(), api0.M());
       
       if(api0.M() < 0.12 || api0.M() > 0.16) continue;
+      // tagging applied with lower photon pT threshold (0.5 GeV)
       all_clusters[iclus]->SetTag(true);
+
+      // only keep pi0s with photons with pT above 1 GeV
+      if(ecore2<1.0 || ecore1<ecore2) continue;
 
       if(api0.Pt() < pi0_pt_min || api0.Pt() > pi0_pt_max) continue;
 
