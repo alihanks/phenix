@@ -2955,7 +2955,7 @@ int Correlation::CheckPool(int nenpart, int j, int pooldepth, int size, int& nlo
   return j;
 }
 
-float Correlation::GetDecayXiWeights(int decxibw, int itdec, float xidec, int ipi0zemc, float trigpt, float partpt)//to get weights in xi-binned histograms for decays
+float Correlation::GetDecayXiWeights(float decxibw, int itdec, float xidec, int ipi0zemc, float trigpt, float partpt)//to get weights in xi-binned histograms for decays
 {
   //cout << "In GetDecayXiWeights: " << endl;
 

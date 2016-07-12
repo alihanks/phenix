@@ -274,7 +274,7 @@ private:
   void EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, std::vector<float>& mwweight);
   
   void MakeDecays(PairType type, int isiso, float dphi, float dphifold, float partpt, float trigpt, APiZero* pi0, std::vector<float> weight, std::vector<TH2F*> hdphi, std::vector<TH2F*> hdphi_fold, std::vector<TH2F*> hdphixi, std::vector<TH2F*> hdphixi_fold, std::vector<TH2F*> hdphizt, std::vector<TH2F*> hdphizt_fold);
-  float GetDecayXiWeights(int decxibw, int itdec, float xidec, int ipi0zemc, float trigpt, float partpt);
+  float GetDecayXiWeights(float decxibw, int itdec, float xidec, int ipi0zemc, float trigpt, float partpt);
 
   void AddMBEvent(DataSet data_set);
   
