@@ -21,7 +21,7 @@ void Run_d_Au_Correlation(const char* outFile = "test.root")
   warnmaps.push_back("Warnmap/d_Au_warnmap_above5GeV_cut.txt"); map_cuts.push_back(999.0);
   co->SetWarnmaps(warnmaps,map_cuts);
   co->SetZVertexCut(30.0);
-  co->Rcut = 0.4;
+  co->Rcut = 0.3;
   co->econe_min[0] = 0.45; co->econe_min[1] = 0.33; co->econe_min[2] = 0.24; co->econe_min[3] = 0.15;
 
   Fun4AllServer *se = Fun4AllServer::instance();
