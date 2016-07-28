@@ -285,7 +285,7 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
   {
     if(pizeros[i]->Pt() < 4.0 ) continue;
     h1_trigger_pi0_pt->Fill(pizeros[i]->Pt());
-    SetIso(pizeros[i],tracks,clusters,Rcut,h3_cluster_pi0_dR,h3_cluster_pi0_etot,h2_cluster_pi0_wdR,h2_cluster_pi0_etot);
+    SetIso(pizeros[i],tracks,clusters,Rcut,0.1,h3_cluster_pi0_dR,h3_cluster_pi0_etot,h2_cluster_pi0_wdR,h2_cluster_pi0_etot);
     if( pizeros[i]->IsIso() ) h1_trigger_iso_pi0_pt->Fill(pizeros[i]->Pt());
     //cout << "Set iso<" << Rcut << " cut for piz to " << pizeros[i]->IsIso() << endl;
     //dec trigger counting
@@ -324,10 +324,10 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
     if( clusters[i]->IsTagged() ) continue;
 
     h1_trigger_dir_pt->Fill(clusters[i]->Pt());
-    SetIso(clusters[i],tracks,clusters,Rcut,h3_cluster_dir_dR,h3_cluster_dir_etot,h2_cluster_dir_wdR,h2_cluster_dir_etot);
+    SetIso(clusters[i],tracks,clusters,Rcut,0.1,h3_cluster_dir_dR,h3_cluster_dir_etot,h2_cluster_dir_wdR,h2_cluster_dir_etot);
     if( clusters[i]->IsIso() ) h1_trigger_iso_dir_pt->Fill(clusters[i]->Pt());
 
-    SetIso(clusters[i],tracks,clusters,Rcut,h3_cluster_dR,h3_cluster_etot,h2_cluster_wdR,h2_cluster_etot);
+    SetIso(clusters[i],tracks,clusters,Rcut,0.1,h3_cluster_dR,h3_cluster_etot,h2_cluster_wdR,h2_cluster_etot);
     if( clusters[i]->IsIso() ) h1_trigger_iso_pt->Fill(clusters[i]->Pt());
 
     atree->SetTriggerData(clusters[i]->Pt(),clusters[i]->Phi(),clusters[i]->Eta(),clusters[i]->E(),
