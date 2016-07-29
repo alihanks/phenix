@@ -382,8 +382,8 @@ void hijing_analysis::SetSharkFin(const char* filename)
     hshark[idecl]= new TH1D(*(TH1D*)fshark_exodus->Get(sharkname));
     sprintf(sharkname,"hshark_large_%d",idecl);
     hshark[idecl]->SetName(sharkname);
+    cout << "Loading sharkfin histogram: " << hshark[idecl]->GetName() << endl;
   }
-  cout << "Loading sharkfin histogram: " << hshark[idecl]->GetName() << endl;
   fshark_exodus->Close();
   delete fshark_exodus;
 }
