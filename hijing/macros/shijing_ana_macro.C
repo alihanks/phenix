@@ -12,6 +12,7 @@ void shijing_ana_macro(char* input="hijing.dat", char* output="test.root", int e
 
   hijing_analysis *hijing = new hijing_analysis(output);
   //hijing->Verbosity(1);
+  hijing->SetSharkFin("/phenix/hhj/ahanks/gammajet_exodus/sharkfin_run8_miss.root");
   hijing->Rcut = cone_size*0.1;
   hijing->_MinTrigPt = 3.0;
   //cout << "Set cone cut to " << cone_size*0.1 << " -> " << hijing->Rcut << endl;

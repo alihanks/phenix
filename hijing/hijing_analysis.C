@@ -631,7 +631,7 @@ bool hijing_analysis::MakeCluster(HepMC::GenParticle* p, ACluster* clus)
   
   clus->SetPxPyPzE(mom_vector.px(),mom_vector.py(),mom_vector.pz(),mom_vector.e());
   
-  if( clus->E() < _MinTrigPt/2.0 ) return false;
+  if( clus->E() < 0.5 ) return false;
   if( fabs(clus->Eta()) > _MaxEta ) return false;
   if( OutsideAcceptance(clus->Phi()) ) return false;
   int pbsc_pbgl = 0;
