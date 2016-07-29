@@ -58,7 +58,7 @@ date
 
 cd /phenix/hhj/ahanks/shijing/run8
 root.exe -b <<EOF
-.x /phenix/u/workarea/ahanks/run8/hijing/macros/shijing_ana_macro.C("/phenix/scratch/ahanks/run8/shijing/${IT}/sHijing${IT}_${CONE}.dat","${output}/hijing_analysis_pi0_${IT}_${CONE}.root",0,${CONE});
+.x /phenix/u/workarea/ahanks/gitrepo/hijing/macros/shijing_ana_macro.C("/phenix/scratch/ahanks/run8/shijing/${IT}/sHijing${IT}_${CONE}.dat","${output}/hijing_analysis_pi0_${IT}_${CONE}.root",0,${CONE});
 .q
 EOF
 
