@@ -359,7 +359,8 @@ int hijing_analysis::process_event(PHCompositeNode* topNode)
 void hijing_analysis::EvalDecWeights(APiZero* pi0trigger, vector<float>& mwweight)
 {
   float pi0trigpt = pi0trigger->Pt();
-  
+
+  cout << "getting weight for pi0 pT = " << pi0trigpt << " from " << hshark[0]->GetName() << endl;
   int trigptbin = hshark[0]->FindBin(pi0trigpt);
   if(trigptbin>400) trigptbin=400;
   
@@ -382,7 +383,6 @@ void hijing_analysis::SetSharkFin(const char* filename)
     hshark[idecl]= new TH1D(*(TH1D*)fshark_exodus->Get(sharkname));
     sprintf(sharkname,"hshark_large_%d",idecl);
     hshark[idecl]->SetName(sharkname);
-    cout << "Loading sharkfin histogram: " << hshark[idecl]->GetName() << endl;
   }
   fshark_exodus->Close();
   delete fshark_exodus;
