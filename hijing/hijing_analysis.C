@@ -381,11 +381,11 @@ void hijing_analysis::SetSharkFin(const char* filename)
     char sharkname[100];
     sprintf(sharkname,"hshark_large_sum_%d",idecl);
     hshark[idecl]= new TH1D(*(TH1D*)fshark_exodus->Get(sharkname));
-    sprintf(sharkname,"hshark_large_%d",idecl);
-    hshark[idecl]->SetName(sharkname);
+    //sprintf(sharkname,"hshark_large_%d",idecl);
+    //hshark[idecl]->SetName(sharkname);
   }
-  fshark_exodus->Close();
-  delete fshark_exodus;
+  //fshark_exodus->Close();
+  //delete fshark_exodus;
 }
 
 void hijing_analysis::ApplyEnergyResolution(AParticle* mom4, int pbsc_pbgl)
