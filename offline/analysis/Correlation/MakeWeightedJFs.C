@@ -19,18 +19,18 @@ MakeWeightedJFs::MakeWeightedJFs(const string fin, const string fout)
 	outfile = new TFile(fout.c_str(),"recreate");
 }
 
-void MakeWeightedJFs::GetHistos(int type, int data_type)
+void MakeWeightedJFs::GetHistos(int type)
 {
 	for( int ic = 0; ic < NCENT; ic++ )
 	{
 		cout << "Getting " << prefix << " histograms for centrality bin " << ic << endl;
-		Get1DOutputHistos(type,data_type,ic);
+		Get1DOutputHistos(type,ic);
 	}
 	cout << "Merging " << prefix << " centrality/pt binned histograms" << endl;
-	GetMergedHistos(type,data_type);
+	GetMergedHistos(type);
 }
 
-void MakeWeightedJFs::Get1DOutputHistos(int type, int data_type, int cbin)
+void MakeWeightedJFs::Get1DOutputHistos(int type, int cbin)//0-inc,pi0; 1-dec
 {
 	ostringstream bin;
 	string name, mix_name;
@@ -40,13 +40,13 @@ void MakeWeightedJFs::Get1DOutputHistos(int type, int data_type, int cbin)
 	name = trig_name + bin.str();
 	h1_trigpt[cbin] = (TH1F*)infile->Get(name.c_str());
 
-	if( !type ) MakeDphiFrom3D(h1_trigpt[cbin],data_type,cbin);
-	else MakeDphiFrom2D(h1_trigpt[cbin],data_type,cbin);
+	if( !type ) MakeDphiFrom3D(h1_trigpt[cbin],cbin);
+	else MakeDphiFrom2D(h1_trigpt[cbin],cbin);
 
 	h1_trigpt[cbin]->Write();
 }
 
-void MakeWeightedJFs::GetMergedHistos(int type, int data_type)
+void MakeWeightedJFs::GetMergedHistos(int type)
 {
 	ostringstream bin;
 	string name;
@@ -140,7 +140,7 @@ void MakeWeightedJFs::GetMergedHistos(int type, int data_type)
 	trigpt_combined->Write();
 }
 
-void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int data_type, int cbin)
+void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 {
 	ostringstream bin;
 	string name, name_mix;
@@ -176,14 +176,14 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int data_type, int cbin)
 			dphi_1d_mix[cbin][it][ih]->Scale(1.0/Nmix);
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(data_type, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
+			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
 			outfile->cd();
 			corr[cbin][it][ih]->Write();
 		}
 	}
 }
 
-void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int data_type, int cbin)
+void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 {
 	ostringstream bin;
 	string name, name_mix;
@@ -220,11 +220,12 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int data_type, int cbin)
 			dphi_1d_mix[cbin][it][ih]->Scale(1.0/Nmix);
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(data_type, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
+			MakeJetFunction(isdAu, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
 			outfile->cd();
 			corr[cbin][it][ih]->Write();
 		}
 	}
+
 }
 
 double MakeWeightedJFs::GetNTrigs(int type, int bin, TH1F* histo)
@@ -269,16 +270,12 @@ void MakeWeightedJFs::Make2DDphiProjection(TH2F* h3, TH1F*& h1,double ymin, doub
 	h1->SetName(hname.c_str());
 }
 
-void MakeWeightedJFs::MakeJetFunction(int data_type, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin)
+void MakeWeightedJFs::MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin)
 {
 	ostringstream name;
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
-	if(data_type) {
-	  double norm = GetZYAMNorm(dphi);
-	  double bg_norm = GetZYAMNorm(dphi_mix);
-	  norm = norm/bg_norm;
-	  SubtractBackground(dphi, dphi_mix, norm, correlation, name.str());
-	}
+	if(isdAu)
+	  SubtractBackground(dphi, correlation, name.str());
 	else{
 	  float xi = 0.;
 	  float xierr = 0.;
@@ -289,6 +286,7 @@ void MakeWeightedJFs::MakeJetFunction(int data_type, int type, TH1F* dphi, TH1F*
 	if(!type) GetCutOffCorr(it);
 	correlation->Scale(1.0/cutoffcorr);
 	float binwidth = correlation->GetBinWidth(1);
+	cout << "binwidth = " << binwidth << endl;
 	correlation->Scale(1/binwidth);
 	correlation->Scale(1/ntrigs);
 }
@@ -305,8 +303,11 @@ void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string
 
 double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
 {
-	int lbin = dphi->FindBin(0.9);
-	int hbin = dphi->FindBin(1.4);
+	dphi->SetAxisRange(1.0,1.6,"X");
+	int bin = dphi->GetMinimumBin();
+	dphi->SetAxisRange(0.0,TMath::Pi(),"X");
+	int lbin = bin-2;//CFinc->FindBin(1.1);
+	int hbin = bin+2;
 	double norm = dphi->Integral(lbin,hbin);
 	norm = norm/((double)(hbin-lbin+1));
 
