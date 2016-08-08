@@ -224,7 +224,7 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 		name = "h1_part_pt_" + prefix + bin.str();
 		h1_partpt[cbin][it] = (TH1F*)temp2D->ProjectionY(name.c_str());
 		h1_partpt[cbin][it]->Write();
-		ntrigs[it] = GetNTrigs(1,it,trigpt);
+		ntrig[it] = GetNTrigs(1,it,trigpt);
 
 		for(int ih = 0; ih < NPARTBIN; ih++){
 			bin.str("");
@@ -244,7 +244,6 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 			corr[cbin][it][ih]->Write();
 		}
 	}
-
 }
 
 double MakeWeightedJFs::GetNTrigs(int type, int bin, TH1F* histo)
