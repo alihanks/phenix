@@ -310,8 +310,8 @@ void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string
 
 double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float lphi, float hphi)
 {
-	int lbin = CFinc->FindBin(lphi);
-	int hbin = CFinc->FindBin(hphi);
+	int lbin = dphi->FindBin(lphi);
+	int hbin = dphi->FindBin(hphi);
 	double norm = dphi->Integral(lbin,hbin);
 	norm = norm/((double)(hbin-lbin+1));
 
