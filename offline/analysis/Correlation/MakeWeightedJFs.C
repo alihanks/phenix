@@ -69,20 +69,31 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 			else h1_partpt_comb[it]->Add(h1_partpt[ic][it]);
 			for( int ih = 0; ih < NPARTBIN; ih++ ) {
 				if( ic==0 ) {
-					dphi_comb[it][ih] = new TH1F(*dphi_1d[ic][it][ih]);
+					jf_comb[it][ih] = new TH1F(*corr[cbin][it][ih]);
 					bin.str("");
 					bin << prefix << "_p" << it << "_h" << ih;
-					name = "dphi_" + bin.str();
-					dphi_comb[it][ih]->SetName(name.c_str());
+					name = "JF_" + bin.str();
+					jf_comb[it][ih]->SetName(name.c_str());
+					jf_comb[it][ih]->Scale(ntrig[it]);
+
+					jf_comb_sys[it][ih] = new TH1F(*corr_sys[cbin][it][ih]);
+					bin.str("");
+					bin << prefix << "_p" << it << "_h" << ih;
+					name = "JF_sys" + bin.str();
+					jf_comb_sys[it][ih]->SetName(name.c_str());
+					jf_comb_sys[it][ih]->Scale(ntrig[it]);
 				}
-				else dphi_comb[it][ih]->Add(dphi_1d[ic][it][ih]);
+				else {
+					jf_comb[it][ih]->Add(corr[ic][it][ih],ntrig[it]);
+					jf_comb_sys[it][ih]->Add(corr_sys[ic][it][ih],ntrig[it]);
+				}
 			}
 		}
 	}
 	outfile->cd();
 	double ntrigs_comb[2] = {0,0};
-	TH1F* dphi_pt_comb[2][NPARTBIN];
 	TH1F* jf_pt_comb[2][NPARTBIN];
+	TH1F* jf_pt_comb_sys[2][NPARTBIN];
 	TH1F* h1_partpt_tot[2];
 	for( int it = 0; it < 2; it++ ) {
 		bin.str("");
@@ -94,10 +105,17 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
 			bin.str("");
 			bin << prefix << "_" << it << "_h" << ih;
-			name = "dphi_" + bin.str();
-			dphi_pt_comb[it][ih] = new TH1F(*dphi_comb[0][ih]);
-			dphi_pt_comb[it][ih]->SetName(name.c_str());
-			dphi_pt_comb[it][ih]->Reset();
+			name = "JF_" + bin.str();
+			jf_pt_comb[it][ih] = new TH1F(*jf_comb[0][ih]);
+			jf_pt_comb[it][ih]->SetName(name.c_str());
+			jf_pt_comb[it][ih]->Reset();
+
+			bin.str("");
+			bin << prefix << "_" << it << "_h" << ih;
+			name = "JF_sys_" + bin.str();
+			jf_pt_comb_sys[it][ih] = new TH1F(*jf_comb_sys[0][ih]);
+			jf_pt_comb_sys[it][ih]->SetName(name.c_str());
+			jf_pt_comb_sys[it][ih]->Reset();
 		}
 	}
 
@@ -115,19 +133,11 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 
 		h1_partpt_comb[it]->Write();
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
-			if( it==0 || it==1 ) dphi_pt_comb[0][ih]->Add(dphi_comb[it][ih]);
-			if( it==2 || it==3 ) dphi_pt_comb[1][ih]->Add(dphi_comb[it][ih]);
-			bin.str("");
-			bin << prefix << "_p" << it << "_h" << ih;
- 			name = "JF_" + bin.str();
-			SubtractBackground(dphi_comb[it][ih], jf_comb[it][ih], name.c_str(), 0.9, 1.4);
+			if( it==0 || it==1 ) jf_pt_comb[0][ih]->Add(jf_comb[it][ih]);
+			if( it==2 || it==3 ) jf_pt_comb[1][ih]->Add(jf_comb[it][ih]);
 			jf_comb[it][ih]->Scale(1/ntrig_tot);
 			jf_comb[it][ih]->Write();
 
-			bin.str("");
-			bin << prefix << "_sys_p" << it << "_h" << ih;
- 			name = "JF_" + bin.str();
-			SubtractBackground(dphi_comb[it][ih], jf_comb_sys[it][ih], name.c_str(), 1.0, 1.2);
 			jf_comb_sys[it][ih]->Scale(1/ntrig_tot);
 			jf_comb_sys[it][ih]->Write();
 		}
@@ -137,12 +147,11 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 	for( int it = 0; it < 2; it++ ){
 		h1_partpt_tot[it]->Write();
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
-			bin.str("");
-			bin << prefix << "_" << it << "_h" << ih;
-			name = "JF_" + bin.str();
-			SubtractBackground(dphi_pt_comb[it][ih],jf_pt_comb[it][ih], name.c_str(),0.9,1.4);
 			jf_pt_comb[it][ih]->Scale(1/ntrigs_comb[it]);
 			jf_pt_comb[it][ih]->Write();
+
+			jf_pt_comb_sys[it][ih]->Scale(1/ntrigs_comb[it]);
+			jf_pt_comb_sys[it][ih]->Write();
 		}
 	}
 	trigpt_combined->Write();
@@ -170,7 +179,7 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 		int hbin = h1_trigpt->FindBin(trig_pt[it+1]);
 		h1_partpt[cbin][it] = (TH1F*)temp3D->ProjectionY(name.c_str(),lbin,hbin-1);
 		h1_partpt[cbin][it]->Write();
-		double ntrigs = GetNTrigs(0,it,trigpt);
+		ntrigs[it] = GetNTrigs(0,it,trigpt);
 
 		for(int ih = 0; ih < NPARTBIN; ih++){
 			bin.str("");
@@ -184,7 +193,8 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 			dphi_1d_mix[cbin][it][ih]->Scale(1.0/Nmix);
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
+			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrigs[it], it, ih, cbin, 0.9, 1.4);
+			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrigs[it], it, ih, cbin, 1.0, 1.2);
 			outfile->cd();
 			corr[cbin][it][ih]->Write();
 		}
@@ -214,7 +224,7 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 		name = "h1_part_pt_" + prefix + bin.str();
 		h1_partpt[cbin][it] = (TH1F*)temp2D->ProjectionY(name.c_str());
 		h1_partpt[cbin][it]->Write();
-		double ntrigs = GetNTrigs(1,it,trigpt);
+		ntrigs[it] = GetNTrigs(1,it,trigpt);
 
 		for(int ih = 0; ih < NPARTBIN; ih++){
 			bin.str("");
@@ -228,7 +238,8 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 			dphi_1d_mix[cbin][it][ih]->Scale(1.0/Nmix);
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(isdAu, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrigs, it, ih, cbin);
+			MakeJetFunction(isdAu, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrigs[it], it, ih, cbin, 0.9, 1.4);
+			MakeJetFunction(isdAu, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrigs[it], it, ih, cbin, 1.0, 1.2);
 			outfile->cd();
 			corr[cbin][it][ih]->Write();
 		}
@@ -278,12 +289,12 @@ void MakeWeightedJFs::Make2DDphiProjection(TH2F* h3, TH1F*& h1,double ymin, doub
 	h1->SetName(hname.c_str());
 }
 
-void MakeWeightedJFs::MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin)
+void MakeWeightedJFs::MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin, float lphi, float hphi)
 {
 	ostringstream name;
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
 	if(isdAu)
-	  SubtractBackground(dphi, correlation, name.str(), 0.9, 1.4);
+	  SubtractBackground(dphi, correlation, name.str(), lphi, hphi);
 	else{
 	  float xi = 0.;
 	  float xierr = 0.;
