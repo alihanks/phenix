@@ -36,6 +36,7 @@ nobase_dist_mydata_DATA = \
   inputs/run11/run11_hadron_eff_func.root \
   inputs/run11/v2_inputs.root \
   inputs/run8/sharkfin_miss.root \
+  inputs/run8/sharkfin_pp_miss.root \
   inputs/run8/dA_run8_trig_eff_0_v0.root \
   inputs/run8/dA_run8_trig_eff_1_v0.root \
   inputs/run8/dA_run8_trig_eff_2_v0.root \
