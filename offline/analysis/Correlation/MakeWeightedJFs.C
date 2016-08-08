@@ -119,9 +119,16 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 			bin.str("");
 			bin << prefix << "_p" << it << "_h" << ih;
  			name = "JF_" + bin.str();
-			SubtractBackground(dphi_comb[it][ih], jf_comb[it][ih], name.c_str());
+			SubtractBackground(dphi_comb[it][ih], jf_comb[it][ih], name.c_str(), 0.9, 1.4);
 			jf_comb[it][ih]->Scale(1/ntrig_tot);
 			jf_comb[it][ih]->Write();
+
+			bin.str("");
+			bin << prefix << "_sys_p" << it << "_h" << ih;
+ 			name = "JF_" + bin.str();
+			SubtractBackground(dphi_comb[it][ih], jf_comb_sys[it][ih], name.c_str(), 1.0, 1.2);
+			jf_comb_sys[it][ih]->Scale(1/ntrig_tot);
+			jf_comb_sys[it][ih]->Write();
 		}
 	}
 
@@ -132,7 +139,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 			bin.str("");
 			bin << prefix << "_" << it << "_h" << ih;
 			name = "JF_" + bin.str();
-			SubtractBackground(dphi_pt_comb[it][ih],jf_pt_comb[it][ih], name.c_str());
+			SubtractBackground(dphi_pt_comb[it][ih],jf_pt_comb[it][ih], name.c_str(),0.9,1.4);
 			jf_pt_comb[it][ih]->Scale(1/ntrigs_comb[it]);
 			jf_pt_comb[it][ih]->Write();
 		}
@@ -275,7 +282,7 @@ void MakeWeightedJFs::MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dph
 	ostringstream name;
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
 	if(isdAu)
-	  SubtractBackground(dphi, correlation, name.str());
+	  SubtractBackground(dphi, correlation, name.str(), 0.9, 1.4);
 	else{
 	  float xi = 0.;
 	  float xierr = 0.;
@@ -291,9 +298,9 @@ void MakeWeightedJFs::MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dph
 	correlation->Scale(1/ntrigs);
 }
 
-void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string name)
+void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string name, float lphi, float hphi)
 {
-	double norm = GetZYAMNorm(foreground);
+	double norm = GetZYAMNorm(foreground, lphi, hphi);
 	signal = new TH1F(*foreground);
 	signal->SetName(name.c_str());
 	TF1* bgFunc = new TF1("bgFunc","[0]",0.0,PI);
@@ -301,13 +308,10 @@ void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string
 	signal->Add(bgFunc,-1.0);
 }
 
-double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
+double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float lphi, float hphi)
 {
-	dphi->SetAxisRange(1.0,1.6,"X");
-	int bin = dphi->GetMinimumBin();
-	dphi->SetAxisRange(0.0,TMath::Pi(),"X");
-	int lbin = bin-2;//CFinc->FindBin(1.1);
-	int hbin = bin+2;
+	int lbin = CFinc->FindBin(lphi);
+	int hbin = CFinc->FindBin(hphi);
 	double norm = dphi->Integral(lbin,hbin);
 	norm = norm/((double)(hbin-lbin+1));
 

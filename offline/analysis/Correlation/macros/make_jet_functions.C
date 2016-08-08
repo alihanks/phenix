@@ -18,8 +18,8 @@ void make_jet_function(int type, int data_type, int do_iso, const char* fin = "d
     part_bins.push_back(5.01); part_bins.push_back(7.01); part_bins.push_back(0.0); part_bins.push_back(0.0);
   }
   if( type == 1 ) {
-    part_bins.push_back(2.42); part_bins.push_back(2.01); part_bins.push_back(1.61);
-    part_bins.push_back(1.22); part_bins.push_back(0.81); part_bins.push_back(0.41); part_bins.push_back(0.0); part_bins.push_back(0.0);
+    part_bins.push_back(2.81); part_bins.push_back(2.41); part_bins.push_back(2.01); part_bins.push_back(1.61);
+    part_bins.push_back(1.21); part_bins.push_back(0.81); part_bins.push_back(0.41); part_bins.push_back(0.0);
   }
 
   MakeWeightedJFs* jet_functions = new MakeWeightedJFs(fin,fout);
@@ -27,6 +27,7 @@ void make_jet_function(int type, int data_type, int do_iso, const char* fin = "d
   jet_functions->SetPartnerBinning(part_bins);
   jet_functions->XiBinning = type%2;
   jet_functions->Nmix = 500;
+  jet_functions->isdAu = 1;
 
   trig_name << "h1_trig_pt_inc" << iso.str();
   if( type == 0 ) dphi_name << "h3_dphi" << iso.str();
