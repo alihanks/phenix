@@ -69,14 +69,14 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 			else h1_partpt_comb[it]->Add(h1_partpt[ic][it]);
 			for( int ih = 0; ih < NPARTBIN; ih++ ) {
 				if( ic==0 ) {
-					jf_comb[it][ih] = new TH1F(*corr[cbin][it][ih]);
+					jf_comb[it][ih] = new TH1F(*corr[ic][it][ih]);
 					bin.str("");
 					bin << prefix << "_p" << it << "_h" << ih;
 					name = "JF_" + bin.str();
 					jf_comb[it][ih]->SetName(name.c_str());
 					jf_comb[it][ih]->Scale(ntrig[it]);
 
-					jf_comb_sys[it][ih] = new TH1F(*corr_sys[cbin][it][ih]);
+					jf_comb_sys[it][ih] = new TH1F(*corr_sys[ic][it][ih]);
 					bin.str("");
 					bin << prefix << "_p" << it << "_h" << ih;
 					name = "JF_sys" + bin.str();
@@ -179,7 +179,7 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 		int hbin = h1_trigpt->FindBin(trig_pt[it+1]);
 		h1_partpt[cbin][it] = (TH1F*)temp3D->ProjectionY(name.c_str(),lbin,hbin-1);
 		h1_partpt[cbin][it]->Write();
-		ntrigs[it] = GetNTrigs(0,it,trigpt);
+		ntrig[it] = GetNTrigs(0,it,trigpt);
 
 		for(int ih = 0; ih < NPARTBIN; ih++){
 			bin.str("");
