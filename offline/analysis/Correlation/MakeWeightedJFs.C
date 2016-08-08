@@ -79,7 +79,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 					jf_comb_sys[it][ih] = new TH1F(*corr_sys[ic][it][ih]);
 					bin.str("");
 					bin << prefix << "_p" << it << "_h" << ih;
-					name = "JF_sys" + bin.str();
+					name = "JF_sys_" + bin.str();
 					jf_comb_sys[it][ih]->SetName(name.c_str());
 					jf_comb_sys[it][ih]->Scale(ntrig[it]);
 				}
