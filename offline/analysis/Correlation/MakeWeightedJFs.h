@@ -28,7 +28,7 @@ public:
 	MakeWeightedJFs(const std::string fin, const std::string fout);
 	virtual ~MakeWeightedJFs(){};
 
-	void GetHistos(int type, int data_type);
+	void GetHistos(int type);
 	void SetTriggerBinning(std::vector<double> trig_bins) { trig_pt = trig_bins; }
 	void SetPartnerBinning(std::vector<double> part_bins) { part_pt = part_bins; }
 	void SetTriggerName(std::string name) { trig_name = name; }
@@ -36,23 +36,24 @@ public:
 	void SetTypeName(std::string type) { prefix = type; }
 
 	int XiBinning;
-    double Nmix;
+        int isdAu;
+        double Nmix;
 
 private:
 
-	void Get1DOutputHistos(int type, int data_type, int cbin);
-	void GetMergedHistos(int type, int data_type);
-	void MakeDphiFrom3D(TH1F* trigpt, int data_type, int cbin);
-	void MakeDphiFrom2D(TH1F* trigpt, int data_type, int cbin);
+	void Get1DOutputHistos(int type, int cbin);
+	void GetMergedHistos(int type);
+	void MakeDphiFrom3D(TH1F* trigpt, int cbin);
+	void MakeDphiFrom2D(TH1F* trigpt, int cbin);
 	void MakeDphiProjection(TH3F* h3, TH1F*& h1, double xmin, double xmax, double ymin, double ymax, std::string hname);
 	void Make2DDphiProjection(TH2F* h3, TH1F*& h1, double ymin, double ymax, std::string hname);
-    void MakeJetFunction(int data_type, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin);
+        void MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin);
 	double GetNTrigs(int type, int bin, TH1F* trigpt);
 	void SubtractBackground(TH1F* foreground, TH1F*& signal, std::string name);
-    void SubtractBackground(TH1F* foreground, TH1F* background, float norm, TH1F*& signal, std::string name);
+        void SubtractBackground(TH1F* foreground, TH1F* background, float norm, TH1F*& signal, std::string name);
 	double GetZYAMNorm(TH1F* dphi);
-    void GetXi(int type, int trigptbin, int partptbin, int centbin, float & xi, float & xierr);
-    float GetCutOffCorr(int trig_bin);
+        void GetXi(int type, int trigptbin, int partptbin, int centbin, float & xi, float & xierr);
+        float GetCutOffCorr(int trig_bin);
 
 	std::vector<double> trig_pt;
 	std::vector<double> part_pt;
