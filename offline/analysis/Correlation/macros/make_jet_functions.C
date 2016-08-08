@@ -27,7 +27,6 @@ void make_jet_function(int type, int data_type, int do_iso, const char* fin = "d
   jet_functions->SetPartnerBinning(part_bins);
   jet_functions->XiBinning = type%2;
   jet_functions->Nmix = 500;
-  jet_functions->isdAu = 1;
 
   trig_name << "h1_trig_pt_inc" << iso.str();
   if( type == 0 ) dphi_name << "h3_dphi" << iso.str();

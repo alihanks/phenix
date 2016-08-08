@@ -19,8 +19,9 @@ MakeWeightedJFs::MakeWeightedJFs(const string fin, const string fout)
 	outfile = new TFile(fout.c_str(),"recreate");
 }
 
-void MakeWeightedJFs::GetHistos(int type)
+void MakeWeightedJFs::GetHistos(int type, int data_type)
 {
+	isdAu = data_type;
 	for( int ic = 0; ic < NCENT; ic++ )
 	{
 		cout << "Getting " << prefix << " histograms for centrality bin " << ic << endl;
