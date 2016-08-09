@@ -1015,11 +1015,16 @@ int Correlation::process_event(PHCompositeNode* topNode)
       if( verbosity > 1 ) cout << "Photon in SM " << ert_sm << endl;
       int sm_fired = 0;
       // set trigger bit if fired ERT4x4 a,b, or c
-      if( ertout ) 
+      if( ertout ) {
         if( ertout->get_ERTbit(0, acluster.GetArm(), acluster.GetSec(), ert_sm) ||
             ertout->get_ERTbit(1, acluster.GetArm(), acluster.GetSec(), ert_sm) )
           //  ertout->get_ERTbit(2, acluster.GetArm(), acluster.GetSec(), ert_sm) ) 
           sm_fired = 1;
+      }
+      else {
+        cout << PHWHERE << " could not find ertout node! Setting trigger bit to default (1)" << endl;
+        sm_fired = 1;
+      }
       //if( (armsect==2 && ert_sm==17) || (armsect==3 && (ert_sm==4||ert_sm==10||ert_sm==15||ert_sm==16)) || (armsect==4 && ert_sm==30) || (armsect==7 && ert_sm==15) ) sm_fired = 0;
       if( sm_fired ) {
         acluster.SetTrigger(true);
