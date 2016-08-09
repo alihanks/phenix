@@ -26,10 +26,6 @@ class PHGlobal;
 class emcClusterContainer;
 class emcClusterContent;
 class PHCentralTrack;
-// class SvxCentralTrackList;
-// class SvxCentralTrack;
-// class SvxClusterList;
-// class SvxCluster;
 class TOAD;
 
 class TFile;
@@ -45,7 +41,6 @@ class ATrack;
 class AEvent;
 class AMixingPool;
 class AMixingTree;
-//class ConversionVeto;
 
 const int N_ARMSECT = 8;
 const int N_YPOS_PBGL = 48;
@@ -83,7 +78,6 @@ public:
   void SetPi0EffFileName(std::string fn0, std::string fn1, std::string fn2, std::string fn3) { _pi0effFilename_0 = fn0; _pi0effFilename_1 = fn1; _pi0effFilename_2 = fn2; _pi0effFilename_3 = fn3;}
   void SetDoFillTime(int doft) { dofilltime = doft; }
   void SetWeightFileNames(std::string fn, std::string fflow) { _accfilename = fn; _flowfilename = fflow; }
-  //void SetFlowFileName(std::string fflow) { _flowfilename = fflow; }
   void SetSharkFinFileName(std::string fn) { _sharkfinname = fn;}
   void SetDiagFlag(int flag) { DiagFlag = flag; }
   void GetAcceptanceWeights(std::string filename);
@@ -189,11 +183,10 @@ public:
           int tbin = GetPtBin(trig_pt, 1);
           int pbin = GetPtBin(assoc_pt, 0);
           int xbin = GetXiBin(xi);
-          filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin,0,use_iso);
-          filltimeflowxi = GetFilltimeWeight(type,deltaphi,assoc_pt,xbin,tbin,1,use_iso);
-        }
-        
-        if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
+	  filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin,0,use_iso);
+	  filltimeflowxi = GetFilltimeWeight(type,deltaphi,assoc_pt,xbin,tbin,1,use_iso);
+	}
+	if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
         
         if( h3ptxidphi_fold ) {
           h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeflowxi);
@@ -234,13 +227,12 @@ public:
     }
   }
   
-
 private:
   float GetHadronEfficiencyCorr(float pt);
   float GetFilltimeWeight(PairType type, float dphi, float partpt, int pbin, int tbin, int isxi, int isiso);
   double GetAcc(TH1F* hist, float dphi);
   double GetAcceptance(PairType type, int cbin, int tbin, int pbin, float dphi, int isxi, int isiso);
-  float GetFlowWeights(PairType type, int tbin, int pbin, float dphifold);
+  float GetFlowWeights(PairType type, int tbin, int pbin,  float partpt, float dphifold);
   //void GetXi(int decayflag, int trigptbin, int partptbin, int centbin, float& xi, float& xierr);
   TH1F* MakeDphiProjection(TH3F* h3, float xmin, float xmax, float ymin, float ymax, float norm);
   TH1F* MakeDphiProjection2D(TH2F* h2, float ymin, float ymax, float norm);
@@ -296,9 +288,6 @@ private:
   PHGlobal* global;
   emcClusterContainer* emcclustercontainer;
   PHCentralTrack* particle;
-  // SvxCentralTrackList* svxcntlist;
-  // SvxClusterList* svxcluslist;
-  // SvxCentralTrack* svxcnttrk;
   TOAD* toad_loader;
   
   Warnmap* warnmap;
@@ -331,22 +320,17 @@ private:
   int NMIX;
   int evt;
   int event;
-  //int useVtx;
   int DiagFlag;
   int RecalFlag;
   float event_z;
   float event_c;
-  //int cbin;
   float PC3_NSIGMA;
   float EMC_NSIGMA;
   float vetoPtCut;
   float minAsym;
   float zVertexCut;
   float fieldPolarity;
-  //int nsvxpart;
   int dofilltime;  
-  // float cluster_pt;
-  // float pi0pt;
   float photon_pt_min;
   float photon_pt_max;
   float hadron_pt_min;
@@ -354,26 +338,15 @@ private:
   float photon_ecore_min;
   float pi0_pt_min;
   float pi0_pt_max;
-  // double mwweight[5];
-  // TGraphErrors* gr_inc_v2[4];
-  // TGraphErrors* gr_dec_v2[4];
-  // TGraphErrors* gr_pi0_v2[4];
-  // TGraphErrors* gr_had_v2[4];
-  // TGraphErrors* gr_inc_v2sys[4];
-  // TGraphErrors* gr_dec_v2sys[4];
-  // TGraphErrors* gr_pi0_v2sys[4];
-  // TGraphErrors* gr_had_v2sys[4];
-  
-  
+
+  TGraphErrors* gr_had_v2[4];//save hadron v2 graph for interpolating points in weighting method
+  int v2sysflag;//0-no sys err; 1-sys up; 2-sys dn
+
   double trig_v2[3][4][NTRIGBINS]; //[type][cent][trig]
-  double trig_v2_err[3][4][NTRIGBINS];
-  double trig_v2_sys[3][4][NTRIGBINS];
+  double trig_v2_sys[3][4][NTRIGBINS];//stat and sys summed in quadrature
   double part_v2[4][NPARTBINS]; //[cent][trig]
-  double part_v2_err[4][NPARTBINS]; 
-  double part_v2_sys[4][NPARTBINS];
+  double part_v2_sys[4][NPARTBINS];//stat and sys summed in quadrature
   
-  //float xi[3][4][NTRIGBINS][NPARTBINS];//[type][cent][trig][part]
-  //float xierr[3][4][NTRIGBINS][NPARTBINS];
   float num_bgtrig[3][4][NTRIGBINS];
   double meanpart[3][4][NTRIGBINS][NPARTBINS];
   
@@ -405,6 +378,8 @@ private:
   std::vector<TH3F*> h3_dphi_fold;
   std::vector<TH3F*> h3_dphi_iso_fold;
   std::vector<TH3F*> h3_dphi_mix_fold;
+  std::vector<TH3F*> h3_dphi_mix_fold_v2up;
+  std::vector<TH3F*> h3_dphi_mix_fold_v2dn;
   std::vector<TH3F*> h3_dphi_iso_mix_fold;
   std::vector<TH3F*> h3_dphi_pi0;
   std::vector<TH3F*> h3_dphi_pi0_iso;
@@ -413,6 +388,8 @@ private:
   std::vector<TH3F*> h3_dphi_pi0_fold;
   std::vector<TH3F*> h3_dphi_pi0_iso_fold;
   std::vector<TH3F*> h3_dphi_pi0_mix_fold;
+  std::vector<TH3F*> h3_dphi_pi0_mix_fold_v2up;
+  std::vector<TH3F*> h3_dphi_pi0_mix_fold_v2dn;
   std::vector<TH3F*> h3_dphi_pi0_iso_mix_fold;
   
   std::vector<TH3F*> h3_ptxidphi;
@@ -422,6 +399,8 @@ private:
   std::vector<TH3F*> h3_ptxidphi_mix;
   std::vector<TH3F*> h3_ptxidphi_iso_mix;
   std::vector<TH3F*> h3_ptxidphi_mix_fold;
+  std::vector<TH3F*> h3_ptxidphi_mix_fold_v2up;
+  std::vector<TH3F*> h3_ptxidphi_mix_fold_v2dn;
   std::vector<TH3F*> h3_ptxidphi_iso_mix_fold;
   std::vector<TH3F*> h3_ptxidphi_pi0;
   std::vector<TH3F*> h3_ptxidphi_pi0_iso;
@@ -430,6 +409,8 @@ private:
   std::vector<TH3F*> h3_ptxidphi_pi0_mix;
   std::vector<TH3F*> h3_ptxidphi_pi0_iso_mix;
   std::vector<TH3F*> h3_ptxidphi_pi0_mix_fold;
+  std::vector<TH3F*> h3_ptxidphi_pi0_mix_fold_v2up;
+  std::vector<TH3F*> h3_ptxidphi_pi0_mix_fold_v2dn;
   std::vector<TH3F*> h3_ptxidphi_pi0_iso_mix_fold;
 
   std::vector<TH3F*> h3_ptztdphi;
@@ -576,6 +557,8 @@ private:
   std::vector<std::vector<TH2F*> > h2_dphi_dec_fold;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_fold;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_mix_fold;
+  std::vector<std::vector<TH2F*> > h2_dphi_dec_mix_fold_v2up;
+  std::vector<std::vector<TH2F*> > h2_dphi_dec_mix_fold_v2dn;
   std::vector<std::vector<TH2F*> > h2_dphi_dec_iso_mix_fold;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_iso;
@@ -584,6 +567,8 @@ private:
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_mix;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_iso_mix;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_mix_fold;
+  std::vector<std::vector<TH2F*> > h2_dphixi_dec_mix_fold_v2up;
+  std::vector<std::vector<TH2F*> > h2_dphixi_dec_mix_fold_v2dn;
   std::vector<std::vector<TH2F*> > h2_dphixi_dec_iso_mix_fold;
 
   std::vector<std::vector<TH2F*> > h2_dphizt_dec;
@@ -592,7 +577,6 @@ private:
   std::vector<std::vector<TH2F*> > h2_dphizt_dec_mix_fold;
 
   std::string _accfilename;
-  //std::string _xifilename;
   std::string _flowfilename;
   std::string _hadeffFilename;
   std::string _pi0effFilename_0;

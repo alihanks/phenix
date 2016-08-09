@@ -24,11 +24,6 @@
 #include <PHGlobal.h>
 #include <emcClusterContainer.h>
 #include <emcClusterContent.h>
-// #include <SvxCentralTrackList.h>
-// #include <SvxCentralTrack.h>
-// #include <SvxClusterList.h>
-// #include <SvxCluster.h>
-// #include <ConversionVeto.h>
 #include <RunHeader.h>
 #include <EventHeader.h>
 #include <ErtOut.h>
@@ -67,7 +62,6 @@ Correlation::Correlation(const char* outfile)
   econe_min[0] = 0; econe_min[1] = 0; econe_min[2] = 0; econe_min[3] = 0;
   photon_ecore_min = 1.0;
   pi0_pt_min = 4.0; pi0_pt_max = 17.0;
-  //useVtx = 0;
   DiagFlag = 0;
   RecalFlag = 1;
   PC3_NSIGMA = 2.0;
@@ -75,10 +69,8 @@ Correlation::Correlation(const char* outfile)
   vetoPtCut = 1.0;
   minAsym = 0.15;
   dofilltime = 1;
-  //  fhadeff = NULL;
   fexemb = NULL;
   fhadroneff = NULL;
-  //v2file = NULL;
   fpi0eff_0 = NULL;
   fpi0eff_1 = NULL;
   fpi0eff_2 = NULL;
@@ -91,23 +83,12 @@ Correlation::Correlation(const char* outfile)
   global = NULL;
   emcclustercontainer = NULL;
   particle = NULL;
-  // svxcntlist = NULL;
-  // svxcluslist = NULL;
-  // svxcnttrk = NULL;
   toad_loader = NULL;
   warnmap = NULL;
   atree = NULL;
   
-  // for(int i=0; i<4; i++){
-  //   gr_inc_v2[i] = NULL;
-  //   gr_dec_v2[i] = NULL;
-  //   gr_pi0_v2[i] = NULL;
-  //   gr_had_v2[i] = NULL;
-  //   gr_inc_v2sys[i] = NULL;
-  //   gr_dec_v2sys[i] = NULL;
-  //   gr_pi0_v2sys[i] = NULL;
-  //   gr_had_v2sys[i] = NULL;
-  // }
+  for(int i=0; i<4; i++) gr_had_v2[i] = NULL;
+
   InitHistos();
 }
 
@@ -142,6 +123,7 @@ Correlation::~Correlation()
   if(atree) delete atree;
 
   for(int ic=0; ic<4; ic++){
+    if(gr_had_v2[ic]) delete gr_had_v2[ic];
     for(int it=0; it<4; it++){
       for(int ip=0; ip<5; ip++){
         delete IncAcc[ic][it][ip];
@@ -330,6 +312,14 @@ int Correlation::Init(PHCompositeNode* topNode)
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_dphi_mix_fold.push_back(temp3);
 
+    name = "h3_dphi_mix_fold_v2up_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
+    h3_dphi_mix_fold_v2up.push_back(temp3);
+
+    name = "h3_dphi_mix_fold_v2dn_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
+    h3_dphi_mix_fold_v2dn.push_back(temp3);
+
     name = "h3_dphi_iso_mix_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_dphi_iso_mix_fold.push_back(temp3);
@@ -337,6 +327,14 @@ int Correlation::Init(PHCompositeNode* topNode)
     name = "h3_ptxidphi_mix_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_ptxidphi_mix_fold.push_back(temp3);
+
+    name = "h3_ptxidphi_mix_fold_v2up_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 30, 0., PI);
+    h3_ptxidphi_mix_fold_v2up.push_back(temp3);
+
+    name = "h3_ptxidphi_mix_fold_v2dn_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 30, 0., PI);
+    h3_ptxidphi_mix_fold_v2dn.push_back(temp3);
 
     name = "h3_ptxidphi_iso_mix_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #gamma} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 30, 0., PI);
@@ -370,6 +368,14 @@ int Correlation::Init(PHCompositeNode* topNode)
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_dphi_pi0_mix_fold.push_back(temp3);
 
+    name = "h3_dphi_pi0_mix_fold_v2up_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
+    h3_dphi_pi0_mix_fold_v2up.push_back(temp3);
+
+    name = "h3_dphi_pi0_mix_fold_v2dn_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
+    h3_dphi_pi0_mix_fold_v2dn.push_back(temp3);
+
     name = "h3_dphi_pi0_iso_mix_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "p_{T, h} [GeV/c]", 100, 0.0, 10.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_dphi_pi0_iso_mix_fold.push_back(temp3);
@@ -377,6 +383,14 @@ int Correlation::Init(PHCompositeNode* topNode)
     name = "h3_ptxidphi_pi0_mix_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 30, 0., PI);
     h3_ptxidphi_pi0_mix_fold.push_back(temp3);
+
+    name = "h3_ptxidphi_pi0_mix_fold_v2up_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 30, 0., PI);
+    h3_ptxidphi_pi0_mix_fold_v2up.push_back(temp3);
+
+    name = "h3_ptxidphi_pi0_mix_fold_v2dn_c" + bin.str();
+    Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "zt", 40, 0.0, 2.0, "#Delta#phi [rad]", 30, 0., PI);
+    h3_ptxidphi_pi0_mix_fold_v2dn.push_back(temp3);
 
     name = "h3_ptxidphi_pi0_iso_mix_fold_c" + bin.str();
     Init3DHisto(temp3, name.c_str(), "p_{T, #pi^{0}} [GeV/c]", 20, 0.0, 20.0, "xi", 25, -1.0, 4.0, "#Delta#phi [rad]", 30, 0., PI);
@@ -662,6 +676,8 @@ int Correlation::Init(PHCompositeNode* topNode)
   h2_dphi_dec_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_iso_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphi_dec_mix_fold_v2up = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphi_dec_mix_fold_v2dn = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphi_dec_iso_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
 
   h2_dphixi_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
@@ -671,6 +687,8 @@ int Correlation::Init(PHCompositeNode* topNode)
   h2_dphixi_dec_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphixi_dec_iso_mix = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphixi_dec_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphixi_dec_mix_fold_v2up = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
+  h2_dphixi_dec_mix_fold_v2dn = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
   h2_dphixi_dec_iso_mix_fold = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
 
   h2_dphizt_dec = vector<vector<TH2F*> > (NCBINS, vector<TH2F*>() );
@@ -734,6 +752,14 @@ int Correlation::Init(PHCompositeNode* topNode)
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
       h2_dphi_dec_mix_fold[ic].push_back(temp2);
 
+      name = "h2_dphi_dec_mix_fold_v2up_p" + bin.str();
+      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
+      h2_dphi_dec_mix_fold_v2up[ic].push_back(temp2);
+
+      name = "h2_dphi_dec_mix_fold_v2dn_p" + bin.str();
+      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
+      h2_dphi_dec_mix_fold_v2dn[ic].push_back(temp2);
+
       name = "h2_dphi_dec_iso_mix_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "p_{T, h} [GeV/c]",100,0.0,10.0);
       h2_dphi_dec_iso_mix_fold[ic].push_back(temp2);
@@ -749,6 +775,14 @@ int Correlation::Init(PHCompositeNode* topNode)
       name = "h2_dphixi_dec_mix_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "xi",25,-1.0,4.0);
       h2_dphixi_dec_mix_fold[ic].push_back(temp2);
+
+      name = "h2_dphixi_dec_mix_fold_v2up_p" + bin.str();
+      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "xi",25,-1.0,4.0);
+      h2_dphixi_dec_mix_fold_v2up[ic].push_back(temp2);
+
+      name = "h2_dphixi_dec_mix_fold_v2dn_p" + bin.str();
+      Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "xi",25,-1.0,4.0);
+      h2_dphixi_dec_mix_fold_v2dn[ic].push_back(temp2);
 
       name = "h2_dphixi_dec_iso_mix_fold_p" + bin.str();
       Init2DHisto(temp2, name.c_str(), "#Delta#phi [rad]", 30, 0., PI, "xi",25,-1.0,4.0);
@@ -1035,7 +1069,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
       h3_mintrackdist_fg_allcent->Fill(mindist,all_clus_vector[iclus]->Pt(), ptofvetotrack);
       h3_mintrackdist_fg[cbin]->Fill(mindist,all_clus_vector[iclus]->Pt(), ptofvetotrack);
     }
-    if(mindist<8.0) continue;
+    if(mindist<4.0) continue;
     
     if( verbosity > 1 ) cout << "Cluster passed!" << endl;
     if(ecore < photon_ecore_min) continue;
@@ -1280,7 +1314,7 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
     float ptofvetotrack = -1.0;
     VetoTracks(all_clusters[iclus],lessqualtrk_vector,mindist,ptofvetotrack);
     
-    if(mindist<8.0) continue;
+    if(mindist<4.0) continue;
     
     //for( unsigned int jclus = iclus+1; jclus < clusters.size(); jclus++ ){
     for( unsigned int jclus = 0; jclus < all_clusters.size(); jclus++ ){
@@ -1569,7 +1603,7 @@ double Correlation::GetAcceptance(PairType type, int cbin, int tbin, int pbin, f
   return acc;
 }
 
-float Correlation::GetFlowWeights(PairType type, int tbin, int pbin, float dphifold)
+float Correlation::GetFlowWeights(PairType type, int tbin, int pbin, float partpt, float dphifold)
 {
   if(tbin<0 || pbin<0) return 0.;
   
@@ -1578,8 +1612,18 @@ float Correlation::GetFlowWeights(PairType type, int tbin, int pbin, float dphif
   if( type == MIXPI ) typebin = 1;
   if( type == MIXDEC) typebin = 2;
   if( typebin < 0 ) return 1.0;  // only return flow modulation for mixed pairs
+
+  float flowweight = 1.0;
+  float partv2 = gr_had_v2[cbin]->Eval(partpt);
+  // cout << "eval at pT = " << partpt << ": v2 = "<< partv2 << "; compare to part v2 in the bin: " << part_v2[cbin][pbin] << endl;
+
+  //float flowweight = (1+2.0*trig_v2[typebin][cbin][tbin]*part_v2[cbin][pbin]*cos(2*dphifold));
+  if(v2sysflag == 0) flowweight = (1+2.0*trig_v2[typebin][cbin][tbin]*partv2*cos(2*dphifold));
+  if(v2sysflag == 1) flowweight = (1+2.0*(trig_v2[typebin][cbin][tbin]+trig_v2_sys[typebin][cbin][tbin])*(partv2+part_v2_sys[cbin][pbin])*cos(2*dphifold));
+  if(v2sysflag == 2) flowweight = (1+2.0*(trig_v2[typebin][cbin][tbin]-trig_v2_sys[typebin][cbin][tbin])*(partv2-part_v2_sys[cbin][pbin])*cos(2*dphifold));
+
+  //cout << "In GetFlowWeights: flowweight = " << flowweight << endl;
   
-  float flowweight = (1+trig_v2[typebin][cbin][tbin]*part_v2[cbin][pbin]*cos(2*dphifold));
   return flowweight;
 }
 
@@ -1954,7 +1998,7 @@ int Correlation::VetoTracks(ACluster* aclus, vector<ATrack*> lessqualtrk_vec)
     float dist = FindTrackDistance(aclus, lessqualtrk_vec[it]);
     if(dist < mindist && lessqualtrk_vec[it]->Pt() > vetoPtCut) mindist = dist;
   }
-  if (mindist < 8.0) return 1;
+  if (mindist < 4.0) return 1;
   
   return 0;
 }
@@ -1968,7 +2012,7 @@ int Correlation::VetoTracks(ACluster* aclus, vector<ATrack*> lessqualtrk_vec, fl
       vetopt = lessqualtrk_vec[it]->Pt();
     }
   }
-  if (mindist < 8.0) return 1;
+  if (mindist < 4.0) return 1;
   
   return 0;
 }
@@ -2190,7 +2234,6 @@ void Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, v
 
 float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, int pbin, int tbin, int isxi, int isiso)
 {
-  //cout << "GetFilltimeWeight: " << endl;
   if(tbin<0 || pbin<0) return 0.;
 
   float filltimeweight = 1.;
@@ -2209,10 +2252,10 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, in
   // GetFlowWeights returns 1.0 if these are real pairs
   // Don't apply flow modulation for non Au+Au runs (like dAu)
   if( isxi ) pbin = GetPtBin(partpt, 0); //for xi case need to calculate partner pT bin for getting v2
-  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,tbin,pbin,dphi)*filltimeweight;
+  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,tbin,pbin,partpt, dphi)*filltimeweight;
   else filltimeflow = filltimeweight;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
-
+  
   return filltimeflow;
 }
 
@@ -2222,7 +2265,6 @@ void Correlation::MakeDecays(PairType type, int isiso, float dphi, float dphifol
                              std::vector<TH2F*> hdphizt, std::vector<TH2F*> hdphizt_fold)                     
 {
   if( verbosity > 1) cout<<"MakeDecays: type = "<<type<<endl;
-
   //calculate xi weights for filltime 
     
   float zt = partpt/trigpt;
@@ -2325,7 +2367,6 @@ void Correlation::SetTriggerEfficiency(const char* filename_0, const char* filen
   sprintf(grname,"ratio_graph_AA_3");
   fpi0eff_3->GetObject(grname,grpi0eff_3);
 }
-
 void Correlation::SetV2(const char* v2_inputs)
 {
   TFile v2file(v2_inputs);
@@ -2334,7 +2375,7 @@ void Correlation::SetV2(const char* v2_inputs)
   TGraphErrors* gr_inc_v2[4];   
   TGraphErrors* gr_dec_v2[4];   
   TGraphErrors* gr_pi0_v2[4];   
-  TGraphErrors* gr_had_v2[4];   
+  //TGraphErrors* gr_had_v2[4];   
   TGraphErrors* gr_inc_v2sys[4];
   TGraphErrors* gr_dec_v2sys[4];
   TGraphErrors* gr_pi0_v2sys[4];
@@ -2344,7 +2385,7 @@ void Correlation::SetV2(const char* v2_inputs)
     gr_inc_v2[i] = NULL;
     gr_dec_v2[i] = NULL;
     gr_pi0_v2[i] = NULL;
-    gr_had_v2[i] = NULL;
+    //gr_had_v2[i] = NULL;
     gr_inc_v2sys[i] = NULL;
     gr_dec_v2sys[i] = NULL;
     gr_pi0_v2sys[i] = NULL;
@@ -2360,9 +2401,10 @@ void Correlation::SetV2(const char* v2_inputs)
     
     double *inc = gr_inc_v2[i]->GetY();
     double *inc_err = gr_inc_v2[i]->GetEY();
+
     for(int j=0; j<4; j++){
       trig_v2[0][i][j] = inc[j];
-      trig_v2_err[0][i][j] = inc_err[j];
+      //trig_v2_err[0][i][j] = inc_err[j];
     }
   
     name.str("");
@@ -2370,7 +2412,11 @@ void Correlation::SetV2(const char* v2_inputs)
     gr_inc_v2sys[i] = (TGraphErrors*)v2file.Get(name.str().c_str());
 
     double *inc_sys = gr_inc_v2sys[i]->GetEY();
-    for(int j=0; j<4; j++) trig_v2_sys[0][i][j] = inc_sys[j];
+    for(int j=0; j<4; j++) {
+      //cout << "inc_err["<<j<<"] = " << inc_err[j] << "; inc_sys[" << j << "] = " << inc_sys[j] << endl;
+      trig_v2_sys[0][i][j] = sqrt(inc_err[j]*inc_err[j] + inc_sys[j]*inc_sys[j]);
+      //cout << "trig_v2_sys[0]["<< i <<"]["<<j << "] = " << trig_v2_sys[0][i][j] << endl;
+    }
     
     name.str("");
     name << "gamma_dec_v2_" << i;
@@ -2380,7 +2426,7 @@ void Correlation::SetV2(const char* v2_inputs)
     double *dec_err = gr_dec_v2[i]->GetEY();
     for(int j=0; j<4; j++){
       trig_v2[2][i][j] = dec[j];
-      trig_v2_err[2][i][j] = dec_err[j];
+      //trig_v2_err[2][i][j] = dec_err[j];
     }
 
     name.str("");
@@ -2388,7 +2434,11 @@ void Correlation::SetV2(const char* v2_inputs)
     gr_dec_v2sys[i] = (TGraphErrors*)v2file.Get(name.str().c_str());
     
     double *dec_sys = gr_dec_v2sys[i]->GetEY();
-    for(int j=0; j<4; j++) trig_v2_sys[2][i][j] = dec_sys[j];
+    for(int j=0; j<4; j++) {
+      //cout << "dec_err["<<j<<"] = " << dec_err[j] << "; dec_sys[" << j << "] = " << dec_sys[j] << endl;
+      trig_v2_sys[2][i][j] = sqrt(dec_err[j]*dec_err[j] + dec_sys[j]*dec_sys[j]);
+      // cout << "trig_v2_sys[2]["<< i <<"]["<<j << "] = " << trig_v2_sys[2][i][j] << endl;
+    }
     
     name.str("");
     name << "pi0_v2_" << i;
@@ -2398,7 +2448,7 @@ void Correlation::SetV2(const char* v2_inputs)
     double *pi0_err = gr_pi0_v2[i]->GetEY();
     for(int j=0; j<4; j++){
       trig_v2[1][i][j] = pi0[j];
-      trig_v2_err[1][i][j] = pi0_err[j];
+      //trig_v2_err[1][i][j] = pi0_err[j];
     }
 
     name.str("");
@@ -2406,7 +2456,11 @@ void Correlation::SetV2(const char* v2_inputs)
     gr_pi0_v2sys[i] = (TGraphErrors*)v2file.Get(name.str().c_str());
    
     double *pi0_sys = gr_pi0_v2sys[i]->GetEY();
-    for(int j=0; j<4; j++) trig_v2_sys[1][i][j] = pi0_sys[j];
+    for(int j=0; j<4; j++) {
+      //cout << "pi0_err["<<j<<"] = " << pi0_err[j] << "; pi0_sys[" << j << "] = " << pi0_sys[j] << endl;
+      trig_v2_sys[1][i][j] = sqrt(pi0_err[j]*pi0_err[j] + pi0_sys[j]*pi0_sys[j]);
+      //cout << "trig_v2_sys[1]["<< i <<"]["<<j << "] = " << trig_v2_sys[1][i][j] << endl;
+    }
     
     name.str("");
     name << "hadron_v2_" << i;
@@ -2416,7 +2470,7 @@ void Correlation::SetV2(const char* v2_inputs)
     double *had_err = gr_had_v2[i]->GetEY();
     for(int j=0; j<5; j++){
       part_v2[i][j] = had[j];
-      part_v2_err[i][j] = had_err[j];
+      //part_v2_err[i][j] = had_err[j];
     }
 
     name.str("");
@@ -2424,14 +2478,18 @@ void Correlation::SetV2(const char* v2_inputs)
     gr_had_v2sys[i] = (TGraphErrors*)v2file.Get(name.str().c_str());
 
     double *had_sys = gr_had_v2sys[i]->GetEY();
-    for(int j=0; j<5; j++) part_v2_sys[i][j] = had_sys[j];
+    for(int j=0; j<5; j++) {
+      //cout << "had_err["<<j<<"] = " << had_err[j] << "; had_sys[" << j << "] = " << had_sys[j] << endl;
+      part_v2_sys[i][j] = sqrt(had_err[j]*had_err[j] + had_sys[j]*had_sys[j]);
+      //cout << "part_v2_sys["<< i <<"]["<<j << "] = " << part_v2_sys[i][j] << endl;
+    }
   }
 
   for(int i=0; i<4; i++){
     delete gr_inc_v2[i];
     delete gr_dec_v2[i];
     delete gr_pi0_v2[i];
-    delete gr_had_v2[i];
+    //delete gr_had_v2[i];
     delete gr_inc_v2sys[i];
     delete gr_dec_v2sys[i];
     delete gr_pi0_v2sys[i];
@@ -2912,16 +2970,31 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
         MakePairs(pi0s,hadrons,MIXPI,data_set,0,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix[cbin],h2_dphizt_dec_mix_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0,h2_dphi_pi0_mix,h2_dphi_xi_pi0_mix,h2_dphi_accw_pi0_mix,h2_dphi_accw_xi_pi0_mix,h3_dphi_accw_pi0_mix,h3_dphi_accw_xi_pi0_mix,h2_partpt_xi_pi0_mix);
       }
       else {
+	v2sysflag = 0;
+	//cout << "make histos with no sys for inc" << endl;
         MakePairs(photons,hadrons,MIX,data_set,0,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix[cbin],h3_ptztdphi_mix_fold[cbin]);
+
+	//cout << "make histos with no sys for pi0" << endl;
         MakePairs(pi0s,hadrons,MIXPI,data_set,0,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix[cbin],h2_dphizt_dec_mix_fold[cbin]);
+
+	//make v2 systematic histograms
+	v2sysflag = 1;
+	//cout << "make v2 up sys histos for inc" << endl;
+        MakePairs(photons,hadrons,MIX,data_set,0,NULL,h3_dphi_mix_fold_v2up[cbin],NULL,h3_ptxidphi_mix_fold_v2up[cbin],NULL,NULL);
+	
+	//cout << "make v2 up sys histos for pi0" << endl;
+	MakePairs(pi0s,hadrons,MIXPI,data_set,0,NULL,h3_dphi_pi0_mix_fold_v2up[cbin],NULL,h3_ptxidphi_pi0_mix_fold_v2up[cbin],NULL,NULL,vector<TH2F*>(),h2_dphi_dec_mix_fold_v2up[cbin],vector<TH2F*>(),h2_dphixi_dec_mix_fold_v2up[cbin],vector<TH2F*>(),vector<TH2F*>());
+	
+	//v2sysflag = 2;
+	//cout << "make v2 dn sys histos for inc" << endl;
+	MakePairs(photons,hadrons,MIX,data_set,0,NULL,h3_dphi_mix_fold_v2dn[cbin],NULL,h3_ptxidphi_mix_fold_v2dn[cbin],NULL,NULL);
+	
+	//cout << "make v2 dn sys histos for pi0" << endl;
+        MakePairs(pi0s,hadrons,MIXPI,data_set,0,NULL,h3_dphi_pi0_mix_fold_v2dn[cbin],NULL,h3_ptxidphi_pi0_mix_fold_v2dn[cbin],NULL,NULL,vector<TH2F*>(),h2_dphi_dec_mix_fold_v2dn[cbin],vector<TH2F*>(),h2_dphixi_dec_mix_fold_v2dn[cbin],vector<TH2F*>(),vector<TH2F*>());
       }
+
       MakePairs(photons,hadrons,MIX,data_set,1,h3_dphi_iso_mix[cbin],h3_dphi_iso_mix_fold[cbin],h3_ptxidphi_iso_mix[cbin],h3_ptxidphi_iso_mix_fold[cbin],NULL,NULL);     
       MakePairs(pi0s,hadrons,MIXPI,data_set,1,h3_dphi_pi0_iso_mix[cbin],h3_dphi_pi0_iso_mix_fold[cbin],h3_ptxidphi_pi0_iso_mix[cbin],h3_ptxidphi_pi0_iso_mix_fold[cbin],NULL,NULL,h2_dphi_dec_iso_mix[cbin],h2_dphi_dec_iso_mix_fold[cbin],h2_dphixi_dec_iso_mix[cbin],h2_dphixi_dec_iso_mix_fold[cbin]);
-
-      //for(unsigned int i=0; i<hadrons.size(); i++) delete hadrons[i];
-      //hadrons.clear();
-      //for(unsigned int i=0; i<clusters.size(); i++) delete hadrons[i];
-      //clusters.clear();
       
       ClearVector(hadrons);
       ClearVector(clusters);
@@ -2933,11 +3006,6 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
     }
     ClearVector(photons);
     ClearVector(pi0s);
-    
-    //for(unsigned int i=0; i<photons.size(); i++) delete photons[i];
-    //photons.clear();
-    //for(unsigned int i=0; i<pi0s.size(); i++) delete pi0s[i];
-    //pi0s.clear();
   }
 }
 
