@@ -304,7 +304,6 @@ void MakeWeightedJFs::MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dph
 	if(!type) GetCutOffCorr(it);
 	correlation->Scale(1.0/cutoffcorr);
 	float binwidth = correlation->GetBinWidth(1);
-	cout << "binwidth = " << binwidth << endl;
 	correlation->Scale(1/binwidth);
 	correlation->Scale(1/ntrigs);
 }
@@ -323,8 +322,12 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float lphi, float hphi)
 {
 	int lbin = dphi->FindBin(lphi);
 	int hbin = dphi->FindBin(hphi);
-	double norm = dphi->Integral(lbin,hbin);
-	norm = norm/((double)(hbin-lbin+1));
+	double norm = 0; int count = 0;
+	for( int ib = lbin; ib <= hbin; ib++ ) {
+		if( dphi->GetBinContent(lbin) > 0 ) norm += dphi->GetBinContent(lbin);
+		if( dphi->GetBinContent(lbin) > 0 ) count++;
+	}
+	norm = norm/((double)count);
 
 	return norm;
 }
