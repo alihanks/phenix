@@ -210,6 +210,8 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 	bin.str("");
 	bin << "_c" << cbin;
 	outfile->cd();
+	double zyam_low[NPARTBIN] = {1.1,1.3,1.1,1.3,1.3,1.3,1.3};
+	double zyam_high[NPARTBIN] = {1.4,1.5,1.4,1.5,1.5,1.5,1.5};
 
 	for(int it = 0; it < NTRIGBIN; it++){
 		bin.str("");
@@ -240,7 +242,7 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 			dphi_1d_mix[cbin][it][ih]->Scale(1.0/Nmix);
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(isdAu, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrig[it], it, ih, cbin, 1.1, 1.3);
+			MakeJetFunction(isdAu, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrig[it], it, ih, cbin, zyam_low[ih], zyam_high[ih]);
 			MakeJetFunction(isdAu, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrig[it], it, ih, cbin, 1.0, 1.4);
 			outfile->cd();
 			corr[cbin][it][ih]->Write();
@@ -325,7 +327,7 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float lphi, float hphi)
 	int lbin = dphi->FindBin(lphi);
 	int hbin = dphi->FindBin(hphi);
 	double norm = 0; int count = 0;
-	for( int ib = lbin; ib <= hbin; ib++ ) {
+	for( int ib = lbin; ib < hbin; ib++ ) {
 		if( dphi->GetBinContent(ib) ) norm += dphi->GetBinContent(ib);
 		if( dphi->GetBinContent(ib) ) count++;
 	}
