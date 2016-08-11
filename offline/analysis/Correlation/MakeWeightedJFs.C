@@ -276,7 +276,7 @@ void MakeWeightedJFs::MakeDphiProjection(TH3F* h3, TH1F*& h1,double xmin, double
 	if( XiBinning ) ybinlo = proj_y->FindBin(ymax);
 	int ybinhi = proj_y->FindBin(ymax);
 	if( XiBinning ) ybinhi = proj_y->FindBin(ymin);
-	cout << "Projecting between xi bin " << xbinlo << " and xi bin " << xbinhi-1 << endl;
+	cout << "Projecting between xi= " << xmin << " (bin " << xbinlo << ") and xi=" << xmax " (bin " << xbinhi-1 << ")" << endl;
 	h1 = new TH1F(*(TH1F*)h3->ProjectionZ(hname.c_str(),xbinlo,xbinhi-1,ybinlo,ybinhi-1));
 	h1->SetName(hname.c_str());
 }
