@@ -947,6 +947,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
   
   event_z = global->getBbcZVertex();
   event_c = global->getCentrality();
+  if(data_set == Run8pp) event_c = 0;
   
   if (verbosity > 2) cout << "BBC vertex: "<< event_z <<" Centrality: "<< event_c << endl;
 
@@ -1010,7 +1011,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
     if( !IsGoodTower(&acluster) ) continue;
     if( !IsGoodCluster(&acluster,data_set) ) continue;
     // Check trigger bit - for triggered data
-    if( data_set == Run8dAu ) {
+    if( data_set == Run8dAu || data_set == Run8pp ) {
       int ert_sm = (acluster.GetArm()==1&&acluster.GetSec()<2) ? acluster.GetIypos()/12*8 + acluster.GetIzpos()/12 : acluster.GetIypos()/12*6 + acluster.GetIzpos()/12;
       if( verbosity > 1 ) cout << "Photon in SM " << ert_sm << endl;
       int sm_fired = 0;
@@ -1105,7 +1106,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
     h1_trig_pt_all[cbin]->Fill(cluster_pt); // Keep track of all photons before tagging rejection (for dAu or p+p)
     if( all_clus_vector[iclus]->IsIso() ) h1_trig_pt_all_iso[cbin]->Fill(cluster_pt); // Keep track of all photons before tagging rejection (for dAu or p+p)
     // In Run8 reject all tagged photons prior to making pairs...
-    if( data_set == Run8dAu && all_clus_vector[iclus]->IsTagged() ) continue;
+    if( (data_set == Run8dAu || data_set == Run8pp) && all_clus_vector[iclus]->IsTagged() ) continue;
     
     h1_trig_pt_inc[cbin]->Fill(cluster_pt);
     if( all_clus_vector[iclus]->IsIso() ) h1_trig_pt_inc_iso[cbin]->Fill(cluster_pt);
@@ -1220,7 +1221,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
   MakePairs(pi0_vector,trk_vector,REALPI,data_set,1,h3_dphi_pi0_iso[cbin],h3_dphi_pi0_iso_fold[cbin],h3_ptxidphi_pi0_iso[cbin],h3_ptxidphi_pi0_iso_fold[cbin],NULL,NULL,h2_dphi_dec_iso[cbin],h2_dphi_dec_iso_fold[cbin],h2_dphixi_dec_iso[cbin],h2_dphixi_dec_iso_fold[cbin]);
 
   atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());
-  if( data_set == Run8dAu ) {
+  if( data_set == Run8dAu || data_set == Run8pp ) {
     AddMBEvent(data_set);
   }
 
@@ -2551,8 +2552,10 @@ void Correlation::SetSharkFin(const char* filename)
 Correlation::DataSet Correlation::GetDataSet(int RunNumber)
 {
   DataSet dataset = INVALID;
-  if(RunNumber>=246000 && RunNumber<=260000)
+  if(RunNumber>=246000 && RunNumber<=254000)
     dataset = Run8dAu;
+  if(RunNumber>=254000 && RunNumber<=260000)
+    dataset = Run8pp;
   if(RunNumber>=300475 && RunNumber<=310454)
     dataset = Run10AuAu;
   if(RunNumber>=343031 && RunNumber<=349680)

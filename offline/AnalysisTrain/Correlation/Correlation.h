@@ -84,7 +84,7 @@ public:
 
   void Clear();
 
-  enum DataSet { Run8dAu, Run10AuAu, Run11AuAu, Run14AuAu, INVALID };
+  enum DataSet { Run8pp, Run8dAu, Run10AuAu, Run11AuAu, Run14AuAu, INVALID };
   enum PairType { REAL, MIX, REALPI, MIXPI, DEC, MIXDEC, DIAGNOSTIC };
   DataSet GetDataSet(int RunNumber);
   float Rcut;
