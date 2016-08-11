@@ -266,7 +266,7 @@ double MakeWeightedJFs::GetNTrigs(int type, int bin, TH1F* histo)
 	return 0;
 }
 
-void MakeWeightedJFs::MakeDphiProjection(TH3F* h3, TH1F*& h1,double xmin, double xmax, double ymin, double ymax, string hname)
+void MakeWeightedJFs::MakeDphiProjection(TH3F* h3, TH1F*& h1, double xmin, double xmax, double ymin, double ymax, string hname)
 {
 	TH1F* proj_x = (TH1F*)h3->ProjectionX("px");
 	TH1F* proj_y = (TH1F*)h3->ProjectionY("py");
@@ -276,7 +276,7 @@ void MakeWeightedJFs::MakeDphiProjection(TH3F* h3, TH1F*& h1,double xmin, double
 	if( XiBinning ) ybinlo = proj_y->FindBin(ymax);
 	int ybinhi = proj_y->FindBin(ymax);
 	if( XiBinning ) ybinhi = proj_y->FindBin(ymin);
-	cout << "Projecting between xi= " << xmin << " (bin " << xbinlo << ") and xi=" << xmax << " (bin " << xbinhi-1 << ")" << endl;
+	cout << "Projecting between xi= " << ymin << " (bin " << ybinlo << ") and xi=" << ymax << " (bin " << ybinhi-1 << ")" << endl;
 	h1 = new TH1F(*(TH1F*)h3->ProjectionZ(hname.c_str(),xbinlo,xbinhi-1,ybinlo,ybinhi-1));
 	h1->SetName(hname.c_str());
 }
