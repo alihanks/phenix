@@ -210,8 +210,8 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 	bin.str("");
 	bin << "_c" << cbin;
 	outfile->cd();
-	double zyam_low[NPARTBIN] = {1.1,1.3,1.1,1.3,1.3,1.3,1.3};
-	double zyam_high[NPARTBIN] = {1.4,1.5,1.4,1.5,1.5,1.5,1.5};
+	double zyam_low[NPARTBIN] = {1.1,1.3,1.1,1.3,1.3,1.3,1.2};
+	double zyam_high[NPARTBIN] = {1.4,1.5,1.4,1.5,1.5,1.5,1.4};
 
 	for(int it = 0; it < NTRIGBIN; it++){
 		bin.str("");
