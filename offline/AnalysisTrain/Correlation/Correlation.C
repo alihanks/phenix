@@ -2551,7 +2551,7 @@ void Correlation::SetSharkFin(const char* filename)
 Correlation::DataSet Correlation::GetDataSet(int RunNumber)
 {
   DataSet dataset = INVALID;
-  if(RunNumber>=246000 && RunNumber<=254000)
+  if(RunNumber>=246000 && RunNumber<=260000)
     dataset = Run8dAu;
   if(RunNumber>=300475 && RunNumber<=310454)
     dataset = Run10AuAu;
