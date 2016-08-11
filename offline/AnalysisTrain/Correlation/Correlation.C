@@ -947,7 +947,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
   
   event_z = global->getBbcZVertex();
   event_c = global->getCentrality();
-  if(data_set == Run8pp) event_c = 0;
+  if(data_set == Run8pp) event_c = 1;
   
   if (verbosity > 2) cout << "BBC vertex: "<< event_z <<" Centrality: "<< event_c << endl;
 
