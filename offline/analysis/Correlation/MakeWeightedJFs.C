@@ -289,7 +289,7 @@ void MakeWeightedJFs::Make2DDphiProjection(TH2F* h3, TH1F*& h1,double ymin, doub
 	int ybinhi = proj_y->FindBin(ymax);
 	if( XiBinning ) ybinhi = proj_y->FindBin(ymin);
 
-	h1 = new TH1F(*(TH1F*)h3->ProjectionX(hname.c_str(),ybinlo,ybinhi));
+	h1 = new TH1F(*(TH1F*)h3->ProjectionX(hname.c_str(),ybinlo,ybinhi-1));
 	h1->SetName(hname.c_str());
 }
 
