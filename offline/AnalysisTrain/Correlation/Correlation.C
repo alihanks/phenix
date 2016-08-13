@@ -1413,7 +1413,7 @@ void Correlation::GetAcceptanceWeights(string filename)//input file is a previou
   float norm = 2*PI;
 
   cout << "acceptance weight input file is opened." <<endl;
-  for( int ic = 0; ic < 4; ic++ ){
+  for( int ic = 0; ic < NCBINS; ic++ ){
     bin.str(""); bin << "h3_dphi_mix_c" << ic;
     TH3F* bginc = (TH3F*)fin->Get(bin.str().c_str());
     bin.str(""); bin << "h3_dphi_iso_mix_c" << ic;
