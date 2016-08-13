@@ -96,7 +96,7 @@ Correlation::~Correlation()
   if(fhadroneff) delete fhadroneff;
   if(ratio) delete ratio;
 
-  for( i = 0; i < 4; i++ ) {
+  for( int i = 0; i < 4; i++ ) {
     if(grpi0eff[i]) delete grpi0eff[i];
     if( fpi0eff[i] ){
       fpi0eff[i]->Close();
