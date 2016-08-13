@@ -65,7 +65,7 @@ public:
   virtual int End(PHCompositeNode* topNode);
 
   void SetHadronEfficiency(const char* filename);
-  void SetTriggerEfficiency(const char* filename_0, const char* filename_1, const char* filename_2, const char* filename_3);
+  void SetTriggerEfficiency(const std::string* filenames);
   void SetV2(const char* v2_inputs);
   void SetSharkFin(const char* filename);
   void SetWarnmaps(std::vector<std::string> filenames, std::vector<double> ptcuts);
@@ -589,14 +589,8 @@ private:
   TF1* fhadroneff;
   TH1F* ratio;
   
-  TFile* fpi0eff_0;//0-20%
-  TFile* fpi0eff_1;//20-40%
-  TFile* fpi0eff_2;//40-60%
-  TFile* fpi0eff_3;//60-100%
-  TGraphErrors* grpi0eff_0;//0-20%
-  TGraphErrors* grpi0eff_1;//20-40%
-  TGraphErrors* grpi0eff_2;//40-60%
-  TGraphErrors* grpi0eff_3;//60-100%
+  TFile* fpi0eff[4];
+  TGraphErrors* grpi0eff[4];
 
   //debug tools
   //for type REAL

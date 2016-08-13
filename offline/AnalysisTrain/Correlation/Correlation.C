@@ -72,14 +72,10 @@ Correlation::Correlation(const char* outfile)
   fexemb = NULL;
   fhadroneff = NULL;
   ratio = NULL;
-  fpi0eff_0 = NULL;
-  fpi0eff_1 = NULL;
-  fpi0eff_2 = NULL;
-  fpi0eff_3 = NULL;
-  grpi0eff_0 = NULL;
-  grpi0eff_1 = NULL;
-  grpi0eff_2 = NULL;
-  grpi0eff_3 = NULL;
+  for( int i = 0; i < 4; i++ ) {
+    fpi0eff[i] = NULL;
+    grpi0eff[i] = NULL;    
+  }
   manager = NULL;
   global = NULL;
   emcclustercontainer = NULL;
@@ -100,26 +96,14 @@ Correlation::~Correlation()
   if(fhadroneff) delete fhadroneff;
   if(ratio) delete ratio;
 
-  if(grpi0eff_0) delete grpi0eff_0;
-  if( fpi0eff_0 ){
-    fpi0eff_0->Close();
-    delete fpi0eff_0;
+  for( i = 0; i < 4; i++ ) {
+    if(grpi0eff[i]) delete grpi0eff[i];
+    if( fpi0eff[i] ){
+      fpi0eff[i]->Close();
+      delete fpi0eff[i];
+    }
   }
-  if( grpi0eff_1 ) delete grpi0eff_1;
-  if( fpi0eff_1 ){
-    fpi0eff_1->Close();
-    delete fpi0eff_1;
-  }
-  if( grpi0eff_2 ) delete grpi0eff_2;
-  if( fpi0eff_2 ){
-    fpi0eff_2->Close();
-    delete fpi0eff_2;
-  }
-  if( grpi0eff_3 ) delete grpi0eff_3;
-  if( fpi0eff_3 ){
-    fpi0eff_3->Close();
-    delete fpi0eff_3;
-  }
+
   for (int ipzemc = 0; ipzemc < 33; ipzemc++){
     for (int ipdecs = 0; ipdecs < 5; ipdecs++){
       if( hshark_large[ipdecs][ipzemc] )
@@ -186,11 +170,12 @@ int Correlation::Init(PHCompositeNode* topNode)
   string fhadroneff_location = toad_loader->location(_hadeffFilename.c_str());
   SetHadronEfficiency(fhadroneff_location.c_str());
   
-  string feff_0_location = toad_loader->location(_pi0effFilename_0.c_str());
-  string feff_1_location = toad_loader->location(_pi0effFilename_1.c_str());
-  string feff_2_location = toad_loader->location(_pi0effFilename_2.c_str());
-  string feff_3_location = toad_loader->location(_pi0effFilename_3.c_str());
-  SetTriggerEfficiency(feff_0_location.c_str(), feff_1_location.c_str(), feff_2_location.c_str(), feff_3_location.c_str());
+  string feff_locations[4];
+  string feff_locations[0] = toad_loader->location(_pi0effFilename_0.c_str());
+  string feff_locations[1] = toad_loader->location(_pi0effFilename_1.c_str());
+  string feff_locations[2] = toad_loader->location(_pi0effFilename_2.c_str());
+  string feff_locations[3] = toad_loader->location(_pi0effFilename_3.c_str());
+  SetTriggerEfficiency(feff_locations);
   cout << "pi0 trigger efficiency loaded" << endl;
 
   string sharkfin_file = toad_loader->location(_sharkfinname.c_str());
@@ -2378,22 +2363,14 @@ float Correlation::GetHadronEfficiencyCorr(float pt)
   return seffcorr;
 }
 
-void Correlation::SetTriggerEfficiency(const char* filename_0, const char* filename_1, const char* filename_2, const char* filename_3)
+void Correlation::SetTriggerEfficiency(const string* filenames)
 {
-  fpi0eff_0=new TFile(filename_0);
-  fpi0eff_1=new TFile(filename_1);
-  fpi0eff_2=new TFile(filename_2);
-  fpi0eff_3=new TFile(filename_3);
-  
   char grname[100];
-  sprintf(grname,"ratio_graph_AA_0");
-  fpi0eff_0->GetObject(grname,grpi0eff_0);
-  sprintf(grname,"ratio_graph_AA_1");
-  fpi0eff_1->GetObject(grname,grpi0eff_1);
-  sprintf(grname,"ratio_graph_AA_2");
-  fpi0eff_2->GetObject(grname,grpi0eff_2);
-  sprintf(grname,"ratio_graph_AA_3");
-  fpi0eff_3->GetObject(grname,grpi0eff_3);
+  for( int i = 0; i < NCBINS; i++) {
+    fpi0eff[i]=new TFile(filenames[i].c_str());
+    sprintf(grname,"ratio_graph_AA_%d",i);
+    fpi0eff[i]->GetObject(grname,grpi0eff[i]);
+  }
 }
 
 void Correlation::SetV2(const char* v2_inputs)
