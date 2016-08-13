@@ -183,10 +183,10 @@ public:
           int tbin = GetPtBin(trig_pt, 1);
           int pbin = GetPtBin(assoc_pt, 0);
           int xbin = GetXiBin(xi);
-	  filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin,0,use_iso);
-	  filltimeflowxi = GetFilltimeWeight(type,deltaphi,assoc_pt,xbin,tbin,1,use_iso);
-	}
-	if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
+          filltimeflow = GetFilltimeWeight(type,deltaphi,assoc_pt,pbin,tbin,0,use_iso);
+          filltimeflowxi = GetFilltimeWeight(type,deltaphi,assoc_pt,xbin,tbin,1,use_iso);
+        }
+        if( h3dphi_fold ) h3dphi_fold->Fill(trig_pt, assoc_pt, dphifold, filltimeflow);
         
         if( h3ptxidphi_fold ) {
           h3ptxidphi_fold->Fill(trig_pt, xi, dphifold, filltimeflowxi);
@@ -585,11 +585,9 @@ private:
   std::string _pi0effFilename_3;
   std::string _sharkfinname;
   
-
-  //TFile* fhadeff;
   TF1* fexemb;
   TF1* fhadroneff;
-  //TH1D* h1_hadroneff;//input hadron efficiency in five associate hadron pt bins
+  TH1F* ratio;
   
   TFile* fpi0eff_0;//0-20%
   TFile* fpi0eff_1;//20-40%

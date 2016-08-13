@@ -71,6 +71,7 @@ Correlation::Correlation(const char* outfile)
   dofilltime = 1;
   fexemb = NULL;
   fhadroneff = NULL;
+  ratio = NULL;
   fpi0eff_0 = NULL;
   fpi0eff_1 = NULL;
   fpi0eff_2 = NULL;
@@ -97,6 +98,7 @@ Correlation::~Correlation()
   if(warnmap) delete warnmap;
   
   if(fhadroneff) delete fhadroneff;
+  if(ratio) delete ratio;
 
   if(grpi0eff_0) delete grpi0eff_0;
   if( fpi0eff_0 ){
@@ -1075,7 +1077,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
       h3_mintrackdist_fg_allcent->Fill(mindist,all_clus_vector[iclus]->Pt(), ptofvetotrack);
       h3_mintrackdist_fg[cbin]->Fill(mindist,all_clus_vector[iclus]->Pt(), ptofvetotrack);
     }
-    if(mindist<4.0) continue;
+    if(mindist<8.0) continue;
     
     if( verbosity > 1 ) cout << "Cluster passed!" << endl;
     if(ecore < photon_ecore_min) continue;
@@ -1320,7 +1322,7 @@ void Correlation::MakePi0s(vector<ACluster*> all_clusters, int cent, float zvert
     float ptofvetotrack = -1.0;
     VetoTracks(all_clusters[iclus],lessqualtrk_vector,mindist,ptofvetotrack);
     
-    if(mindist<4.0) continue;
+    if(mindist<8.0) continue;
     
     //for( unsigned int jclus = iclus+1; jclus < clusters.size(); jclus++ ){
     for( unsigned int jclus = 0; jclus < all_clusters.size(); jclus++ ){
@@ -2004,7 +2006,7 @@ int Correlation::VetoTracks(ACluster* aclus, vector<ATrack*> lessqualtrk_vec)
     float dist = FindTrackDistance(aclus, lessqualtrk_vec[it]);
     if(dist < mindist && lessqualtrk_vec[it]->Pt() > vetoPtCut) mindist = dist;
   }
-  if (mindist < 4.0) return 1;
+  if (mindist < 8.0) return 1;
   
   return 0;
 }
@@ -2018,7 +2020,7 @@ int Correlation::VetoTracks(ACluster* aclus, vector<ATrack*> lessqualtrk_vec, fl
       vetopt = lessqualtrk_vec[it]->Pt();
     }
   }
-  if (mindist < 4.0) return 1;
+  if (mindist < 8.0) return 1;
   
   return 0;
 }
@@ -2328,10 +2330,14 @@ void Correlation::MakeDecays(PairType type, int isiso, float dphi, float dphifol
 
 void Correlation::SetHadronEfficiency(const char* filename)
 {
+  TH1::AddDirectory(kFALSE);
   TFile* fhadeff = new TFile(filename);
   if( verbosity > 1 ) cout<<PHWHERE<<"loading hadron efficiency"<<fhadeff->GetName()<<endl;
   fhadeff->GetObject("feff",fhadroneff);
-  //fhadroneff = (TH1D*)fhadeff->Get("heff2");
+
+  ratio = (TH1F*) fhadeff->Get("ratio");
+  if(ratio) ratio->SetName("RATIO");
+  
   fexemb = new TF1("fexemb","[0]+[1]*exp([2]*x)",5.0,10.0);
   fhadeff->Close();
 }
@@ -2349,6 +2355,15 @@ float Correlation::GetHadronEfficiencyCorr(float pt)
   float seffcorr = 1.0;
   if( verbosity > 1 ) cout<<"fhadroneff->Eval(pt) = "<<fhadroneff->Eval(pt)<<endl;
   seffcorr = 2.0/fhadroneff->Eval(pt);
+  
+  int ptfinebin = 1;
+  double scale = 1.0;
+  if(ratio){
+    ptfinebin = ratio->FindBin(pt);
+    scale = ratio->GetBinContent(ptfinebin);
+    seffcorr /= scale;
+  }
+
   if( data_set != Run8dAu ) {
     if(pt>5.0) seffcorr = seffcorr/embcorr[cbin];
     else seffcorr = seffcorr/richcorr[cbin];
@@ -2373,6 +2388,7 @@ void Correlation::SetTriggerEfficiency(const char* filename_0, const char* filen
   sprintf(grname,"ratio_graph_AA_3");
   fpi0eff_3->GetObject(grname,grpi0eff_3);
 }
+
 void Correlation::SetV2(const char* v2_inputs)
 {
   TFile v2file(v2_inputs);
@@ -2978,26 +2994,26 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
         MakePairs(pi0s,hadrons,MIXPI,data_set,0,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix[cbin],h2_dphizt_dec_mix_fold[cbin],h2_bfpaircut_pi0,h2_aftpaircut_pi0,h2_dphi_pi0_mix,h2_dphi_xi_pi0_mix,h2_dphi_accw_pi0_mix,h2_dphi_accw_xi_pi0_mix,h3_dphi_accw_pi0_mix,h3_dphi_accw_xi_pi0_mix,h2_partpt_xi_pi0_mix);
       }
       else {
-	v2sysflag = 0;
-	//cout << "make histos with no sys for inc" << endl;
+        v2sysflag = 0;
+        //cout << "make histos with no sys for inc" << endl;
         MakePairs(photons,hadrons,MIX,data_set,0,h3_dphi_mix[cbin],h3_dphi_mix_fold[cbin],h3_ptxidphi_mix[cbin],h3_ptxidphi_mix_fold[cbin],h3_ptztdphi_mix[cbin],h3_ptztdphi_mix_fold[cbin]);
 
-	//cout << "make histos with no sys for pi0" << endl;
+        //cout << "make histos with no sys for pi0" << endl;
         MakePairs(pi0s,hadrons,MIXPI,data_set,0,h3_dphi_pi0_mix[cbin],h3_dphi_pi0_mix_fold[cbin],h3_ptxidphi_pi0_mix[cbin],h3_ptxidphi_pi0_mix_fold[cbin],h3_ptztdphi_pi0_mix[cbin],h3_ptztdphi_pi0_mix_fold[cbin],h2_dphi_dec_mix[cbin],h2_dphi_dec_mix_fold[cbin],h2_dphixi_dec_mix[cbin],h2_dphixi_dec_mix_fold[cbin],h2_dphizt_dec_mix[cbin],h2_dphizt_dec_mix_fold[cbin]);
 
-	//make v2 systematic histograms
-	v2sysflag = 1;
-	//cout << "make v2 up sys histos for inc" << endl;
+        //make v2 systematic histograms
+        v2sysflag = 1;
+        //cout << "make v2 up sys histos for inc" << endl;
         MakePairs(photons,hadrons,MIX,data_set,0,NULL,h3_dphi_mix_fold_v2up[cbin],NULL,h3_ptxidphi_mix_fold_v2up[cbin],NULL,NULL);
-	
-	//cout << "make v2 up sys histos for pi0" << endl;
-	MakePairs(pi0s,hadrons,MIXPI,data_set,0,NULL,h3_dphi_pi0_mix_fold_v2up[cbin],NULL,h3_ptxidphi_pi0_mix_fold_v2up[cbin],NULL,NULL,vector<TH2F*>(),h2_dphi_dec_mix_fold_v2up[cbin],vector<TH2F*>(),h2_dphixi_dec_mix_fold_v2up[cbin],vector<TH2F*>(),vector<TH2F*>());
-	
-	//v2sysflag = 2;
-	//cout << "make v2 dn sys histos for inc" << endl;
-	MakePairs(photons,hadrons,MIX,data_set,0,NULL,h3_dphi_mix_fold_v2dn[cbin],NULL,h3_ptxidphi_mix_fold_v2dn[cbin],NULL,NULL);
-	
-	//cout << "make v2 dn sys histos for pi0" << endl;
+        
+        //cout << "make v2 up sys histos for pi0" << endl;
+        MakePairs(pi0s,hadrons,MIXPI,data_set,0,NULL,h3_dphi_pi0_mix_fold_v2up[cbin],NULL,h3_ptxidphi_pi0_mix_fold_v2up[cbin],NULL,NULL,vector<TH2F*>(),h2_dphi_dec_mix_fold_v2up[cbin],vector<TH2F*>(),h2_dphixi_dec_mix_fold_v2up[cbin],vector<TH2F*>(),vector<TH2F*>());
+        
+        //v2sysflag = 2;
+        //cout << "make v2 dn sys histos for inc" << endl;
+        MakePairs(photons,hadrons,MIX,data_set,0,NULL,h3_dphi_mix_fold_v2dn[cbin],NULL,h3_ptxidphi_mix_fold_v2dn[cbin],NULL,NULL);
+        
+        //cout << "make v2 dn sys histos for pi0" << endl;
         MakePairs(pi0s,hadrons,MIXPI,data_set,0,NULL,h3_dphi_pi0_mix_fold_v2dn[cbin],NULL,h3_ptxidphi_pi0_mix_fold_v2dn[cbin],NULL,NULL,vector<TH2F*>(),h2_dphi_dec_mix_fold_v2dn[cbin],vector<TH2F*>(),h2_dphixi_dec_mix_fold_v2dn[cbin],vector<TH2F*>(),vector<TH2F*>());
       }
 
