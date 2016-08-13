@@ -120,6 +120,13 @@ Correlation::~Correlation()
     fpi0eff_3->Close();
     delete fpi0eff_3;
   }
+  for (int ipzemc = 0; ipzemc < 33; ipzemc++){
+    for (int ipdecs = 0; ipdecs < 5; ipdecs++){
+      if( hshark_large[ipdecs][ipzemc] )
+        delete hshark_large[ipdecs][ipzemc];
+    }
+  }
+
   delete toad_loader;
   delete manager;
   if(atree) delete atree;
@@ -2563,6 +2570,9 @@ void Correlation::SetSharkFin(const char* filename)
   }
   for(int ij=0; ij<5; ij++)
     delete pisacorr_large[ij];
+
+  fshark_exodus->Close();
+  delete fshark_exodus;
 }
 
 Correlation::DataSet Correlation::GetDataSet(int RunNumber)
