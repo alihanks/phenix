@@ -171,10 +171,10 @@ int Correlation::Init(PHCompositeNode* topNode)
   SetHadronEfficiency(fhadroneff_location.c_str());
   
   string feff_locations[4];
-  string feff_locations[0] = toad_loader->location(_pi0effFilename_0.c_str());
-  string feff_locations[1] = toad_loader->location(_pi0effFilename_1.c_str());
-  string feff_locations[2] = toad_loader->location(_pi0effFilename_2.c_str());
-  string feff_locations[3] = toad_loader->location(_pi0effFilename_3.c_str());
+  feff_locations[0] = toad_loader->location(_pi0effFilename_0.c_str());
+  feff_locations[1] = toad_loader->location(_pi0effFilename_1.c_str());
+  feff_locations[2] = toad_loader->location(_pi0effFilename_2.c_str());
+  feff_locations[3] = toad_loader->location(_pi0effFilename_3.c_str());
   SetTriggerEfficiency(feff_locations);
   cout << "pi0 trigger efficiency loaded" << endl;
 
@@ -2211,10 +2211,7 @@ void Correlation::EvalDecWeights(APiZero* pi0trigger, float zvertex, int cbin, v
   //  float pi0trigpz = pi0trigger->Pz();
   
   float pi0trigeff = 0.;
-  if(cbin == 0) pi0trigeff = grpi0eff_0->Eval(pi0trigpt); 
-  if(cbin == 1) pi0trigeff = grpi0eff_1->Eval(pi0trigpt);
-  if(cbin == 2) pi0trigeff = grpi0eff_2->Eval(pi0trigpt);
-  if(cbin == 3) pi0trigeff = grpi0eff_3->Eval(pi0trigpt);
+  pi0trigeff = grpi0eff[cbin]->Eval(pi0trigpt); 
   
   int trigptbin = hshark_large[0][0]->FindBin(pi0trigpt);
   if(trigptbin>400) trigptbin=400;
