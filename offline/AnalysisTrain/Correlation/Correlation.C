@@ -105,6 +105,7 @@ Correlation::~Correlation()
   }
 
   for (int ipzemc = 0; ipzemc < 33; ipzemc++){
+    if( ptpivsptgam[ipzemc] ) delete ptpivsptgam[ipzemc];
     for (int ipdecs = 0; ipdecs < 5; ipdecs++){
       if( hshark_large[ipdecs][ipzemc] )
         delete hshark_large[ipdecs][ipzemc];
