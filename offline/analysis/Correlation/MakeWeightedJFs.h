@@ -37,6 +37,7 @@ public:
 
 	int XiBinning;
     int isdAu;
+    int NCENTBINS;
     double Nmix;
 
 private:

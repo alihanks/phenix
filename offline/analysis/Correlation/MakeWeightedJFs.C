@@ -17,12 +17,13 @@ MakeWeightedJFs::MakeWeightedJFs(const string fin, const string fout)
 {
 	infile = new TFile(fin.c_str());
 	outfile = new TFile(fout.c_str(),"recreate");
+	NCENTBINS = 4;
 }
 
 void MakeWeightedJFs::GetHistos(int type, int data_type)
 {
 	isdAu = data_type;
-	for( int ic = 0; ic < NCENT; ic++ )
+	for( int ic = 0; ic < NCENTBINS; ic++ )
 	{
 		cout << "Getting " << prefix << " histograms for centrality bin " << ic << endl;
 		Get1DOutputHistos(type,ic);
@@ -56,7 +57,7 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 	trigpt_combined->SetName(name.c_str());
 	trigpt_combined->Reset();
 	cout << "Merging " << prefix << " 1D dphi centrality histograms" << endl;
-	for( int ic = 0; ic < NCENT; ic++ ) {
+	for( int ic = 0; ic < NCENTBINS; ic++ ) {
 		trigpt_combined->Add(h1_trigpt[ic]);
 		for( int it = 0; it < NTRIGBIN; it++ ) {
 			if( ic==0 ) {
