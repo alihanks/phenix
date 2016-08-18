@@ -1187,7 +1187,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
     h3_pt_phi_eta_trk->Fill(trk_pt,atrack.GetPhi(),eta);
 
     trk_vector.push_back(atrack.clone());
-    if( data_set != Run8dAu )
+    if( data_set != Run8dAu && data_set != Run8pp )
       atree->SetPartnerData(atrack.Pt(),atrack.Phi(),atrack.Eta(),atrack.E(),atrack.GetPemcx(),atrack.GetPemcy(),atrack.GetPemcz(),trk_vector.size()-1);
 
   }
@@ -2112,7 +2112,7 @@ bool Correlation::IsGoodTrack(ATrack* atrk, DataSet dataset)
       //if (!(sqrt(atrk->GetPc3sdz*atrk->GetPc3sdz+atrk->GetPc3sdphi*atrk->GetPc3sdphi)<2.0) ) continue;
     } 
   }
-  if(dataset==Run8dAu){
+  if(dataset==Run8dAu || dataset==Run8pp){
     if( atrk->Phi() > 0.25 && atrk->Phi() < 0.4 ) good_trk = false;
   }
   return good_trk;
@@ -2250,7 +2250,7 @@ float Correlation::GetFilltimeWeight(PairType type, float dphi, float partpt, in
   // GetFlowWeights returns 1.0 if these are real pairs
   // Don't apply flow modulation for non Au+Au runs (like dAu)
   if( isxi ) pbin = GetPtBin(partpt, 0); //for xi case need to calculate partner pT bin for getting v2
-  if( data_set != Run8dAu ) filltimeflow = GetFlowWeights(type,tbin,pbin,partpt, dphi)*filltimeweight;
+  if( data_set != Run8dAu && data_set != Run8pp ) filltimeflow = GetFlowWeights(type,tbin,pbin,partpt, dphi)*filltimeweight;
   else filltimeflow = filltimeweight;
   if( verbosity > 1 ) cout << PHWHERE << "filltimeweight = " << filltimeflow << endl;
   
@@ -2354,7 +2354,7 @@ float Correlation::GetHadronEfficiencyCorr(float pt)
     seffcorr /= scale;
   }
 
-  if( data_set != Run8dAu ) {
+  if( data_set != Run8dAu && data_set != Run8pp ) {
     if(pt>5.0) seffcorr = seffcorr/embcorr[cbin];
     else seffcorr = seffcorr/richcorr[cbin];
   }

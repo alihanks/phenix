@@ -119,7 +119,7 @@ public:
                                             )
   {
     for(unsigned int it = 0; it < triggers.size(); it++){
-      if( dataset==Run8dAu && !triggers[it]->IsIso() && use_iso ) continue;
+      if( (dataset==Run8dAu||dataset==Runn8pp) && !triggers[it]->IsIso() && use_iso ) continue;
       float trig_pt = triggers[it]->Pt();
       float trig_phi = PHAngle(triggers[it]->Phi());
       int itrigpt = GetPtBin(trig_pt,1);
