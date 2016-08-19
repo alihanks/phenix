@@ -80,7 +80,7 @@ void AMixingTree::SetTriggerData(float pt, float phi, float eta, float e, float 
 void AMixingTree::SetPartnerData(float pt, float phi, float eta, float e, float pemcx, float pemcy, float pemcz, int index)
 {
   _pt_part[index] = pt;
-  cout << "AMixingTree::SetPartnerData: pt = " << endl;
+  std::cout << "AMixingTree::SetPartnerData: pt = " << std::endl;
   _phi_part[index] = phi;
   _eta_part[index] = eta;
   _e_part[index] = e;
