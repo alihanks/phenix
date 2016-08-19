@@ -2843,7 +2843,7 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
 
   int nentrig = trig->GetEntries();
   int nenpart = assoc->GetEntries();
-  //cout<<"Mixing: nentrig = " <<nentrig<<"; nenpart = "<<nenpart<<endl;
+  cout<<"Mixing: nentrig = " <<nentrig<<"; nenpart = "<<nenpart<<endl;
  
   
   for(int i=0; i<nentrig; i++){
@@ -2895,7 +2895,7 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
     for(int j=0; j<nenpart; j++){
       
       assoc->GetEntry(j);
-      //cout <<"evt_part = "<<evt_part<<"; zvtx_part = "<<zvtx_part<<"; cent_part = "<<cent_part<<"; nphotons = "<<nphotons<<"; npart = "<<npart<<endl;
+      cout <<"evt_part = "<<evt_part<<"; zvtx_part = "<<zvtx_part<<"; cent_part = "<<cent_part<<"; nphotons = "<<nphotons<<"; npart = "<<npart<<endl;
 
       //cout<<"evt_trig = "<<evt_trig<<"; evt_part = "<<evt_part<<endl;
       //check if trigger and assoc belong to the same event
