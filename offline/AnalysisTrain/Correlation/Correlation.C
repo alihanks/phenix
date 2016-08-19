@@ -1217,7 +1217,6 @@ int Correlation::process_event(PHCompositeNode* topNode)
 
   atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());
   if( data_set == Run8dAu || data_set == Run8pp ) {
-    cout << "Adding MB events for mixing" << endl;
     AddMBEvent(data_set);
   }
 
@@ -1244,6 +1243,7 @@ void Correlation::AddMBEvent(DataSet data_set)
   bbcz_mix = mix_global->getBbcZVertex();
   // cout<<"bbczvertex = "<<z<<endl;
   float c = mix_global->getCentrality();
+  if(data_set == Run8pp) c = 1;
   if (c == -9999) {
     if(verbosity > 1) cout<<"Invalid Mixing Centrality!"<<endl;
     return;
@@ -1268,7 +1268,6 @@ void Correlation::AddMBEvent(DataSet data_set)
 
   int nclust = 0;
   int nclus = mix_clusters->size();
-  cout << "Adding " << nclus << " MB photons to mixing tree" << endl;
   for(int iclus = 0; iclus < nclus; iclus++){
     emcClusterContent* clus = mix_clusters->getCluster(iclus);
     ACluster acluster;
@@ -1284,7 +1283,6 @@ void Correlation::AddMBEvent(DataSet data_set)
 
   int ntrack = 0;
   int npart = mix_tracks->get_npart();
-  cout << "Adding " << npart << " MB tracks to mixing tree" << endl;
   for(int ipart = 0; ipart < npart; ipart++){
     ATrack atrack;
     MakeTrackObject(mix_tracks, ipart, &atrack);
@@ -1294,7 +1292,6 @@ void Correlation::AddMBEvent(DataSet data_set)
     if((atrack.GetQuality()!=31) && (atrack.GetQuality()!=63)) continue;
     if(trk_pt < 5.0 && atrack.GetN0() > 0) continue;
     if(!IsGoodTrack(&atrack,data_set)) continue;
-    cout << "Adding partner data to mixing tree" << endl;
     atree->SetPartnerData(atrack.Pt(),atrack.Phi(),atrack.Eta(),atrack.E(),atrack.GetPemcx(),atrack.GetPemcy(),atrack.GetPemcz(),ntrack);
     ntrack++;
   }
