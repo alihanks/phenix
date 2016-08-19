@@ -1217,6 +1217,7 @@ int Correlation::process_event(PHCompositeNode* topNode)
 
   atree->SetEventData(evt,event_z,event_c,(int)clus_vector.size(),(int)pi0_vector.size(),(int)trk_vector.size());
   if( data_set == Run8dAu || data_set == Run8pp ) {
+    cout << "Adding MB events for mixing" << endl;
     AddMBEvent(data_set);
   }
 
@@ -1267,6 +1268,7 @@ void Correlation::AddMBEvent(DataSet data_set)
 
   int nclust = 0;
   int nclus = mix_clusters->size();
+  cout << "Adding " << nclus << " MB photons to mixing tree" << endl;
   for(int iclus = 0; iclus < nclus; iclus++){
     emcClusterContent* clus = mix_clusters->getCluster(iclus);
     ACluster acluster;
@@ -1282,6 +1284,7 @@ void Correlation::AddMBEvent(DataSet data_set)
 
   int ntrack = 0;
   int npart = mix_tracks->get_npart();
+  cout << "Adding " << npart << " MB tracks to mixing tree" << endl;
   for(int ipart = 0; ipart < npart; ipart++){
     ATrack atrack;
     MakeTrackObject(mix_tracks, ipart, &atrack);
@@ -2896,7 +2899,7 @@ void Correlation::DoMixing(TTree* trig, TTree* assoc, int size)
     for(int j=0; j<nenpart; j++){
       
       assoc->GetEntry(j);
-      cout <<"evt_part = "<<evt_part<<"; zvtx_part = "<<zvtx_part<<"; cent_part = "<<cent_part<<"; nphotons = "<<nphotons<<"; npart = "<<npart<<endl;
+      //cout <<"evt_part = "<<evt_part<<"; zvtx_part = "<<zvtx_part<<"; cent_part = "<<cent_part<<"; nphotons = "<<nphotons<<"; npart = "<<npart<<endl;
 
       //cout<<"evt_trig = "<<evt_trig<<"; evt_part = "<<evt_part<<endl;
       //check if trigger and assoc belong to the same event
