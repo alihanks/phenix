@@ -1291,6 +1291,7 @@ void Correlation::AddMBEvent(DataSet data_set)
     if((atrack.GetQuality()!=31) && (atrack.GetQuality()!=63)) continue;
     if(trk_pt < 5.0 && atrack.GetN0() > 0) continue;
     if(!IsGoodTrack(&atrack,data_set)) continue;
+    cout << "Adding partner data to mixing tree" << endl;
     atree->SetPartnerData(atrack.Pt(),atrack.Phi(),atrack.Eta(),atrack.E(),atrack.GetPemcx(),atrack.GetPemcy(),atrack.GetPemcz(),ntrack);
     ntrack++;
   }

@@ -128,9 +128,9 @@ public:
       if( verbosity > 1 )
         std::cout << "Correlation::MakePairs Event " << evt << " - found a trigger of type " << type << std::endl;
 
-      if( type==MIX||MIXPI ) std::cout << "Making pairs for mixed event with trigger pt = " << trig_pt << std::endl;
+      //if( type==MIX||MIXPI ) std::cout << "Making pairs for mixed event with trigger pt = " << trig_pt << std::endl;
      
-      if( (type==MIX||type==MIXPI) ) std::cout << "Correlation::MakePairs combining " << associated.size() << " associated tracks" << std::endl;
+      //if( (type==MIX||type==MIXPI) ) std::cout << "Correlation::MakePairs combining " << associated.size() << " associated tracks" << std::endl;
       for(unsigned int ia = 0; ia < associated.size(); ia++){
         //if(type == MIXPI) std::cout<<"ia = "<<ia<<std::endl;
         float assoc_pt = associated[ia]->Pt();
