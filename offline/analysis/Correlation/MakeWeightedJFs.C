@@ -196,8 +196,9 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 			dphi_1d_mix[cbin][it][ih]->Scale(1.0/Nmix);
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrig[it], it, ih, cbin, zyam_low[ih], zyam_high[ih]);
-			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrig[it], it, ih, cbin, 1.0, 1.4);
+			//MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrig[it], it, ih, cbin, zyam_low[ih], zyam_high[ih]);
+			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrig[it], it, ih, cbin, 1.0, 1.4);
+			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrig[it], it, ih, cbin, 1.1, 1.3);
 			outfile->cd();
 			corr[cbin][it][ih]->Write();
 		}
