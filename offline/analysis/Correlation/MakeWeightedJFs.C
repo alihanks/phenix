@@ -331,8 +331,13 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float lphi, float hphi)
 {
 	int lbin = dphi->FindBin(lphi);
 	int hbin = dphi->FindBin(hphi);
+	dphi->SetAxisRange(0.9,1.4,"X");
+	int bin = dphi->GetMinimumBin();
+	dphi->SetAxisRange(0.0,TMath::Pi(),"X");
+	lbin = bin-1;//CFinc->FindBin(1.1);
+	hbin = bin+1;
 	double norm = 0; int count = 0;
-	for( int ib = lbin; ib < hbin; ib++ ) {
+	for( int ib = lbin; ib <= hbin; ib++ ) {
 		if( dphi->GetBinContent(ib) != 0 ) norm += dphi->GetBinContent(ib);
 		if( dphi->GetBinContent(ib) != 0 ) count++;
 	}
