@@ -14,6 +14,8 @@ nobase_dist_mydata_DATA = \
   Warnmap/d_Au_warnmap.txt \
   Warnmap/d_Au_warnmap_0to5GeV_cut.txt \
   Warnmap/d_Au_warnmap_above5GeV_cut.txt \
+  Warnmap/pp_0to5GeV_cut.txt \
+  Warnmap/pp_above5GeV_cut.txt \
   Warnmap/newwarnmap_0to5GeV.txt \
   Warnmap/newwarnmap_above5GeV.txt \
   Warnmap/extrawarnmap.txt \
