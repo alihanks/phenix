@@ -324,7 +324,7 @@ void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string
 	signal->SetName(name.c_str());
 	TF1* bgFunc = new TF1("bgFunc","[0]",0.0,PI);
 	bgFunc->SetParameter(0,norm);
-	signal->Add(bgFunc,-1.0);
+	if(isdAu==1) signal->Add(bgFunc,-1.0);
 }
 
 double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float lphi, float hphi)
