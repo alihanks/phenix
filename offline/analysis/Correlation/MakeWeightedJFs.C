@@ -301,9 +301,9 @@ void MakeWeightedJFs::MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dph
 {
 	ostringstream name;
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
-	if(isdAu)
+	if(isdAu==1)
 	  SubtractBackground(dphi, correlation, name.str(), lphi, hphi);
-	else{
+	else if(isdAu==0) {
 	  float xi = 0.;
 	  float xierr = 0.;
 	  GetXi(type, it, ih, cbin, xi, xierr);
