@@ -301,9 +301,9 @@ void MakeWeightedJFs::MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dph
 {
 	ostringstream name;
 	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
-	if(isdAu==1)
+	if(isdAu)
 	  SubtractBackground(dphi, correlation, name.str(), lphi, hphi);
-	else if(isdAu==0) {
+	else {
 	  float xi = 0.;
 	  float xierr = 0.;
 	  GetXi(type, it, ih, cbin, xi, xierr);
@@ -324,7 +324,7 @@ void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string
 	signal->SetName(name.c_str());
 	TF1* bgFunc = new TF1("bgFunc","[0]",0.0,PI);
 	bgFunc->SetParameter(0,norm);
-	signal->Add(bgFunc,-1.0);
+	if(isdAu==1) signal->Add(bgFunc,-1.0);
 }
 
 double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float lphi, float hphi)
