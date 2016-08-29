@@ -48,7 +48,7 @@ private:
 	void MakeDphiFrom2D(TH1F* trigpt, int cbin);
 	void MakeDphiProjection(TH3F* h3, TH1F*& h1, double xmin, double xmax, double ymin, double ymax, std::string hname);
 	void Make2DDphiProjection(TH2F* h3, TH1F*& h1, double ymin, double ymax, std::string hname);
-    void MakeJetFunction(int isdAu, std:string name, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin, float lphi, float hphi);
+    void MakeJetFunction(int isdAu, std::string name, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin, float lphi, float hphi);
 	double GetNTrigs(int type, int bin, TH1F* trigpt);
 	void SubtractBackground(TH1F* foreground, TH1F*& signal, std::string name, float lphi, float hphi);
     void SubtractBackground(TH1F* foreground, TH1F* background, float norm, TH1F*& signal, std::string name);
