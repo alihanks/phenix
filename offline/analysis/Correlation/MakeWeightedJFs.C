@@ -170,10 +170,10 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 	TH3F* temp3D = (TH3F*)infile->Get(name.c_str());
 	TH3F* temp3D_mix = (TH3F*)infile->Get(name_mix.c_str());
 	outfile->cd();
-	//double zyam_low[NPARTBIN] = {1.1,1.3,1.1,1.3,1.3,1.3,0.9};
-	//double zyam_high[NPARTBIN] = {1.4,1.5,1.4,1.5,1.5,1.5,1.1};
-	double zyam_low[NPARTBIN] = {1.1,1.1,0.9,1.3,1.1,1.0,1.0};
-	double zyam_high[NPARTBIN] = {1.4,1.3,1.3,1.6,1.4,1.4,1.4};
+	double zyam_low[NPARTBIN] = {1.1,1.3,1.1,1.3,1.3,1.3,0.9};
+	double zyam_high[NPARTBIN] = {1.4,1.5,1.4,1.5,1.5,1.5,1.1};
+	//double zyam_low[NPARTBIN] = {1.1,1.1,0.9,1.3,1.1,1.0,1.0};
+	//double zyam_high[NPARTBIN] = {1.4,1.3,1.3,1.6,1.4,1.4,1.4};
 
 	for(int it = 0; it < NTRIGBIN; it++){
 		bin.str("");
@@ -335,7 +335,7 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float lphi, float hphi)
 {
 	int lbin = dphi->FindBin(lphi);
 	int hbin = dphi->FindBin(hphi);
-	dphi->SetAxisRange(0.9,2.0,"X");
+	dphi->SetAxisRange(lphi,hphi,"X");
 	int bin = dphi->GetMinimumBin();
 	dphi->SetAxisRange(0.0,TMath::Pi(),"X");
 	lbin = bin-1;//CFinc->FindBin(1.1);
