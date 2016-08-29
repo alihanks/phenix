@@ -198,11 +198,13 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 			dphi_1d_mix[cbin][it][ih]->Scale(1.0/Nmix);
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrig[it], it, ih, cbin, zyam_low[ih], zyam_high[ih]);
+			MakeJetFunction(isdAu, prefix, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrig[it], it, ih, cbin, zyam_low[ih], zyam_high[ih]);
 			//MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrig[it], it, ih, cbin, 1.0, 1.4);
-			MakeJetFunction(isdAu, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrig[it], it, ih, cbin, 1.1, 1.3);
+			name = prefix + "_sys";
+			MakeJetFunction(isdAu, name, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrig[it], it, ih, cbin, 1.1, 1.3);
 			outfile->cd();
 			corr[cbin][it][ih]->Write();
+			corr_sys[cbin][it][ih]->Write();
 		}
 	}
 }
@@ -246,10 +248,12 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 			dphi_1d_mix[cbin][it][ih]->Scale(1.0/Nmix);
 			dphi_1d_mix[cbin][it][ih]->Write();
 
-			MakeJetFunction(isdAu, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrig[it], it, ih, cbin, zyam_low[ih], zyam_high[ih]);
-			MakeJetFunction(isdAu, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrig[it], it, ih, cbin, 1.0, 1.4);
+			MakeJetFunction(isdAu, prefix, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr[cbin][it][ih], ntrig[it], it, ih, cbin, zyam_low[ih], zyam_high[ih]);
+			name = prefix + "_sys";
+			MakeJetFunction(isdAu, name, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrig[it], it, ih, cbin, 1.0, 1.4);
 			outfile->cd();
 			corr[cbin][it][ih]->Write();
+			corr_sys[cbin][it][ih]->Write();
 		}
 	}
 }
@@ -297,10 +301,10 @@ void MakeWeightedJFs::Make2DDphiProjection(TH2F* h3, TH1F*& h1,double ymin, doub
 	h1->SetName(hname.c_str());
 }
 
-void MakeWeightedJFs::MakeJetFunction(int isdAu, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin, float lphi, float hphi)
+void MakeWeightedJFs::MakeJetFunction(int isdAu, string label, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin, float lphi, float hphi)
 {
 	ostringstream name;
-	name << "JF_" << prefix << "_c" << cbin << "_p" << it << "_h" << ih; 
+	name << "JF_" << label << "_c" << cbin << "_p" << it << "_h" << ih; 
 	if(isdAu)
 	  SubtractBackground(dphi, correlation, name.str(), lphi, hphi);
 	else {
