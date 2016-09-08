@@ -57,6 +57,8 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 	trigpt_combined->SetName(name.c_str());
 	trigpt_combined->Reset();
 	cout << "Merging " << prefix << " 1D dphi centrality histograms" << endl;
+	double ncoll[4] = {15.1,10.2,6.6,3.2};
+	double ncoll_tot = 15.1+10.2+6.6+3.2;
 	for( int ic = 0; ic < NCENTBINS; ic++ ) {
 		trigpt_combined->Add(h1_trigpt[ic]);
 		for( int it = 0; it < NTRIGBIN; it++ ) {
@@ -75,18 +77,22 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 					bin << prefix << "_p" << it << "_h" << ih;
 					name = "JF_" + bin.str();
 					jf_comb[it][ih]->SetName(name.c_str());
-					jf_comb[it][ih]->Scale(ntrig[it]);
+					//jf_comb[it][ih]->Scale(ntrig[it]);
+					jf_comb[it][ih]->Scale(ncoll[ic]);
 
 					jf_comb_sys[it][ih] = new TH1F(*corr_sys[ic][it][ih]);
 					bin.str("");
 					bin << prefix << "_p" << it << "_h" << ih;
 					name = "JF_sys_" + bin.str();
 					jf_comb_sys[it][ih]->SetName(name.c_str());
-					jf_comb_sys[it][ih]->Scale(ntrig[it]);
+					//jf_comb_sys[it][ih]->Scale(ntrig[it]);
+					jf_comb_sys[it][ih]->Scale(ncoll[ic]);					
 				}
 				else {
-					jf_comb[it][ih]->Add(corr[ic][it][ih],ntrig[it]);
-					jf_comb_sys[it][ih]->Add(corr_sys[ic][it][ih],ntrig[it]);
+					//jf_comb[it][ih]->Add(corr[ic][it][ih],ntrig[it]);
+					//jf_comb_sys[it][ih]->Add(corr_sys[ic][it][ih],ntrig[it]);
+					jf_comb[it][ih]->Add(corr[ic][it][ih],ncoll[ic]);
+					jf_comb_sys[it][ih]->Add(corr_sys[ic][it][ih],ncoll[ic]);
 				}
 			}
 		}
@@ -136,10 +142,13 @@ void MakeWeightedJFs::GetMergedHistos(int type)
 		for( int ih = 0; ih < NPARTBIN; ih++ ) {
 			if( it==0 || it==1 ) jf_pt_comb[0][ih]->Add(jf_comb[it][ih]);
 			if( it==2 || it==3 ) jf_pt_comb[1][ih]->Add(jf_comb[it][ih]);
-			jf_comb[it][ih]->Scale(1/ntrig_tot);
+
+			//jf_comb[it][ih]->Scale(1/ntrig_tot);
+			jf_comb[it][ih]->Scale(1/ncoll_tot);
 			jf_comb[it][ih]->Write();
 
-			jf_comb_sys[it][ih]->Scale(1/ntrig_tot);
+			//jf_comb_sys[it][ih]->Scale(1/ntrig_tot);
+			jf_comb_sys[it][ih]->Scale(1/ncoll_tot);
 			jf_comb_sys[it][ih]->Write();
 		}
 	}
