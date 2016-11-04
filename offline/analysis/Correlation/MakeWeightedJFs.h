@@ -51,9 +51,10 @@ private:
     void MakeJetFunction(int isdAu, std::string name, int type, TH1F* dphi, TH1F* dphi_mix, TH1F*& correlation, double ntrigs, int it, int ih, int cbin, float lphi, float hphi);
 	double GetNTrigs(int type, int bin, TH1F* trigpt);
 	void SubtractBackground(TH1F* foreground, TH1F*& signal, std::string name, float lphi, float hphi);
+	void SubtractBackground(TH1F* foreground, TH1F*& signal, std::string name);
     void SubtractBackground(TH1F* foreground, TH1F* background, float norm, TH1F*& signal, std::string name);
 	double GetZYAMNorm(TH1F* dphi, float lphi, float hphi);
-	double GetZYAMNorm(TH1F* dphi, float trigpt);
+	double GetZYAMNorm(TH1F* dphi);
     void GetXi(int type, int trigptbin, int partptbin, int centbin, float & xi, float & xierr);
     float GetCutOffCorr(int trig_bin);
 

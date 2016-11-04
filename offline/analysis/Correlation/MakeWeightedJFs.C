@@ -315,7 +315,7 @@ void MakeWeightedJFs::MakeJetFunction(int isdAu, string label, int type, TH1F* d
 	ostringstream name;
 	name << "JF_" << label << "_c" << cbin << "_p" << it << "_h" << ih; 
 	if(isdAu)
-	  SubtractBackground(dphi, correlation, name.str(), lphi, hphi);
+	  SubtractBackground(dphi, correlation, name.str());
 	else {
 	  float xi = 0.;
 	  float xierr = 0.;
@@ -340,7 +340,17 @@ void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string
 	if(isdAu==1) signal->Add(bgFunc,-1.0);
 }
 
-double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float trig_pt)
+void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string name)
+{
+	double norm = GetZYAMNorm(foreground);
+	signal = new TH1F(*foreground);
+	signal->SetName(name.c_str());
+	TF1* bgFunc = new TF1("bgFunc","[0]",0.0,PI);
+	bgFunc->SetParameter(0,norm);
+	if(isdAu==1) signal->Add(bgFunc,-1.0);
+}
+
+double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
 {
 	//TF1* away_fit = new TF1("away_fit",
 	//	"[0]-[1]*trig_pt/exp(xi)*cos(x)/(sqrt(2*PI*[2])*TMath::Erf(sqrt(2/[2])*trig_pt/exp(xi))*exp(trig_pt/exp(xi)*sin(x)*sin(x)/(2*[2])))",
