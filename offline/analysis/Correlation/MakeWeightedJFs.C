@@ -347,7 +347,7 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float trig_pt)
 	//	PI/2.0,PI);
 	TF1* away_fit = new TF1("away_fit", "[0]+[1]/([2]sqrt(2*PI))*exp(-(x-PI)*(x-PI)/(2*[2]*[2]))", 1.1,PI);
 	dphi->Fit("away_fit","R");
-	norm = away_fit->GetParameter(0);
+	double norm = away_fit->GetParameter(0);
 	return norm;
 }
 
