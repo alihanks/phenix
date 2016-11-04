@@ -53,6 +53,7 @@ private:
 	void SubtractBackground(TH1F* foreground, TH1F*& signal, std::string name, float lphi, float hphi);
     void SubtractBackground(TH1F* foreground, TH1F* background, float norm, TH1F*& signal, std::string name);
 	double GetZYAMNorm(TH1F* dphi, float lphi, float hphi);
+	double GetZYAMNorm(TH1F* dphi, float trigpt);
     void GetXi(int type, int trigptbin, int partptbin, int centbin, float & xi, float & xierr);
     float GetCutOffCorr(int trig_bin);
 

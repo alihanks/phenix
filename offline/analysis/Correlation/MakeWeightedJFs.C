@@ -340,7 +340,7 @@ void MakeWeightedJFs::SubtractBackground(TH1F* foreground, TH1F*& signal, string
 	if(isdAu==1) signal->Add(bgFunc,-1.0);
 }
 
-double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float trig_pt, float xi)
+double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float trig_pt)
 {
 	//TF1* away_fit = new TF1("away_fit",
 	//	"[0]-[1]*trig_pt/exp(xi)*cos(x)/(sqrt(2*PI*[2])*TMath::Erf(sqrt(2/[2])*trig_pt/exp(xi))*exp(trig_pt/exp(xi)*sin(x)*sin(x)/(2*[2])))",
