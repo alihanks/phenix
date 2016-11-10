@@ -370,8 +370,8 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
 	//	PI/2.0,PI);
 	TF1* away_fit = new TF1("away_fit", "[0]+[1]/([2]*sqrt(2*TMath::Pi()))*exp(-(x-TMath::Pi())*(x-TMath::Pi())/(2*[2]*[2]))", 1.1,PI);
 	away_fit->SetParameter(0,int_norm);
-	away_fit->SetParameter(1,1.0);
-	away_fit->SetParameter(2,0.0);
+	away_fit->SetParameter(1,dphi->GetBinContent(dphi->GetNbinsX()-1)-int_norm);
+	away_fit->SetParameter(2,0.5);
 	dphi->Fit("away_fit","R");
 	double norm = away_fit->GetParameter(0);
 
