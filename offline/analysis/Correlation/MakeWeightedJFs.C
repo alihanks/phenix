@@ -262,6 +262,7 @@ void MakeWeightedJFs::MakeDphiFrom2D(TH1F* trigpt, int cbin)
 			name = "sys_" + prefix;
 			MakeJetFunction(isdAu, name, 1, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrig[it], it, ih, cbin, 1.0, 1.4);
 			outfile->cd();
+			dphi_1d[cbin][it][ih]->Write();
 			corr[cbin][it][ih]->Write();
 			corr_sys[cbin][it][ih]->Write();
 		}
@@ -369,7 +370,7 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
 	//TF1* away_fit = new TF1("away_fit",
 	//	"[0]-[1]*trig_pt/exp(xi)*cos(x)/(sqrt(2*PI*[2])*TMath::Erf(sqrt(2/[2])*trig_pt/exp(xi))*exp(trig_pt/exp(xi)*sin(x)*sin(x)/(2*[2])))",
 	//	PI/2.0,PI);
-	TF1* away_fit = new TF1("away_fit", "[0]+[1]/([2]*sqrt(2*TMath::Pi()))*exp(-(x-TMath::Pi())*(x-TMath::Pi())/(2*[2]*[2]))", 1.1,PI);
+	TF1* away_fit = new TF1("away_fit", "[0]+[1]/([2]*sqrt(2*TMath::Pi()))*exp(-(x-TMath::Pi())*(x-TMath::Pi())/(2*[2]*[2]))", 1.0,PI);
 	away_fit->SetParameter(0,int_norm);
 	away_fit->SetParameter(1,dphi->GetBinContent(dphi->GetNbinsX()-1)-int_norm);
 	away_fit->SetParameter(2,0.5);
