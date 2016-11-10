@@ -358,6 +358,21 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi)
 	TF1* away_fit = new TF1("away_fit", "[0]+[1]/([2]*sqrt(2*TMath::Pi()))*exp(-(x-TMath::Pi())*(x-TMath::Pi())/(2*[2]*[2]))", 1.1,PI);
 	dphi->Fit("away_fit","R");
 	double norm = away_fit->GetParameter(0);
+
+	int lbin = dphi->FindBin(0.9);
+	int hbin = dphi->FindBin(1.4);
+	double int_norm = 0; int count = 0;
+	for( int ib = lbin; ib <= hbin; ib++ ) {
+		if( dphi->GetBinContent(ib) != 0 ) norm += dphi->GetBinContent(ib);
+		if( dphi->GetBinContent(ib) != 0 ) count++;
+	}
+	if( count==0 ) {
+		count = 1;
+		int_norm = 1.0;
+	}
+	int_norm = int_norm/((double)count);
+
+	cout << "Comparing ZYAM methods: integral = " << int_norm << ", fit = " << norm << endl;
 	return norm;
 }
 
