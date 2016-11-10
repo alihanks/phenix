@@ -212,6 +212,7 @@ void MakeWeightedJFs::MakeDphiFrom3D(TH1F* trigpt, int cbin)
 			name = "sys_" + prefix;
 			MakeJetFunction(isdAu, name, 0, dphi_1d[cbin][it][ih], dphi_1d_mix[cbin][it][ih], corr_sys[cbin][it][ih], ntrig[it], it, ih, cbin, 1.1, 1.3);
 			outfile->cd();
+			dphi_1d[cbin][it][ih]->Write();
 			corr[cbin][it][ih]->Write();
 			corr_sys[cbin][it][ih]->Write();
 		}
@@ -315,7 +316,7 @@ void MakeWeightedJFs::MakeJetFunction(int isdAu, string label, int type, TH1F* d
 	ostringstream name;
 	name << "JF_" << label << "_c" << cbin << "_p" << it << "_h" << ih; 
 	if(isdAu)
-	  SubtractBackground(dphi, correlation, name.str());
+	  SubtractBackground(dphi, correlation, name.str(),lphi,hphi);
 	else {
 	  float xi = 0.;
 	  float xierr = 0.;
@@ -383,22 +384,25 @@ double MakeWeightedJFs::GetZYAMNorm(TH1F* dphi, float lphi, float hphi)
 {
 	int lbin = dphi->FindBin(lphi);
 	int hbin = dphi->FindBin(hphi);
-	//dphi->SetAxisRange(lphi,hphi,"X");
-	//int bin = dphi->GetMinimumBin();
-	//dphi->SetAxisRange(0.0,TMath::Pi(),"X");
-	//lbin = bin-1;//CFinc->FindBin(1.1);
-	//hbin = bin+1;
-	double norm = 0; int count = 0;
+	double int_norm = 0; int count = 0;
 	for( int ib = lbin; ib <= hbin; ib++ ) {
-		if( dphi->GetBinContent(ib) != 0 ) norm += dphi->GetBinContent(ib);
+		if( dphi->GetBinContent(ib) != 0 ) int_norm += dphi->GetBinContent(ib);
 		if( dphi->GetBinContent(ib) != 0 ) count++;
 	}
 	if( count==0 ) {
 		count = 1;
-		norm = 1.0;
+		int_norm = 1.0;
 	}
-	norm = norm/((double)count);
+	int_norm = int_norm/((double)count);
 
+	TF1* away_fit = new TF1("away_fit", "[0]+[1]/([2]*sqrt(2*TMath::Pi()))*exp(-(x-TMath::Pi())*(x-TMath::Pi())/(2*[2]*[2]))", 1.1,PI);
+	away_fit->SetParameter(0,int_norm);
+	away_fit->SetParameter(1,dphi->GetBinContent(dphi->GetNbinsX()-1)-int_norm);
+	away_fit->SetParameter(2,0.5);
+	dphi->Fit("away_fit","R");
+	double norm = away_fit->GetParameter(0);
+
+	cout << "Comparing ZYAM methods: integral = " << int_norm << ", fit = " << norm << endl;
 	return norm;
 }
 
